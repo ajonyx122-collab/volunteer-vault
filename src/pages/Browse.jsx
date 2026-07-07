@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { CATEGORIES, opportunities, organizations, currentUser } from '../data/mockData'
 import OpportunityCard from '../components/OpportunityCard'
+import MapPreview from '../components/MapPreview'
 
 const FILTERS = [
   { id: 'verifiedOnly', label: 'Verified only' },
@@ -109,12 +110,13 @@ export default function Browse() {
 
         <div className="flex flex-col gap-4">
           <div className="rounded-card border border-card-border bg-card p-4 shadow-card">
-            <div className="flex h-40 items-center justify-center rounded-card bg-cream text-sm text-brand-green/50">
-              🗺️ Map preview
-            </div>
-            <button className="mt-3 w-full rounded-pill border border-card-border py-2 text-sm font-bold text-brand-green hover:bg-cream">
+            <MapPreview opportunities={filtered} />
+            <Link
+              to="/map"
+              className="mt-3 block w-full rounded-pill border border-card-border py-2 text-center text-sm font-bold text-brand-green hover:bg-cream"
+            >
               Open full map
-            </button>
+            </Link>
           </div>
 
           <div className="rounded-card bg-brand-green p-5 shadow-card">

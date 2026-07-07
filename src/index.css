@@ -44,3 +44,14 @@ h3,
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@media print {
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background-color: #fff;
+  }
+}

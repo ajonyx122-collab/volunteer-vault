@@ -5,6 +5,8 @@ import Home from './pages/Home'
 import Browse from './pages/Browse'
 import OpportunityDetail from './pages/OpportunityDetail'
 import Profile from './pages/Profile'
+import PublicVault from './pages/PublicVault'
+import Certificate from './pages/Certificate'
 import OrgDashboard from './pages/OrgDashboard'
 import SignUp from './pages/SignUp'
 import ComingSoon from './pages/ComingSoon'
@@ -19,6 +21,8 @@ export default function App() {
           <Route path="/browse" element={<Browse />} />
           <Route path="/opportunities/:id" element={<OpportunityDetail />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/u/:username" element={<PublicVault />} />
+          <Route path="/certificate/:username" element={<Certificate />} />
           <Route path="/dashboard" element={<OrgDashboard />} />
           <Route path="/signup" element={<SignUp />} />
           <Route
@@ -27,6 +31,15 @@ export default function App() {
               <ComingSoon
                 title="Community projects — coming soon"
                 blurb="Posting your own grassroots projects (beach cleanups, drives, and more) lands in Phase 3."
+              />
+            }
+          />
+          <Route
+            path="/map"
+            element={
+              <ComingSoon
+                title="Full map view — coming soon"
+                blurb="An interactive map with pins and RSVP caps lands in Phase 3. The mini preview on Browse is live today."
               />
             }
           />
