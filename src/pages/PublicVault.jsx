@@ -1,13 +1,33 @@
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { currentUser, activityLog } from '../data/mockData'
+import { fetchProfileByUsername, fetchHourLogs, buildVaultData } from '../lib/api'
 import VaultView from '../components/VaultView'
 
-// Only one user exists in mock data — real lookup-by-username comes with Supabase.
 export default function PublicVault() {
   const { username } = useParams()
-  const user = username === currentUser.username ? currentUser : null
+  const [vault, setVault] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  if (!user) {
+  useEffect(() => {
+    setLoading(true)
+    fetchProfileByUsername(username)
+      .then(async (profileRow) => {
+        if (!profileRow) {
+          setVault(null)
+          return
+        }
+        const logs = await fetchHourLogs(profileRow.id)
+        setVault(buildVaultData(profileRow, logs))
+      })
+      .catch(() => setVault(null))
+      .finally(() => setLoading(false))
+  }, [username])
+
+  if (loading) {
+    return <div className="px-4 py-16 text-center text-brand-green/60">Loading vault...</div>
+  }
+
+  if (!vault) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
         <img src="/brand/logo-icon.png" alt="" className="h-14 w-14" />
@@ -25,5 +45,5 @@ export default function PublicVault() {
     )
   }
 
-  return <VaultView user={user} activity={activityLog} isOwner={false} />
+  return <VaultView user={vault.user} activity={vault.activity} isOwner={false} />
 }

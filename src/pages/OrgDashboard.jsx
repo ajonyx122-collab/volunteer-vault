@@ -1,10 +1,15 @@
-import { useState } from 'react'
-import { CATEGORIES, opportunities as seedOpportunities, organizations } from '../data/mockData'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { CATEGORIES } from '../data/mockData'
+import { useAuth } from '../lib/AuthContext'
+import {
+  fetchMyOrganization,
+  createOrganization,
+  fetchOrgOpportunities,
+  createOpportunity,
+} from '../lib/api'
 import VerifiedBadge from '../components/VerifiedBadge'
 import OrgAvatar from '../components/OrgAvatar'
-
-// Demo: acting as the logged-in org. Real auth/org-switching comes with Supabase wiring.
-const DEMO_ORG_ID = 'org-1'
 
 const emptyDraft = {
   title: '',
@@ -18,36 +23,118 @@ const emptyDraft = {
 }
 
 export default function OrgDashboard() {
-  const org = organizations.find((o) => o.id === DEMO_ORG_ID)
-  const [myOpportunities, setMyOpportunities] = useState(
-    seedOpportunities.filter((o) => o.orgId === DEMO_ORG_ID),
-  )
+  const { user, loading } = useAuth()
+  const [org, setOrg] = useState(null)
+  const [orgLoading, setOrgLoading] = useState(true)
+  const [myOpportunities, setMyOpportunities] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [draft, setDraft] = useState(emptyDraft)
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [newOrgName, setNewOrgName] = useState('')
+  const [newOrgLocation, setNewOrgLocation] = useState('')
+
+  useEffect(() => {
+    if (!user) {
+      setOrgLoading(false)
+      return
+    }
+    fetchMyOrganization(user.id)
+      .then(async (myOrg) => {
+        setOrg(myOrg)
+        if (myOrg) setMyOpportunities(await fetchOrgOpportunities(myOrg.id))
+      })
+      .finally(() => setOrgLoading(false))
+  }, [user])
 
   function updateDraft(field, value) {
     setDraft((prev) => ({ ...prev, [field]: value }))
   }
 
-  function handleSubmit(e) {
+  async function handleCreateOrg(e) {
     e.preventDefault()
-    const newOpp = {
-      id: `opp-${Date.now()}`,
-      orgId: DEMO_ORG_ID,
-      ...draft,
-      durationHours: Number(draft.durationHours),
-      capacity: Number(draft.capacity),
-      minAge: Number(draft.minAge),
-      spotsFilled: 0,
-      vibeRating: null,
-      reviewQuote: '',
-      goingFriends: [],
-      distanceMiles: 0,
-      tags: [],
+    setBusy(true)
+    setError('')
+    try {
+      const created = await createOrganization(user.id, { name: newOrgName, location: newOrgLocation })
+      setOrg(created)
+    } catch (err) {
+      setError(err.message ?? 'Could not create the organization.')
     }
-    setMyOpportunities((prev) => [newOpp, ...prev])
-    setDraft(emptyDraft)
-    setShowForm(false)
+    setBusy(false)
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setBusy(true)
+    setError('')
+    try {
+      await createOpportunity(org.id, draft)
+      setMyOpportunities(await fetchOrgOpportunities(org.id))
+      setDraft(emptyDraft)
+      setShowForm(false)
+    } catch (err) {
+      setError(err.message ?? 'Could not publish the listing.')
+    }
+    setBusy(false)
+  }
+
+  if (loading || orgLoading) {
+    return <div className="px-4 py-16 text-center text-brand-green/60">Loading...</div>
+  }
+
+  if (!user) {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
+        <img src="/brand/logo-icon.png" alt="" className="h-14 w-14" />
+        <h1 className="font-display text-2xl font-extrabold text-brand-green">Org dashboard</h1>
+        <p className="text-brand-green/70">Log in with your organization account to manage listings.</p>
+        <div className="flex gap-3">
+          <Link to="/login" className="rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105">
+            Log in
+          </Link>
+          <Link to="/signup" className="rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105">
+            Join free
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (!org) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
+        <div className="text-center">
+          <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
+          <h1 className="mt-3 font-display text-2xl font-extrabold text-brand-green">Set up your organization</h1>
+          <p className="mt-1 text-brand-green/70">One quick step and you can start posting opportunities.</p>
+        </div>
+        <form onSubmit={handleCreateOrg} className="mt-6 flex flex-col gap-3">
+          <input
+            required
+            placeholder="Organization name"
+            value={newOrgName}
+            onChange={(e) => setNewOrgName(e.target.value)}
+            className="rounded-pill border border-card-border px-4 py-3 text-sm outline-none"
+          />
+          <input
+            required
+            placeholder="City / area served"
+            value={newOrgLocation}
+            onChange={(e) => setNewOrgLocation(e.target.value)}
+            className="rounded-pill border border-card-border px-4 py-3 text-sm outline-none"
+          />
+          {error && <p className="text-sm font-semibold text-coral">{error}</p>}
+          <button
+            type="submit"
+            disabled={busy}
+            className="mt-2 rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105 disabled:opacity-60"
+          >
+            {busy ? 'Creating...' : 'Create organization'}
+          </button>
+        </form>
+      </div>
+    )
   }
 
   const totalSignups = myOpportunities.reduce((sum, o) => sum + o.spotsFilled, 0)
@@ -58,8 +145,8 @@ export default function OrgDashboard() {
         <div className="flex items-center gap-3">
           <OrgAvatar org={org} size="md" />
           <div className="flex items-center gap-2">
-            <h1 className="font-display text-3xl font-extrabold text-brand-green">{org?.name}</h1>
-            <VerifiedBadge verified={org?.verified} />
+            <h1 className="font-display text-3xl font-extrabold text-brand-green">{org.name}</h1>
+            <VerifiedBadge verified={org.verified} />
           </div>
         </div>
         <button
@@ -69,6 +156,13 @@ export default function OrgDashboard() {
           {showForm ? 'Cancel' : '+ New opportunity'}
         </button>
       </div>
+
+      {!org.verified && (
+        <p className="mt-4 rounded-card border border-card-border bg-card p-4 text-sm text-brand-green/70 shadow-card">
+          Your org shows as <span className="font-bold">Pending</span> until it's verified — verification
+          reviews open up in Phase 2. Your listings are still live and searchable.
+        </p>
+      )}
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatBlock value={myOpportunities.length} label="Active listings" />
@@ -129,11 +223,13 @@ export default function OrgDashboard() {
             <LabeledNumber label="Capacity" value={draft.capacity} onChange={(v) => updateDraft('capacity', v)} />
             <LabeledNumber label="Min age" value={draft.minAge} onChange={(v) => updateDraft('minAge', v)} />
           </div>
+          {error && <p className="text-sm font-semibold text-coral">{error}</p>}
           <button
             type="submit"
-            className="mt-2 self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+            disabled={busy}
+            className="mt-2 self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105 disabled:opacity-60"
           >
-            Publish listing
+            {busy ? 'Publishing...' : 'Publish listing'}
           </button>
         </form>
       )}
@@ -141,20 +237,27 @@ export default function OrgDashboard() {
       <section className="mt-10">
         <h2 className="font-display text-xl font-extrabold text-brand-green">Your listings</h2>
         <div className="mt-4 flex flex-col gap-3">
+          {myOpportunities.length === 0 && (
+            <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
+              No listings yet — post your first opportunity and volunteers will find it on Browse.
+            </p>
+          )}
           {myOpportunities.map((opp) => (
             <div
               key={opp.id}
               className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-card-border bg-card p-4 shadow-card"
             >
               <div>
-                <p className="font-bold text-brand-green">{opp.title}</p>
+                <Link to={`/opportunities/${opp.id}`} className="font-bold text-brand-green hover:underline">
+                  {opp.title}
+                </Link>
                 <p className="text-sm text-brand-green/60">
                   {new Date(opp.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} ·{' '}
                   {opp.spotsFilled}/{opp.capacity} signed up
                 </p>
               </div>
               <span className="rounded-pill bg-cream px-3 py-1 text-xs font-bold text-brand-green/70">
-                {opp.capacity - opp.spotsFilled} spots left
+                {Math.max(0, opp.capacity - opp.spotsFilled)} spots left
               </span>
             </div>
           ))}

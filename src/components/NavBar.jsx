@@ -1,4 +1,6 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../lib/AuthContext'
+import { supabase } from '../lib/supabaseClient'
 
 const navLinks = [
   { to: '/browse', label: 'Browse' },
@@ -7,6 +9,14 @@ const navLinks = [
 ]
 
 export default function NavBar() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    navigate('/')
+  }
+
   return (
     <header className="sticky top-0 z-50 bg-brand-green shadow-soft">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
@@ -33,19 +43,38 @@ export default function NavBar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <Link
-            to="/profile"
-            className="hidden text-sm font-semibold text-cream-muted hover:text-cream-text sm:block"
-          >
-            My vault
-          </Link>
-          <Link
-            to="/signup"
-            className="rounded-pill bg-gold px-4 py-2 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105"
-          >
-            Join free
-          </Link>
+        <div className="flex items-center gap-3">
+          {user ? (
+            <>
+              <Link
+                to="/profile"
+                className="text-sm font-semibold text-cream-muted hover:text-cream-text"
+              >
+                My vault
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="rounded-pill border border-cream-muted px-4 py-2 text-sm font-bold text-cream-text transition-colors hover:bg-brand-green-light"
+              >
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="text-sm font-semibold text-cream-muted hover:text-cream-text"
+              >
+                Log in
+              </Link>
+              <Link
+                to="/signup"
+                className="rounded-pill bg-gold px-4 py-2 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105"
+              >
+                Join free
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

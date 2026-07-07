@@ -9,6 +9,7 @@ import PublicVault from './pages/PublicVault'
 import Certificate from './pages/Certificate'
 import OrgDashboard from './pages/OrgDashboard'
 import SignUp from './pages/SignUp'
+import Login from './pages/Login'
 import ComingSoon from './pages/ComingSoon'
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/certificate/:username" element={<Certificate />} />
           <Route path="/dashboard" element={<OrgDashboard />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
           <Route
             path="/community"
             element={

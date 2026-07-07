@@ -1,6 +1,8 @@
-import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { getOpportunityWithOrg, getCategoryMeta } from '../data/mockData'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { getCategoryMeta } from '../data/mockData'
+import { fetchOpportunity, fetchMySignup, rsvp, cancelRsvp } from '../lib/api'
+import { useAuth } from '../lib/AuthContext'
 import VerifiedBadge from '../components/VerifiedBadge'
 import OrgAvatar from '../components/OrgAvatar'
 import ReviewsSection from '../components/ReviewsSection'
@@ -16,8 +18,53 @@ function formatWhen(startsAt) {
 
 export default function OpportunityDetail() {
   const { id } = useParams()
-  const opportunity = getOpportunityWithOrg(id)
+  const { user } = useAuth()
+  const navigate = useNavigate()
+
+  const [opportunity, setOpportunity] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [joined, setJoined] = useState(false)
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    fetchOpportunity(id)
+      .then(setOpportunity)
+      .catch(() => setOpportunity(null))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  useEffect(() => {
+    if (!user || !id) return
+    fetchMySignup(user.id, id).then((signup) => setJoined(!!signup))
+  }, [user, id])
+
+  async function handleRsvp() {
+    if (!user) {
+      navigate('/signup')
+      return
+    }
+    setBusy(true)
+    try {
+      if (joined) {
+        await cancelRsvp(user.id, id)
+        setJoined(false)
+        setOpportunity((o) => ({ ...o, spotsFilled: Math.max(0, o.spotsFilled - 1) }))
+      } else {
+        await rsvp(user.id, id)
+        setJoined(true)
+        setOpportunity((o) => ({ ...o, spotsFilled: o.spotsFilled + 1 }))
+      }
+    } catch {
+      // e.g. double-click raced the unique constraint — refetch state
+      const signup = await fetchMySignup(user.id, id)
+      setJoined(!!signup)
+    }
+    setBusy(false)
+  }
+
+  if (loading) {
+    return <div className="mx-auto max-w-2xl px-4 py-16 text-center text-brand-green/60">Loading...</div>
+  }
 
   if (!opportunity) {
     return (
@@ -32,6 +79,7 @@ export default function OpportunityDetail() {
 
   const category = getCategoryMeta(opportunity.category)
   const spotsLeft = opportunity.capacity - opportunity.spotsFilled
+  const isFull = spotsLeft <= 0 && !joined
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
@@ -48,11 +96,8 @@ export default function OpportunityDetail() {
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {opportunity.org?.verified && <VerifiedBadge verified />}
-            <span className="text-sm font-bold text-gold-text">★ {opportunity.vibeRating} vibe rating</span>
-            {opportunity.goingFriends.length > 0 && (
-              <span className="rounded-pill bg-category-music-bg px-2 py-0.5 text-xs font-semibold text-category-music-text">
-                {opportunity.goingFriends.join(', ')} going
-              </span>
+            {opportunity.vibeRating != null && (
+              <span className="text-sm font-bold text-gold-text">★ {opportunity.vibeRating} vibe rating</span>
             )}
           </div>
 
@@ -98,19 +143,23 @@ export default function OpportunityDetail() {
               {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}
             </p>
             <button
-              disabled={spotsLeft === 0}
-              onClick={() => setJoined(true)}
+              disabled={isFull || busy}
+              onClick={handleRsvp}
               className={`mt-4 w-full rounded-pill px-6 py-3 text-sm font-bold shadow-soft transition-transform ${
                 joined
-                  ? 'bg-category-environment-bg text-category-environment-text'
-                  : spotsLeft === 0
+                  ? 'bg-category-environment-bg text-category-environment-text hover:scale-105'
+                  : isFull
                     ? 'cursor-not-allowed bg-card-border text-brand-green/40'
                     : 'bg-coral text-cream-text hover:scale-105'
               }`}
             >
-              {joined ? "You're in! 🎉" : spotsLeft === 0 ? 'Full' : 'Count me in'}
+              {busy ? '...' : joined ? "You're in! 🎉 (tap to cancel)" : isFull ? 'Full' : 'Count me in'}
             </button>
-            <p className="mt-2 text-xs text-brand-green/50">No-shows hurt your streak, so only RSVP if you can make it.</p>
+            <p className="mt-2 text-xs text-brand-green/50">
+              {user
+                ? 'No-shows hurt your streak, so only RSVP if you can make it.'
+                : 'You need an account to RSVP — joining is free.'}
+            </p>
           </div>
 
           <div className="flex gap-3 rounded-card border border-card-border bg-card p-5 shadow-card">

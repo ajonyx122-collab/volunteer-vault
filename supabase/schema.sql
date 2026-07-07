@@ -1,5 +1,19 @@
 -- VolunteerVault Phase 1 schema
--- Run this once in the Supabase dashboard: SQL Editor -> New query -> paste -> Run.
+-- Run this in the Supabase dashboard: SQL Editor -> New query -> paste -> Run.
+-- Safe to re-run: it drops and rebuilds everything (fine before launch when
+-- there's no real user data; after launch, never drop — write migrations).
+
+-- ============ CLEAN SLATE ============
+
+drop view if exists public.signup_counts;
+drop table if exists public.reviews cascade;
+drop table if exists public.hour_logs cascade;
+drop table if exists public.signups cascade;
+drop table if exists public.opportunities cascade;
+drop table if exists public.organizations cascade;
+drop table if exists public.profiles cascade;
+drop trigger if exists on_auth_user_created on auth.users;
+drop function if exists public.handle_new_user();
 
 -- ============ TABLES ============
 

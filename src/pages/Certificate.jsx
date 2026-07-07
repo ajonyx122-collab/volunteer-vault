@@ -1,11 +1,32 @@
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { currentUser, getCategoryMeta } from '../data/mockData'
+import { getCategoryMeta } from '../data/mockData'
+import { fetchProfileByUsername, fetchHourLogs, buildVaultData } from '../lib/api'
 
 export default function Certificate() {
   const { username } = useParams()
-  const user = username === currentUser.username ? currentUser : null
+  const [vault, setVault] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  if (!user) {
+  useEffect(() => {
+    fetchProfileByUsername(username)
+      .then(async (profileRow) => {
+        if (!profileRow) {
+          setVault(null)
+          return
+        }
+        const logs = await fetchHourLogs(profileRow.id)
+        setVault(buildVaultData(profileRow, logs))
+      })
+      .catch(() => setVault(null))
+      .finally(() => setLoading(false))
+  }, [username])
+
+  if (loading) {
+    return <div className="px-4 py-16 text-center text-brand-green/60">Loading certificate...</div>
+  }
+
+  if (!vault) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
         <h1 className="font-display text-2xl font-extrabold text-brand-green">Certificate not found</h1>
@@ -16,6 +37,7 @@ export default function Certificate() {
     )
   }
 
+  const { user } = vault
   const issuedOn = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
@@ -40,26 +62,28 @@ export default function Certificate() {
         <h1 className="mt-4 font-display text-3xl font-extrabold text-brand-green sm:text-4xl">
           {user.displayName}
         </h1>
-        <p className="mt-2 text-brand-green/70">
-          {user.school} · Class of {user.gradYear}
-        </p>
+        {user.school && (
+          <p className="mt-2 text-brand-green/70">
+            {user.school}{user.gradYear ? ` · Class of ${user.gradYear}` : ''}
+          </p>
+        )}
 
-        <p className="mx-auto mt-8 max-w-md text-brand-green/80">
-          has completed and had verified
-        </p>
+        <p className="mx-auto mt-8 max-w-md text-brand-green/80">has completed and had verified</p>
         <p className="mt-2 font-display text-5xl font-extrabold text-coral">{user.verifiedHours}</p>
         <p className="text-brand-green/80">hours of community service</p>
 
-        <div className="mx-auto mt-8 flex max-w-md flex-wrap justify-center gap-2">
-          {user.causes.map((c) => {
-            const meta = getCategoryMeta(c.category)
-            return (
-              <span key={c.category} className="rounded-pill bg-cream px-3 py-1 text-xs font-bold text-brand-green">
-                {meta?.icon} {meta?.label} · {c.hours}h
-              </span>
-            )
-          })}
-        </div>
+        {user.causes.length > 0 && (
+          <div className="mx-auto mt-8 flex max-w-md flex-wrap justify-center gap-2">
+            {user.causes.map((c) => {
+              const meta = getCategoryMeta(c.category)
+              return (
+                <span key={c.category} className="rounded-pill bg-cream px-3 py-1 text-xs font-bold text-brand-green">
+                  {meta?.icon} {meta?.label} · {c.hours}h
+                </span>
+              )
+            })}
+          </div>
+        )}
 
         <div className="mx-auto mt-10 h-px w-32 bg-card-border" />
         <p className="mt-4 text-xs text-brand-green/50">

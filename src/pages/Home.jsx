@@ -1,18 +1,22 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { CATEGORIES, opportunities, organizations, currentUser, leaderboard } from '../data/mockData'
+import { CATEGORIES, leaderboard } from '../data/mockData'
+import { fetchOpportunities } from '../lib/api'
 import CategoryChip from '../components/CategoryChip'
 import OpportunityCard from '../components/OpportunityCard'
 import StatPill from '../components/StatPill'
 
-function getOrg(orgId) {
-  return organizations.find((o) => o.id === orgId)
-}
-
 export default function Home() {
   const [interest, setInterest] = useState('')
   const [location, setLocation] = useState('')
+  const [nearYou, setNearYou] = useState([])
   const navigate = useNavigate()
+
+  useEffect(() => {
+    fetchOpportunities()
+      .then((opps) => setNearYou(opps.slice(0, 4)))
+      .catch(() => setNearYou([]))
+  }, [])
 
   function handleSearch(e) {
     e.preventDefault()
@@ -21,8 +25,6 @@ export default function Home() {
     if (location) params.set('loc', location)
     navigate(`/browse?${params.toString()}`)
   }
-
-  const nearYou = opportunities.slice(0, 4)
 
   return (
     <div>
@@ -90,7 +92,7 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-4">
           {nearYou.map((opp) => (
-            <OpportunityCard key={opp.id} opportunity={opp} org={getOrg(opp.orgId)} />
+            <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />
           ))}
         </div>
       </section>
@@ -110,13 +112,13 @@ export default function Home() {
               to="/profile"
               className="mt-6 inline-block rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105"
             >
-              volunteervault.org/{currentUser.username}
+              volunteervault.org/u/you
             </Link>
           </div>
           <div className="flex flex-1 flex-wrap justify-center gap-3">
-            <StatPill value={currentUser.verifiedHours} label="verified hours" tone="dark" />
-            <StatPill value={`${currentUser.streakWeeks}wk`} label="streak" tone="dark" />
-            <StatPill value={currentUser.badges.filter((b) => b.earned).length} label="badges" tone="dark" />
+            <StatPill value="62" label="verified hours" tone="dark" />
+            <StatPill value="9wk" label="streak" tone="dark" />
+            <StatPill value="3" label="badges" tone="dark" />
           </div>
         </div>
       </section>

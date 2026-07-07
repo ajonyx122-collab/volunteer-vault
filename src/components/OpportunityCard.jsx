@@ -26,12 +26,17 @@ export default function OpportunityCard({ opportunity, org }) {
             {opportunity.title}
           </Link>
           {org?.verified && <VerifiedBadge verified />}
-          <span className="text-xs font-bold text-gold-text">★ {opportunity.vibeRating}</span>
+          {opportunity.vibeRating != null && (
+            <span className="text-xs font-bold text-gold-text">★ {opportunity.vibeRating}</span>
+          )}
         </div>
-        <p className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-brand-green/70">
+        <div className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-brand-green/70">
           <OrgAvatar org={org} size="sm" />
-          {org?.name} · {formatWhen(opportunity.startsAt)} · {opportunity.distanceMiles} mi
-        </p>
+          <span className="truncate">
+            {org?.name} · {formatWhen(opportunity.startsAt)}
+            {opportunity.distanceMiles != null && <> · {opportunity.distanceMiles} mi</>}
+          </span>
+        </div>
         {opportunity.reviewQuote && (
           <p className="mt-1 truncate text-sm italic text-brand-green/60">“{opportunity.reviewQuote}”</p>
         )}

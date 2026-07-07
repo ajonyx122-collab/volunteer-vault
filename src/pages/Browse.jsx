@@ -1,26 +1,33 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { CATEGORIES, opportunities, organizations, currentUser } from '../data/mockData'
+import { CATEGORIES } from '../data/mockData'
+import { fetchOpportunities } from '../lib/api'
+import { useAuth } from '../lib/AuthContext'
 import OpportunityCard from '../components/OpportunityCard'
 import MapPreview from '../components/MapPreview'
 
 const FILTERS = [
   { id: 'verifiedOnly', label: 'Verified only' },
-  { id: 'goodForCrews', label: 'Good for crews' },
   { id: 'thisWeek', label: 'This week' },
 ]
 
-function getOrg(orgId) {
-  return organizations.find((o) => o.id === orgId)
-}
-
 export default function Browse() {
+  const { user } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeCategory = searchParams.get('category')
   const initialQuery = searchParams.get('q') ?? ''
 
+  const [opportunities, setOpportunities] = useState([])
+  const [loadingOpps, setLoadingOpps] = useState(true)
   const [query, setQuery] = useState(initialQuery)
   const [activeFilters, setActiveFilters] = useState([])
+
+  useEffect(() => {
+    fetchOpportunities()
+      .then(setOpportunities)
+      .catch(() => setOpportunities([]))
+      .finally(() => setLoadingOpps(false))
+  }, [])
 
   function toggleFilter(id) {
     setActiveFilters((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]))
@@ -39,16 +46,14 @@ export default function Browse() {
     return opportunities.filter((opp) => {
       if (activeCategory && opp.category !== activeCategory) return false
       if (query && !opp.title.toLowerCase().includes(query.toLowerCase())) return false
-      const org = getOrg(opp.orgId)
-      if (activeFilters.includes('verifiedOnly') && !org?.verified) return false
-      if (activeFilters.includes('goodForCrews') && !opp.tags.includes('good for crews')) return false
+      if (activeFilters.includes('verifiedOnly') && !opp.org?.verified) return false
       if (activeFilters.includes('thisWeek')) {
         const days = (new Date(opp.startsAt) - new Date()) / (1000 * 60 * 60 * 24)
         if (days > 7 || days < 0) return false
       }
       return true
     })
-  }, [activeCategory, query, activeFilters])
+  }, [opportunities, activeCategory, query, activeFilters])
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -98,13 +103,18 @@ export default function Browse() {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-4">
-          {filtered.length === 0 && (
+          {loadingOpps && (
+            <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
+              Loading opportunities...
+            </p>
+          )}
+          {!loadingOpps && filtered.length === 0 && (
             <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
               Nothing matches yet — try clearing a filter.
             </p>
           )}
           {filtered.map((opp) => (
-            <OpportunityCard key={opp.id} opportunity={opp} org={getOrg(opp.orgId)} />
+            <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />
           ))}
         </div>
 
@@ -119,12 +129,14 @@ export default function Browse() {
             </Link>
           </div>
 
-          <div className="rounded-card bg-brand-green p-5 shadow-card">
-            <p className="font-display font-bold text-cream-text">🔥 {currentUser.streakWeeks}-week streak</p>
-            <p className="mt-1 text-sm text-cream-muted">
-              Volunteer by Sunday to keep it alive — pick anything above to lock it in.
-            </p>
-          </div>
+          {user && (
+            <div className="rounded-card bg-brand-green p-5 shadow-card">
+              <p className="font-display font-bold text-cream-text">🔥 Keep your streak alive</p>
+              <p className="mt-1 text-sm text-cream-muted">
+                Volunteer by Sunday to keep it going — pick anything above to lock it in.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -95,9 +95,9 @@ export default function VaultView({ user, activity, isOwner }) {
                   {badge.earned ? '🏅' : '🔒'}
                 </div>
                 <p className="text-sm font-bold text-brand-green">{badge.label}</p>
-                {!badge.earned && (
+                {!badge.earned && badge.targetHours != null && (
                   <p className="text-xs text-brand-green/50">
-                    {badge.targetHours - badge.progressHours} hrs to go
+                    {Math.max(0, Math.round(badge.targetHours - badge.progressHours))} hrs to go
                   </p>
                 )}
               </div>
@@ -108,6 +108,12 @@ export default function VaultView({ user, activity, isOwner }) {
         {/* Where the hours went */}
         <section className="mt-10">
           <h2 className="font-display text-xl font-extrabold text-brand-green">Where the hours went</h2>
+          {user.causes.length === 0 && (
+            <p className="mt-4 rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">
+              Nothing here yet — your first shift starts the story.{' '}
+              <Link to="/browse" className="font-bold text-coral hover:underline">Find one</Link>
+            </p>
+          )}
           <div className="mt-4 flex h-4 w-full overflow-hidden rounded-pill">
             {user.causes.map((c) => (
               <div
@@ -137,6 +143,11 @@ export default function VaultView({ user, activity, isOwner }) {
         <section className="mt-10">
           <h2 className="font-display text-xl font-extrabold text-brand-green">Recent activity</h2>
           <div className="mt-4 flex flex-col gap-3">
+            {activity.length === 0 && (
+              <p className="rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">
+                No logged hours yet — RSVP to something and get out there.
+              </p>
+            )}
             {activity.map((entry) => (
               <div
                 key={entry.id}

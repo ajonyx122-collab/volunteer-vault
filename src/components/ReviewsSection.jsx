@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { getReviewsForOpportunity } from '../data/mockData'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { fetchReviews, addReview } from '../lib/api'
+import { useAuth } from '../lib/AuthContext'
 
 const RATING_LABELS = [
   { key: 'organized', label: 'Organized' },
@@ -50,17 +52,7 @@ function ReviewCard({ review }) {
       {review.photos.length > 0 && (
         <div className="mt-3 flex gap-2">
           {review.photos.map((photo) => (
-            <div
-              key={photo.id}
-              className="flex h-16 w-16 items-center justify-center rounded-card text-2xl"
-              style={{ backgroundColor: photo.color }}
-            >
-              {photo.url ? (
-                <img src={photo.url} alt="" className="h-full w-full rounded-card object-cover" />
-              ) : (
-                photo.emoji
-              )}
-            </div>
+            <img key={photo.id} src={photo.url} alt="" className="h-16 w-16 rounded-card object-cover" />
           ))}
         </div>
       )}
@@ -69,59 +61,59 @@ function ReviewCard({ review }) {
 }
 
 export default function ReviewsSection({ opportunityId }) {
-  const [localReviews, setLocalReviews] = useState([])
+  const { user, profile } = useAuth()
+  const [reviews, setReviews] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [ratings, setRatings] = useState({ organized: 0, welcoming: 0, impactful: 0 })
   const [quote, setQuote] = useState('')
   const [tip, setTip] = useState('')
-  const [photos, setPhotos] = useState([])
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  const seedReviews = getReviewsForOpportunity(opportunityId)
-  const allReviews = [...localReviews, ...seedReviews]
+  useEffect(() => {
+    fetchReviews(opportunityId).then(setReviews).catch(() => setReviews([]))
+  }, [opportunityId])
+
   const averages =
-    allReviews.length === 0
+    reviews.length === 0
       ? null
       : {
-          count: allReviews.length,
-          organized: allReviews.reduce((sum, r) => sum + r.ratings.organized, 0) / allReviews.length,
-          welcoming: allReviews.reduce((sum, r) => sum + r.ratings.welcoming, 0) / allReviews.length,
-          impactful: allReviews.reduce((sum, r) => sum + r.ratings.impactful, 0) / allReviews.length,
+          count: reviews.length,
+          organized: reviews.reduce((s, r) => s + r.ratings.organized, 0) / reviews.length,
+          welcoming: reviews.reduce((s, r) => s + r.ratings.welcoming, 0) / reviews.length,
+          impactful: reviews.reduce((s, r) => s + r.ratings.impactful, 0) / reviews.length,
         }
 
-  function handlePhotoChange(e) {
-    const files = Array.from(e.target.files ?? [])
-    const newPhotos = files.map((file) => ({
-      id: `${file.name}-${Date.now()}`,
-      url: URL.createObjectURL(file),
-      color: '#EDE6D4',
-    }))
-    setPhotos((prev) => [...prev, ...newPhotos])
-  }
-
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    setLocalReviews((prev) => [
-      {
-        id: `local-${Date.now()}`,
+    if (ratings.organized === 0 || ratings.welcoming === 0 || ratings.impactful === 0) {
+      setError('Tap the stars to rate all three vibes first.')
+      return
+    }
+    setBusy(true)
+    setError('')
+    try {
+      const saved = await addReview({
         opportunityId,
-        reviewerName: 'You',
-        date: new Date().toISOString(),
+        userId: user.id,
+        reviewerName: profile?.display_name ?? 'Volunteer',
         ratings,
         quote,
         tip,
-        photos,
-      },
-      ...prev,
-    ])
-    setRatings({ organized: 0, welcoming: 0, impactful: 0 })
-    setQuote('')
-    setTip('')
-    setPhotos([])
-    setShowForm(false)
+      })
+      setReviews((prev) => [saved, ...prev])
+      setRatings({ organized: 0, welcoming: 0, impactful: 0 })
+      setQuote('')
+      setTip('')
+      setShowForm(false)
+    } catch (err) {
+      setError(err.message ?? 'Something went wrong — try again.')
+    }
+    setBusy(false)
   }
 
   return (
-    <section className="mx-auto max-w-4xl px-4 pb-16 sm:px-6">
+    <section className="mt-12">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-2xl font-extrabold text-brand-green">Reviews</h2>
@@ -132,12 +124,21 @@ export default function ReviewsSection({ opportunityId }) {
             </p>
           )}
         </div>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
-        >
-          {showForm ? 'Cancel' : 'Leave a review'}
-        </button>
+        {user ? (
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+          >
+            {showForm ? 'Cancel' : 'Leave a review'}
+          </button>
+        ) : (
+          <Link
+            to="/signup"
+            className="rounded-pill border border-card-border bg-card px-5 py-2 text-sm font-bold text-brand-green hover:bg-cream"
+          >
+            Join to leave a review
+          </Link>
+        )}
       </div>
 
       {showForm && (
@@ -167,35 +168,27 @@ export default function ReviewsSection({ opportunityId }) {
             onChange={(e) => setTip(e.target.value)}
             className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
           />
-          <div>
-            <label className="inline-block cursor-pointer rounded-pill border border-card-border px-4 py-2 text-sm font-bold text-brand-green hover:bg-cream">
-              📷 Add photos
-              <input type="file" accept="image/*" multiple onChange={handlePhotoChange} className="hidden" />
-            </label>
-            {photos.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {photos.map((p) => (
-                  <img key={p.id} src={p.url} alt="" className="h-16 w-16 rounded-card object-cover" />
-                ))}
-              </div>
-            )}
-          </div>
+          {error && <p className="text-sm font-semibold text-coral">{error}</p>}
           <button
             type="submit"
-            className="mt-1 self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+            disabled={busy}
+            className="mt-1 self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105 disabled:opacity-60"
           >
-            Post review
+            {busy ? 'Posting...' : 'Post review'}
           </button>
+          <p className="text-xs text-brand-green/50">
+            Photo uploads are coming soon — reviews save for real starting today.
+          </p>
         </form>
       )}
 
       <div className="mt-6 flex flex-col gap-4">
-        {allReviews.length === 0 && (
+        {reviews.length === 0 && (
           <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
             No reviews yet — be the first to share how it went.
           </p>
         )}
-        {allReviews.map((review) => (
+        {reviews.map((review) => (
           <ReviewCard key={review.id} review={review} />
         ))}
       </div>
