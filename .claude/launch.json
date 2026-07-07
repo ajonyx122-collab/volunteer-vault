@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "volunteer-vault-dev",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": [
+        "C:\\Users\\Donyx\\Projects\\volunteer-vault\\dev-launcher.mjs",
+        "--port",
+        "5173",
+        "--strictPort"
+      ],
+      "port": 5173
+    }
+  ]
+}
