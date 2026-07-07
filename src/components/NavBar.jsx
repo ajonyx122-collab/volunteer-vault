@@ -11,7 +11,7 @@ export default function NavBar() {
     <header className="sticky top-0 z-50 bg-brand-green shadow-soft">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <Link to="/" className="flex items-center gap-2">
-          <img src="/brand/logo-icon.png" alt="" className="h-9 w-9" />
+          <img src="/brand/logo-white.png" alt="" className="h-9 w-9" />
           <span className="font-display text-lg font-extrabold text-cream-text">
             Volunteer<span className="text-gold">VAULT</span>
           </span>

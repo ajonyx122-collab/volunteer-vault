@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
-            <img src="/brand/logo-icon.png" alt="" className="h-8 w-8" />
+            <img src="/brand/logo-white.png" alt="" className="h-8 w-8" />
             <span className="font-display text-base font-extrabold text-cream-text">
               Volunteer<span className="text-gold">VAULT</span>
             </span>
