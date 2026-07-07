@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getOpportunityWithOrg, getCategoryMeta } from '../data/mockData'
 import VerifiedBadge from '../components/VerifiedBadge'
+import OrgAvatar from '../components/OrgAvatar'
+import ReviewsSection from '../components/ReviewsSection'
 
 function formatWhen(startsAt) {
   const date = new Date(startsAt)
@@ -111,12 +113,17 @@ export default function OpportunityDetail() {
             <p className="mt-2 text-xs text-brand-green/50">No-shows hurt your streak, so only RSVP if you can make it.</p>
           </div>
 
-          <div className="rounded-card border border-card-border bg-card p-5 shadow-card">
-            <p className="font-bold text-brand-green">{opportunity.org?.name}</p>
-            <p className="mt-1 text-sm text-brand-green/70">{opportunity.org?.description}</p>
+          <div className="flex gap-3 rounded-card border border-card-border bg-card p-5 shadow-card">
+            <OrgAvatar org={opportunity.org} size="md" />
+            <div>
+              <p className="font-bold text-brand-green">{opportunity.org?.name}</p>
+              <p className="mt-1 text-sm text-brand-green/70">{opportunity.org?.description}</p>
+            </div>
           </div>
         </aside>
       </div>
+
+      <ReviewsSection opportunityId={opportunity.id} />
     </div>
   )
 }

@@ -30,10 +30,13 @@ export default {
         category: {
           environment: { bg: '#DFF0E6', text: '#0F5132' },
           sports: { bg: '#FDEBD2', text: '#8A5410' },
+          food: { bg: '#FFF4CC', text: '#8A6D00' },
           art: { bg: '#FBE4EC', text: '#94305C' },
           music: { bg: '#E4EEFB', text: '#1D5B9E' },
           medicine: { bg: '#FBE7E4', text: '#A03A28' },
           animals: { bg: '#F0EAFB', text: '#5B3E9E' },
+          education: { bg: '#DDF3F1', text: '#0B6E64' },
+          community: { bg: '#E7ECF2', text: '#3A5068' },
         },
       },
       borderRadius: {

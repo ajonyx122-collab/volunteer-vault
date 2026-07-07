@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CATEGORIES, opportunities as seedOpportunities, organizations } from '../data/mockData'
 import VerifiedBadge from '../components/VerifiedBadge'
+import OrgAvatar from '../components/OrgAvatar'
 
 // Demo: acting as the logged-in org. Real auth/org-switching comes with Supabase wiring.
 const DEMO_ORG_ID = 'org-1'
@@ -54,9 +55,12 @@ export default function OrgDashboard() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <h1 className="font-display text-3xl font-extrabold text-brand-green">{org?.name}</h1>
-          <VerifiedBadge verified={org?.verified} />
+        <div className="flex items-center gap-3">
+          <OrgAvatar org={org} size="md" />
+          <div className="flex items-center gap-2">
+            <h1 className="font-display text-3xl font-extrabold text-brand-green">{org?.name}</h1>
+            <VerifiedBadge verified={org?.verified} />
+          </div>
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}

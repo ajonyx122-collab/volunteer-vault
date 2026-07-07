@@ -4,13 +4,18 @@
 
 export const CATEGORIES = [
   { id: 'environment', label: 'Environment', icon: '🌱' },
-  { id: 'sports', label: 'Sports & Food', icon: '🍲' },
+  { id: 'sports', label: 'Sports', icon: '⚽' },
+  { id: 'food', label: 'Food', icon: '🍲' },
   { id: 'art', label: 'Art', icon: '🎨' },
   { id: 'music', label: 'Music', icon: '🎵' },
   { id: 'medicine', label: 'Medicine', icon: '🩺' },
   { id: 'animals', label: 'Animals', icon: '🐾' },
+  { id: 'education', label: 'Education', icon: '📚' },
+  { id: 'community', label: 'Community', icon: '🤝' },
 ]
 
+// logoUrl is null for now — orgs don't upload real logos until Phase 2 storage
+// is wired up. Cards/pages fall back to an initials avatar until then.
 export const organizations = [
   {
     id: 'org-1',
@@ -18,6 +23,7 @@ export const organizations = [
     verified: true,
     description: 'Community-run beach and waterway cleanups across the county.',
     location: 'Riverside Park',
+    logoUrl: null,
   },
   {
     id: 'org-2',
@@ -25,6 +31,7 @@ export const organizations = [
     verified: true,
     description: 'Rescuing surplus food and getting it to families who need it.',
     location: 'Downtown Community Kitchen',
+    logoUrl: null,
   },
   {
     id: 'org-3',
@@ -32,6 +39,7 @@ export const organizations = [
     verified: true,
     description: 'No-kill animal shelter running on volunteer power.',
     location: 'Westside Animal Shelter',
+    logoUrl: null,
   },
   {
     id: 'org-4',
@@ -39,6 +47,7 @@ export const organizations = [
     verified: false,
     description: 'Free art programs for elementary schoolers, run by teen mentors.',
     location: 'Lincoln Community Center',
+    logoUrl: null,
   },
   {
     id: 'org-5',
@@ -46,6 +55,7 @@ export const organizations = [
     verified: true,
     description: 'Friendly visits, music, and games with residents at local senior homes.',
     location: 'Maple Grove Senior Living',
+    logoUrl: null,
   },
 ]
 
@@ -73,7 +83,7 @@ export const opportunities = [
     id: 'opp-2',
     orgId: 'org-2',
     title: 'Weekend Food Rescue Sort',
-    category: 'sports',
+    category: 'food',
     description:
       'Sort and pack rescued grocery surplus into family boxes. Indoors, easy pace, great for a first shift.',
     startsAt: '2026-07-13T13:00:00',
@@ -165,6 +175,61 @@ export const opportunities = [
     tags: [],
   },
 ]
+
+// Photos are simple color+emoji placeholders until Phase 2 wires up real
+// photo uploads to Supabase storage.
+export const reviews = [
+  {
+    id: 'rev-1',
+    opportunityId: 'opp-1',
+    reviewerName: 'Maya P.',
+    date: '2026-06-27',
+    ratings: { organized: 5, welcoming: 5, impactful: 4 },
+    quote: "Way more fun than I expected — bring a hoodie, it's breezy by the water.",
+    tip: 'Wear shoes you don\'t mind getting sandy.',
+    photos: [
+      { id: 'p1', color: '#DFF0E6', emoji: '🏖️' },
+      { id: 'p2', color: '#E4EEFB', emoji: '🗑️' },
+    ],
+  },
+  {
+    id: 'rev-2',
+    opportunityId: 'opp-1',
+    reviewerName: 'Theo R.',
+    date: '2026-06-20',
+    ratings: { organized: 4, welcoming: 5, impactful: 5 },
+    quote: 'Filled two whole bags in an hour, felt like we actually made a dent.',
+    tip: 'Get there right at 9 — parking fills up fast.',
+    photos: [{ id: 'p3', color: '#FDEBD2', emoji: '☀️' }],
+  },
+  {
+    id: 'rev-3',
+    opportunityId: 'opp-3',
+    reviewerName: 'Priya S.',
+    date: '2026-07-01',
+    ratings: { organized: 5, welcoming: 5, impactful: 5 },
+    quote: 'Full every week for a reason. Sign up early!',
+    tip: 'Bring your own water bottle, it gets warm on the walking loop.',
+    photos: [
+      { id: 'p4', color: '#F0EAFB', emoji: '🐶' },
+      { id: 'p5', color: '#F0EAFB', emoji: '🐕' },
+    ],
+  },
+  {
+    id: 'rev-4',
+    opportunityId: 'opp-5',
+    reviewerName: 'Jordan K.',
+    date: '2026-06-21',
+    ratings: { organized: 5, welcoming: 5, impactful: 5 },
+    quote: 'Genuinely one of the sweetest hours of my week.',
+    tip: 'Learn a card game beforehand, residents love teaching new ones too.',
+    photos: [],
+  },
+]
+
+export function getReviewsForOpportunity(opportunityId) {
+  return reviews.filter((r) => r.opportunityId === opportunityId)
+}
 
 export const currentUser = {
   id: 'user-1',

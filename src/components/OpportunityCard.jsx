@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { getCategoryMeta } from '../data/mockData'
 import VerifiedBadge from './VerifiedBadge'
+import OrgAvatar from './OrgAvatar'
 
 function formatWhen(startsAt) {
   const date = new Date(startsAt)
@@ -27,7 +28,8 @@ export default function OpportunityCard({ opportunity, org }) {
           {org?.verified && <VerifiedBadge verified />}
           <span className="text-xs font-bold text-gold-text">★ {opportunity.vibeRating}</span>
         </div>
-        <p className="mt-0.5 truncate text-sm text-brand-green/70">
+        <p className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-brand-green/70">
+          <OrgAvatar org={org} size="sm" />
           {org?.name} · {formatWhen(opportunity.startsAt)} · {opportunity.distanceMiles} mi
         </p>
         {opportunity.reviewQuote && (

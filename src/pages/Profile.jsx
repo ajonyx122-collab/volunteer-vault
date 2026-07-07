@@ -5,10 +5,13 @@ import { getCategoryMeta } from '../data/mockData'
 const CAUSE_BAR_COLORS = {
   environment: 'bg-category-environment-text',
   sports: 'bg-category-sports-text',
+  food: 'bg-category-food-text',
   art: 'bg-category-art-text',
   music: 'bg-category-music-text',
   medicine: 'bg-category-medicine-text',
   animals: 'bg-category-animals-text',
+  education: 'bg-category-education-text',
+  community: 'bg-category-community-text',
 }
 
 export default function Profile() {
