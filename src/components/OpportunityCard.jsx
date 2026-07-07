@@ -1,0 +1,61 @@
+import { Link } from 'react-router-dom'
+import { getCategoryMeta } from '../data/mockData'
+import VerifiedBadge from './VerifiedBadge'
+
+function formatWhen(startsAt) {
+  const date = new Date(startsAt)
+  return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) +
+    ' · ' +
+    date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+}
+
+export default function OpportunityCard({ opportunity, org }) {
+  const category = getCategoryMeta(opportunity.category)
+  const spotsLeft = opportunity.capacity - opportunity.spotsFilled
+
+  return (
+    <div className="flex w-full flex-col gap-3 rounded-card border border-card-border bg-card p-4 shadow-card sm:flex-row sm:items-center">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-cream text-2xl">
+        {category?.icon ?? '💚'}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to={`/opportunities/${opportunity.id}`} className="font-display font-bold text-brand-green hover:underline">
+            {opportunity.title}
+          </Link>
+          {org?.verified && <VerifiedBadge verified />}
+          <span className="text-xs font-bold text-gold-text">★ {opportunity.vibeRating}</span>
+        </div>
+        <p className="mt-0.5 truncate text-sm text-brand-green/70">
+          {org?.name} · {formatWhen(opportunity.startsAt)} · {opportunity.distanceMiles} mi
+        </p>
+        {opportunity.reviewQuote && (
+          <p className="mt-1 truncate text-sm italic text-brand-green/60">“{opportunity.reviewQuote}”</p>
+        )}
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+          {opportunity.goingFriends.length > 0 && (
+            <span className="rounded-pill bg-category-music-bg px-2 py-0.5 font-semibold text-category-music-text">
+              {opportunity.goingFriends.length} friend{opportunity.goingFriends.length > 1 ? 's' : ''} going
+            </span>
+          )}
+          <span className="rounded-pill bg-cream px-2 py-0.5 font-semibold text-brand-green/70">
+            {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}
+          </span>
+          {opportunity.tags.map((tag) => (
+            <span key={tag} className="rounded-pill bg-category-animals-bg px-2 py-0.5 font-semibold text-category-animals-text">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <Link
+        to={`/opportunities/${opportunity.id}`}
+        className="shrink-0 rounded-pill bg-coral px-5 py-2 text-center text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+      >
+        Count me in
+      </Link>
+    </div>
+  )
+}

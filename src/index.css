@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background-color: #fdf8ee;
+}
+
+body {
+  font-family: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  color: #1b2b22;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: 'Poppins', 'Nunito', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* hand-drawn squiggle underline for hero highlight words */
+.squiggle {
+  position: relative;
+  white-space: nowrap;
+}
+
+.squiggle::after {
+  content: '';
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: -0.15em;
+  height: 0.5em;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M2 14 Q 20 2, 38 12 T 74 12 T 110 12 T 146 12 T 182 12 T 198 12' stroke='%23E8983E' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

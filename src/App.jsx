@@ -1,0 +1,47 @@
+import { Route, Routes } from 'react-router-dom'
+import NavBar from './components/NavBar'
+import Footer from './components/Footer'
+import Home from './pages/Home'
+import Browse from './pages/Browse'
+import OpportunityDetail from './pages/OpportunityDetail'
+import Profile from './pages/Profile'
+import OrgDashboard from './pages/OrgDashboard'
+import SignUp from './pages/SignUp'
+import ComingSoon from './pages/ComingSoon'
+
+export default function App() {
+  return (
+    <div className="flex min-h-screen flex-col bg-cream">
+      <NavBar />
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/browse" element={<Browse />} />
+          <Route path="/opportunities/:id" element={<OpportunityDetail />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/dashboard" element={<OrgDashboard />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/community"
+            element={
+              <ComingSoon
+                title="Community projects — coming soon"
+                blurb="Posting your own grassroots projects (beach cleanups, drives, and more) lands in Phase 3."
+              />
+            }
+          />
+          <Route
+            path="/leaderboards"
+            element={
+              <ComingSoon
+                title="School showdown — coming soon"
+                blurb="Full leaderboards, streaks, and badges unlock in Phase 4. Sneak peek is on the home page."
+              />
+            }
+          />
+        </Routes>
+      </main>
+      <Footer />
+    </div>
+  )
+}
