@@ -11,6 +11,18 @@
         "--strictPort"
       ],
       "port": 5173
+    },
+    {
+      "name": "volunteer-vault-prod-preview",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": [
+        "C:\\Users\\Donyx\\Projects\\volunteer-vault\\dev-launcher.mjs",
+        "preview",
+        "--port",
+        "4173",
+        "--strictPort"
+      ],
+      "port": 4173
     }
   ]
 }
