@@ -36,6 +36,7 @@ create table public.organizations (
   description text,
   location text,
   logo_url text,
+  website text,
   created_at timestamptz not null default now()
 );
 
@@ -52,6 +53,17 @@ create table public.opportunities (
   lng double precision,
   capacity int not null default 10,
   min_age int not null default 12,
+  is_online boolean not null default false,
+  tags text[] not null default '{}',
+  created_at timestamptz not null default now()
+);
+
+-- Flagged listings land here for AJ to review in the Supabase dashboard.
+create table public.reports (
+  id uuid primary key default gen_random_uuid(),
+  opportunity_id uuid not null references public.opportunities (id) on delete cascade,
+  user_id uuid references auth.users (id) on delete set null,
+  reason text not null,
   created_at timestamptz not null default now()
 );
 
@@ -151,6 +163,10 @@ create policy "log own hours" on public.hour_logs for insert with check (auth.ui
 
 create policy "reviews are public" on public.reviews for select using (true);
 create policy "review as self" on public.reviews for insert with check (auth.uid() = user_id);
+
+alter table public.reports enable row level security;
+create policy "logged-in users can report" on public.reports
+  for insert to authenticated with check (true);
 
 -- Spots-left counts without exposing who signed up: a view that only returns
 -- totals. Views run as their owner, so this works even though signups are private.

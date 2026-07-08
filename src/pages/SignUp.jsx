@@ -29,8 +29,8 @@ export default function SignUp() {
       options: {
         data: {
           display_name: displayName,
-          school: role === 'volunteer' ? school : null,
-          grad_year: role === 'volunteer' ? gradYear : null,
+          school: role === 'volunteer' && school.trim() ? school.trim() : null,
+          grad_year: role === 'volunteer' && gradYear ? gradYear : null,
         },
       },
     })
@@ -120,18 +120,16 @@ export default function SignUp() {
               className="rounded-pill border border-card-border px-4 py-3 text-sm outline-none"
             />
             <input
-              required
-              placeholder="School"
+              placeholder="School or organization (optional — add anytime)"
               value={school}
               onChange={(e) => setSchool(e.target.value)}
               className="rounded-pill border border-card-border px-4 py-3 text-sm outline-none"
             />
             <input
-              required
               type="number"
               min="2024"
               max="2032"
-              placeholder="Graduation year"
+              placeholder="Graduation year (optional)"
               value={gradYear}
               onChange={(e) => setGradYear(e.target.value)}
               className="rounded-pill border border-card-border px-4 py-3 text-sm outline-none"

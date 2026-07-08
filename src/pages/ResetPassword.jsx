@@ -2,21 +2,32 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
-export default function Login() {
-  const [email, setEmail] = useState('')
+// Users land here from the email link — supabase-js reads the recovery token
+// from the URL automatically and logs them in, so all we do is set the new
+// password.
+export default function ResetPassword() {
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
     e.preventDefault()
+    if (password !== confirm) {
+      setError("Those passwords don't match.")
+      return
+    }
     setBusy(true)
     setError('')
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+    const { error: err } = await supabase.auth.updateUser({ password })
     setBusy(false)
     if (err) {
-      setError(err.message)
+      setError(
+        err.message.includes('session')
+          ? 'This reset link expired — request a fresh one and use it right away.'
+          : err.message,
+      )
       return
     }
     navigate('/profile')
@@ -26,25 +37,26 @@ export default function Login() {
     <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
       <div className="text-center">
         <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
-        <h1 className="mt-3 font-display text-3xl font-extrabold text-brand-green">Welcome back</h1>
-        <p className="mt-1 text-brand-green/70">Your streak missed you.</p>
+        <h1 className="mt-3 font-display text-3xl font-extrabold text-brand-green">Pick a new password</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
         <input
           required
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="password"
+          minLength={6}
+          placeholder="New password (6+ characters)"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="rounded-pill border border-card-border px-4 py-3 text-sm outline-none"
         />
         <input
           required
           type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          minLength={6}
+          placeholder="Type it again"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
           className="rounded-pill border border-card-border px-4 py-3 text-sm outline-none"
         />
         {error && <p className="text-sm font-semibold text-coral">{error}</p>}
@@ -53,19 +65,14 @@ export default function Login() {
           disabled={busy}
           className="mt-2 rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105 disabled:opacity-60"
         >
-          {busy ? 'Logging in...' : 'Log in'}
+          {busy ? 'Saving...' : 'Save new password'}
         </button>
       </form>
 
       <p className="mt-4 text-center text-sm text-brand-green/60">
-        New here?{' '}
-        <Link to="/signup" className="font-bold text-coral hover:underline">
-          Join free
-        </Link>
-      </p>
-      <p className="mt-2 text-center text-sm">
-        <Link to="/forgot-password" className="font-semibold text-brand-green/60 hover:text-coral">
-          Forgot your password?
+        Link not working?{' '}
+        <Link to="/forgot-password" className="font-bold text-coral hover:underline">
+          Request a new one
         </Link>
       </p>
     </div>

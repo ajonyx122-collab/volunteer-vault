@@ -13,9 +13,15 @@ const CAUSE_BAR_COLORS = {
   animals: 'bg-category-animals-text',
   education: 'bg-category-education-text',
   community: 'bg-category-community-text',
+  seniors: 'bg-category-seniors-text',
+  tech: 'bg-category-tech-text',
+  faith: 'bg-category-faith-text',
+  veterans: 'bg-category-veterans-text',
+  disaster: 'bg-category-disaster-text',
+  gardening: 'bg-category-gardening-text',
 }
 
-export default function VaultView({ user, activity, isOwner }) {
+export default function VaultView({ user, activity, isOwner, onEdit }) {
   const [copied, setCopied] = useState(false)
   const totalCauseHours = user.causes.reduce((sum, c) => sum + c.hours, 0)
   const vaultUrl = `volunteervault.org/u/${user.username}`
@@ -40,9 +46,11 @@ export default function VaultView({ user, activity, isOwner }) {
           </div>
           <div>
             <h1 className="font-display text-2xl font-extrabold text-cream-text">{user.displayName}</h1>
-            <p className="text-cream-muted">
-              {user.school} · Class of {user.gradYear}
-            </p>
+            {(user.school || user.gradYear) && (
+              <p className="text-cream-muted">
+                {[user.school, user.gradYear ? `Class of ${user.gradYear}` : null].filter(Boolean).join(' · ')}
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             <button
@@ -57,6 +65,14 @@ export default function VaultView({ user, activity, isOwner }) {
             >
               Certificate
             </Link>
+            {isOwner && onEdit && (
+              <button
+                onClick={onEdit}
+                className="rounded-pill border border-cream-muted px-5 py-2 text-sm font-bold text-cream-text transition-colors hover:bg-brand-green-light"
+              >
+                Edit profile
+              </button>
+            )}
           </div>
           <p className="text-xs text-cream-muted">{vaultUrl}</p>
           {!isOwner && (

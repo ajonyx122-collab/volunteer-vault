@@ -10,6 +10,8 @@ import Certificate from './pages/Certificate'
 import OrgDashboard from './pages/OrgDashboard'
 import SignUp from './pages/SignUp'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import ComingSoon from './pages/ComingSoon'
 
 export default function App() {
@@ -27,6 +29,8 @@ export default function App() {
           <Route path="/dashboard" element={<OrgDashboard />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/community"
             element={

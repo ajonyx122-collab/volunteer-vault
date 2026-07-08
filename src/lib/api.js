@@ -12,6 +12,7 @@ function mapOrg(row) {
     description: row.description,
     location: row.location,
     logoUrl: row.logo_url,
+    website: row.website,
     ownerId: row.owner_id,
   }
 }
@@ -41,7 +42,8 @@ function mapOpportunity(row, counts = {}) {
     vibeRating: vibeFromReviews(row.reviews),
     reviewQuote: row.reviews?.[0]?.quote ?? '',
     goingFriends: [], // social layer lands in Phase 3
-    tags: [],
+    isOnline: row.is_online ?? false,
+    tags: row.tags ?? [],
     distanceMiles: null, // needs geo, Phase 3 map work
     org: mapOrg(row.organizations),
   }
@@ -147,6 +149,28 @@ export async function fetchProfileByUsername(username) {
   return data ?? null
 }
 
+export async function updateProfile(userId, { displayName, school, gradYear }) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      display_name: displayName,
+      school: school?.trim() || null,
+      grad_year: gradYear || null,
+    })
+    .eq('id', userId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function reportOpportunity(opportunityId, userId, reason) {
+  const { error } = await supabase
+    .from('reports')
+    .insert({ opportunity_id: opportunityId, user_id: userId, reason })
+  if (error) throw error
+}
+
 export async function fetchHourLogs(userId) {
   const { data, error } = await supabase
     .from('hour_logs')
@@ -244,6 +268,17 @@ export async function createOrganization(userId, { name, location }) {
   return mapOrg(data)
 }
 
+export async function updateOrganization(orgId, { description, website }) {
+  const { data, error } = await supabase
+    .from('organizations')
+    .update({ description: description?.trim() || null, website: website?.trim() || null })
+    .eq('id', orgId)
+    .select()
+    .single()
+  if (error) throw error
+  return mapOrg(data)
+}
+
 export async function fetchOrgOpportunities(orgId) {
   const [{ data, error }, counts] = await Promise.all([
     supabase.from('opportunities').select(OPP_SELECT).eq('org_id', orgId).order('starts_at'),
@@ -253,22 +288,24 @@ export async function fetchOrgOpportunities(orgId) {
   return (data ?? []).map((row) => mapOpportunity(row, counts))
 }
 
+// draft.dates is an array of datetime strings — one listing per date, so a
+// recurring event (weekly cleanup etc.) shows up on each day it happens.
 export async function createOpportunity(orgId, draft) {
-  const { data, error } = await supabase
-    .from('opportunities')
-    .insert({
-      org_id: orgId,
-      title: draft.title,
-      category: draft.category,
-      description: draft.description,
-      starts_at: draft.startsAt,
-      duration_hours: Number(draft.durationHours),
-      address: draft.address,
-      capacity: Number(draft.capacity),
-      min_age: Number(draft.minAge),
-    })
-    .select()
-    .single()
+  const dates = draft.dates?.length ? draft.dates : [draft.startsAt]
+  const rows = dates.map((startsAt) => ({
+    org_id: orgId,
+    title: draft.title,
+    category: draft.category,
+    description: draft.description,
+    starts_at: startsAt,
+    duration_hours: Number(draft.durationHours),
+    address: draft.isOnline ? null : draft.address,
+    capacity: Number(draft.capacity),
+    min_age: Number(draft.minAge),
+    is_online: Boolean(draft.isOnline),
+    tags: draft.tags ?? [],
+  }))
+  const { data, error } = await supabase.from('opportunities').insert(rows).select()
   if (error) throw error
-  return mapOpportunity(data)
+  return (data ?? []).map((row) => mapOpportunity(row))
 }

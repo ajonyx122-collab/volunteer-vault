@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CATEGORIES } from '../data/mockData'
+import { CATEGORIES, TAG_OPTIONS } from '../data/mockData'
 import { useAuth } from '../lib/AuthContext'
 import {
   fetchMyOrganization,
   createOrganization,
+  updateOrganization,
   fetchOrgOpportunities,
   createOpportunity,
 } from '../lib/api'
@@ -15,9 +16,11 @@ const emptyDraft = {
   title: '',
   category: CATEGORIES[0].id,
   description: '',
-  startsAt: '',
+  dates: [''],
   durationHours: 2,
   address: '',
+  isOnline: false,
+  tags: [],
   capacity: 20,
   minAge: 12,
 }
@@ -33,6 +36,9 @@ export default function OrgDashboard() {
   const [busy, setBusy] = useState(false)
   const [newOrgName, setNewOrgName] = useState('')
   const [newOrgLocation, setNewOrgLocation] = useState('')
+  const [editingOrg, setEditingOrg] = useState(false)
+  const [draftWebsite, setDraftWebsite] = useState('')
+  const [draftDescription, setDraftDescription] = useState('')
 
   useEffect(() => {
     if (!user) {
@@ -51,6 +57,29 @@ export default function OrgDashboard() {
     setDraft((prev) => ({ ...prev, [field]: value }))
   }
 
+  function toggleTag(tag) {
+    setDraft((prev) => ({
+      ...prev,
+      tags: prev.tags.includes(tag) ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag],
+    }))
+  }
+
+  function updateDate(index, value) {
+    setDraft((prev) => {
+      const dates = [...prev.dates]
+      dates[index] = value
+      return { ...prev, dates }
+    })
+  }
+
+  function addDate() {
+    setDraft((prev) => ({ ...prev, dates: [...prev.dates, ''] }))
+  }
+
+  function removeDate(index) {
+    setDraft((prev) => ({ ...prev, dates: prev.dates.filter((_, i) => i !== index) }))
+  }
+
   async function handleCreateOrg(e) {
     e.preventDefault()
     setBusy(true)
@@ -64,12 +93,40 @@ export default function OrgDashboard() {
     setBusy(false)
   }
 
-  async function handleSubmit(e) {
+  function startEditingOrg() {
+    setDraftWebsite(org.website ?? '')
+    setDraftDescription(org.description ?? '')
+    setEditingOrg(true)
+  }
+
+  async function handleSaveOrg(e) {
     e.preventDefault()
     setBusy(true)
     setError('')
     try {
-      await createOpportunity(org.id, draft)
+      const updated = await updateOrganization(org.id, {
+        description: draftDescription,
+        website: draftWebsite,
+      })
+      setOrg(updated)
+      setEditingOrg(false)
+    } catch (err) {
+      setError(err.message ?? 'Could not save.')
+    }
+    setBusy(false)
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    const dates = draft.dates.filter(Boolean)
+    if (dates.length === 0) {
+      setError('Pick at least one date.')
+      return
+    }
+    setBusy(true)
+    setError('')
+    try {
+      await createOpportunity(org.id, { ...draft, dates })
       setMyOpportunities(await fetchOrgOpportunities(org.id))
       setDraft(emptyDraft)
       setShowForm(false)
@@ -149,13 +206,68 @@ export default function OrgDashboard() {
             <VerifiedBadge verified={org.verified} />
           </div>
         </div>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
-        >
-          {showForm ? 'Cancel' : '+ New opportunity'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={editingOrg ? () => setEditingOrg(false) : startEditingOrg}
+            className="rounded-pill border border-card-border bg-card px-5 py-2 text-sm font-bold text-brand-green shadow-card"
+          >
+            {editingOrg ? 'Cancel' : 'Org info'}
+          </button>
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+          >
+            {showForm ? 'Cancel' : '+ New opportunity'}
+          </button>
+        </div>
       </div>
+
+      {org.website && !editingOrg && (
+        <a
+          href={org.website.startsWith('http') ? org.website : `https://${org.website}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-block text-sm font-semibold text-coral hover:underline"
+        >
+          🌐 {org.website}
+        </a>
+      )}
+
+      {editingOrg && (
+        <form
+          onSubmit={handleSaveOrg}
+          className="mt-4 flex flex-col gap-3 rounded-card border border-card-border bg-card p-5 shadow-card"
+        >
+          <h2 className="font-display text-lg font-bold text-brand-green">Organization info</h2>
+          <label className="text-xs font-bold text-brand-green/60">
+            Website (volunteers can check you out and register with you directly)
+            <input
+              placeholder="e.g. greenshore.org"
+              value={draftWebsite}
+              onChange={(e) => setDraftWebsite(e.target.value)}
+              className="mt-1 w-full rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
+            />
+          </label>
+          <label className="text-xs font-bold text-brand-green/60">
+            Description
+            <textarea
+              rows={2}
+              placeholder="What does your org do?"
+              value={draftDescription}
+              onChange={(e) => setDraftDescription(e.target.value)}
+              className="mt-1 w-full rounded-card border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
+            />
+          </label>
+          {error && <p className="text-sm font-semibold text-coral">{error}</p>}
+          <button
+            type="submit"
+            disabled={busy}
+            className="self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-soft disabled:opacity-60"
+          >
+            {busy ? 'Saving...' : 'Save org info'}
+          </button>
+        </form>
+      )}
 
       {!org.verified && (
         <p className="mt-4 rounded-card border border-card-border bg-card p-4 text-sm text-brand-green/70 shadow-card">
@@ -183,26 +295,55 @@ export default function OrgDashboard() {
             onChange={(e) => updateDraft('title', e.target.value)}
             className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
           />
-          <div className="grid gap-3 sm:grid-cols-2">
-            <select
-              value={draft.category}
-              onChange={(e) => updateDraft('category', e.target.value)}
-              className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.icon} {c.label}
-                </option>
+          <select
+            value={draft.category}
+            onChange={(e) => updateDraft('category', e.target.value)}
+            className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none sm:max-w-xs"
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.icon} {c.label}
+              </option>
+            ))}
+          </select>
+
+          <div className="rounded-card border border-card-border bg-cream/50 p-4">
+            <p className="text-xs font-bold text-brand-green/60">
+              Dates — add more for recurring or multi-day events; each date becomes its own session
+              volunteers can join
+            </p>
+            <div className="mt-2 flex flex-col gap-2">
+              {draft.dates.map((date, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    required
+                    type="datetime-local"
+                    value={date}
+                    onChange={(e) => updateDate(i, e.target.value)}
+                    className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
+                  />
+                  {draft.dates.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeDate(i)}
+                      aria-label="Remove date"
+                      className="rounded-pill border border-card-border px-3 py-1 text-sm font-bold text-coral"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               ))}
-            </select>
-            <input
-              required
-              type="datetime-local"
-              value={draft.startsAt}
-              onChange={(e) => updateDraft('startsAt', e.target.value)}
-              className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
-            />
+            </div>
+            <button
+              type="button"
+              onClick={addDate}
+              className="mt-2 rounded-pill border border-card-border bg-card px-4 py-1.5 text-xs font-bold text-brand-green"
+            >
+              + Add another date
+            </button>
           </div>
+
           <textarea
             required
             placeholder="Description"
@@ -211,13 +352,47 @@ export default function OrgDashboard() {
             rows={3}
             className="rounded-card border border-card-border px-4 py-2 text-sm outline-none"
           />
-          <input
-            required
-            placeholder="Address"
-            value={draft.address}
-            onChange={(e) => updateDraft('address', e.target.value)}
-            className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
-          />
+
+          <label className="flex items-center gap-2 text-sm font-semibold text-brand-green">
+            <input
+              type="checkbox"
+              checked={draft.isOnline}
+              onChange={(e) => updateDraft('isOnline', e.target.checked)}
+              className="h-4 w-4 accent-brand-green"
+            />
+            🌐 This is an online / virtual opportunity
+          </label>
+
+          {!draft.isOnline && (
+            <input
+              required
+              placeholder="Address"
+              value={draft.address}
+              onChange={(e) => updateDraft('address', e.target.value)}
+              className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
+            />
+          )}
+
+          <div>
+            <p className="text-xs font-bold text-brand-green/60">Tags (pick any that fit)</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {TAG_OPTIONS.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => toggleTag(tag)}
+                  className={`rounded-pill px-3 py-1 text-xs font-bold transition-colors ${
+                    draft.tags.includes(tag)
+                      ? 'bg-brand-green text-cream-text'
+                      : 'border border-card-border bg-cream text-brand-green/70'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-3">
             <LabeledNumber label="Duration (hrs)" value={draft.durationHours} onChange={(v) => updateDraft('durationHours', v)} />
             <LabeledNumber label="Capacity" value={draft.capacity} onChange={(v) => updateDraft('capacity', v)} />
@@ -229,7 +404,11 @@ export default function OrgDashboard() {
             disabled={busy}
             className="mt-2 self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105 disabled:opacity-60"
           >
-            {busy ? 'Publishing...' : 'Publish listing'}
+            {busy
+              ? 'Publishing...'
+              : draft.dates.filter(Boolean).length > 1
+                ? `Publish ${draft.dates.filter(Boolean).length} sessions`
+                : 'Publish listing'}
           </button>
         </form>
       )}
@@ -253,6 +432,7 @@ export default function OrgDashboard() {
                 </Link>
                 <p className="text-sm text-brand-green/60">
                   {new Date(opp.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} ·{' '}
+                  {opp.isOnline ? '🌐 Online · ' : ''}
                   {opp.spotsFilled}/{opp.capacity} signed up
                 </p>
               </div>

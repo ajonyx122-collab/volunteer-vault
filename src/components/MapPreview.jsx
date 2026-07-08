@@ -8,6 +8,12 @@ const PIN_COLORS = {
   animals: '#5B3E9E',
   education: '#0B6E64',
   community: '#3A5068',
+  seniors: '#8A5A24',
+  tech: '#3D4A9E',
+  faith: '#6B5138',
+  veterans: '#3E6B2F',
+  disaster: '#B04A22',
+  gardening: '#55701F',
 }
 
 // Deterministic pseudo-position so the same opportunity always lands in the

@@ -9,6 +9,9 @@ import MapPreview from '../components/MapPreview'
 const FILTERS = [
   { id: 'verifiedOnly', label: 'Verified only' },
   { id: 'thisWeek', label: 'This week' },
+  { id: 'online', label: '🌐 Online' },
+  { id: 'goodForCrews', label: 'Good for crews' },
+  { id: 'firstTimer', label: 'First-timer friendly' },
 ]
 
 export default function Browse() {
@@ -43,10 +46,24 @@ export default function Browse() {
   }
 
   const filtered = useMemo(() => {
+    const q = query.toLowerCase()
     return opportunities.filter((opp) => {
       if (activeCategory && opp.category !== activeCategory) return false
-      if (query && !opp.title.toLowerCase().includes(query.toLowerCase())) return false
+      if (
+        q &&
+        !opp.title.toLowerCase().includes(q) &&
+        !(opp.description ?? '').toLowerCase().includes(q) &&
+        !(opp.org?.name ?? '').toLowerCase().includes(q)
+      )
+        return false
       if (activeFilters.includes('verifiedOnly') && !opp.org?.verified) return false
+      if (activeFilters.includes('online') && !opp.isOnline) return false
+      if (activeFilters.includes('goodForCrews') && !opp.tags.includes('good for crews')) return false
+      if (
+        activeFilters.includes('firstTimer') &&
+        !opp.tags.some((t) => t === 'chill first-timer pick' || t === 'no experience needed')
+      )
+        return false
       if (activeFilters.includes('thisWeek')) {
         const days = (new Date(opp.startsAt) - new Date()) / (1000 * 60 * 60 * 24)
         if (days > 7 || days < 0) return false

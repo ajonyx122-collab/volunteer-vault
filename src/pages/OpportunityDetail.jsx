@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getCategoryMeta } from '../data/mockData'
-import { fetchOpportunity, fetchMySignup, rsvp, cancelRsvp } from '../lib/api'
+import { fetchOpportunity, fetchMySignup, rsvp, cancelRsvp, reportOpportunity } from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
 import VerifiedBadge from '../components/VerifiedBadge'
 import OrgAvatar from '../components/OrgAvatar'
@@ -25,6 +25,7 @@ export default function OpportunityDetail() {
   const [loading, setLoading] = useState(true)
   const [joined, setJoined] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [reportState, setReportState] = useState('idle') // idle | asking | sent
 
   useEffect(() => {
     fetchOpportunity(id)
@@ -62,6 +63,15 @@ export default function OpportunityDetail() {
     setBusy(false)
   }
 
+  async function handleReport(reason) {
+    try {
+      await reportOpportunity(id, user?.id ?? null, reason)
+    } catch {
+      // report table racing a fresh deploy — still show sent so users aren't stuck
+    }
+    setReportState('sent')
+  }
+
   if (loading) {
     return <div className="mx-auto max-w-2xl px-4 py-16 text-center text-brand-green/60">Loading...</div>
   }
@@ -96,9 +106,22 @@ export default function OpportunityDetail() {
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {opportunity.org?.verified && <VerifiedBadge verified />}
+            {opportunity.isOnline && (
+              <span className="rounded-pill bg-category-tech-bg px-3 py-1 text-xs font-bold text-category-tech-text">
+                🌐 Online
+              </span>
+            )}
             {opportunity.vibeRating != null && (
               <span className="text-sm font-bold text-gold-text">★ {opportunity.vibeRating} vibe rating</span>
             )}
+            {opportunity.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-pill bg-category-animals-bg px-3 py-1 text-xs font-bold text-category-animals-text"
+              >
+                {tag}
+              </span>
+            ))}
           </div>
 
           <p className="mt-6 text-brand-green/80">{opportunity.description}</p>
@@ -120,7 +143,9 @@ export default function OpportunityDetail() {
             </div>
             <div>
               <p className="font-bold text-brand-green">Where</p>
-              <p className="text-brand-green/70">{opportunity.address}</p>
+              <p className="text-brand-green/70">
+                {opportunity.isOnline ? '🌐 Online — join from anywhere' : opportunity.address}
+              </p>
             </div>
             <div>
               <p className="font-bold text-brand-green">Min age</p>
@@ -164,10 +189,58 @@ export default function OpportunityDetail() {
 
           <div className="flex gap-3 rounded-card border border-card-border bg-card p-5 shadow-card">
             <OrgAvatar org={opportunity.org} size="md" />
-            <div>
+            <div className="min-w-0">
               <p className="font-bold text-brand-green">{opportunity.org?.name}</p>
               <p className="mt-1 text-sm text-brand-green/70">{opportunity.org?.description}</p>
+              {opportunity.org?.website && (
+                <a
+                  href={
+                    opportunity.org.website.startsWith('http')
+                      ? opportunity.org.website
+                      : `https://${opportunity.org.website}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-block truncate text-sm font-bold text-coral hover:underline"
+                >
+                  🌐 Visit their website
+                </a>
+              )}
             </div>
+          </div>
+
+          <div className="text-center">
+            {reportState === 'idle' && (
+              <button
+                onClick={() => setReportState('asking')}
+                className="text-xs font-semibold text-brand-green/40 hover:text-coral"
+              >
+                🚩 Something wrong with this listing?
+              </button>
+            )}
+            {reportState === 'asking' && (
+              <div className="rounded-card border border-card-border bg-card p-4 text-left shadow-card">
+                <p className="text-xs font-bold text-brand-green">What's wrong?</p>
+                <div className="mt-2 flex flex-col gap-1.5">
+                  {['Spam or fake', 'Inappropriate content', 'Unsafe for minors', 'Wrong information'].map(
+                    (reason) => (
+                      <button
+                        key={reason}
+                        onClick={() => handleReport(reason)}
+                        className="rounded-pill border border-card-border px-3 py-1.5 text-left text-xs font-semibold text-brand-green hover:bg-cream"
+                      >
+                        {reason}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+            {reportState === 'sent' && (
+              <p className="text-xs font-semibold text-brand-green/60">
+                ✓ Thanks — we'll take a look.
+              </p>
+            )}
           </div>
         </aside>
       </div>

@@ -33,7 +33,17 @@ export function AuthProvider({ children }) {
       .then(({ data }) => setProfile(data))
   }, [user])
 
-  return <AuthContext.Provider value={{ user, profile, loading }}>{children}</AuthContext.Provider>
+  async function refreshProfile() {
+    if (!user) return
+    const { data } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
+    setProfile(data)
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, profile, loading, refreshProfile }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {

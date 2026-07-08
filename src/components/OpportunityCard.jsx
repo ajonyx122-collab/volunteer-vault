@@ -34,7 +34,9 @@ export default function OpportunityCard({ opportunity, org }) {
           <OrgAvatar org={org} size="sm" />
           <span className="truncate">
             {org?.name} · {formatWhen(opportunity.startsAt)}
-            {opportunity.distanceMiles != null && <> · {opportunity.distanceMiles} mi</>}
+            {opportunity.isOnline
+              ? ' · 🌐 Online'
+              : opportunity.distanceMiles != null && <> · {opportunity.distanceMiles} mi</>}
           </span>
         </div>
         {opportunity.reviewQuote && (

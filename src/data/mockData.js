@@ -11,11 +11,33 @@ export const CATEGORIES = [
   { id: 'animals', label: 'Animals', icon: '🐾' },
   { id: 'education', label: 'Education', icon: '📚' },
   { id: 'community', label: 'Community', icon: '🤝' },
+  { id: 'seniors', label: 'Seniors', icon: '👵' },
+  { id: 'tech', label: 'Tech', icon: '💻' },
+  { id: 'faith', label: 'Faith', icon: '🙏' },
+  { id: 'veterans', label: 'Veterans', icon: '🎖️' },
+  { id: 'disaster', label: 'Disaster relief', icon: '⛑️' },
+  { id: 'gardening', label: 'Gardening', icon: '🌻' },
 ]
 
 export function getCategoryMeta(categoryId) {
   return CATEGORIES.find((c) => c.id === categoryId)
 }
+
+// Tags orgs can put on a listing — the niche layer on top of categories.
+export const TAG_OPTIONS = [
+  'good for crews',
+  'chill first-timer pick',
+  'no experience needed',
+  'counts for NHS',
+  'one-time',
+  'recurring',
+  'outdoors',
+  'indoors',
+  'family friendly',
+  'leadership role',
+  'physical work',
+  'creative work',
+]
 
 // School showdown teaser on the home page. Real leaderboards are Phase 4.
 export const leaderboard = [

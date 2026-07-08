@@ -9,4 +9,10 @@ export const CATEGORY_STYLES = {
   animals: { chip: 'bg-category-animals-bg text-category-animals-text' },
   education: { chip: 'bg-category-education-bg text-category-education-text' },
   community: { chip: 'bg-category-community-bg text-category-community-text' },
+  seniors: { chip: 'bg-category-seniors-bg text-category-seniors-text' },
+  tech: { chip: 'bg-category-tech-bg text-category-tech-text' },
+  faith: { chip: 'bg-category-faith-bg text-category-faith-text' },
+  veterans: { chip: 'bg-category-veterans-bg text-category-veterans-text' },
+  disaster: { chip: 'bg-category-disaster-bg text-category-disaster-text' },
+  gardening: { chip: 'bg-category-gardening-bg text-category-gardening-text' },
 }

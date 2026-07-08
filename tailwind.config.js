@@ -37,6 +37,12 @@ export default {
           animals: { bg: '#F0EAFB', text: '#5B3E9E' },
           education: { bg: '#DDF3F1', text: '#0B6E64' },
           community: { bg: '#E7ECF2', text: '#3A5068' },
+          seniors: { bg: '#FBEEDC', text: '#8A5A24' },
+          tech: { bg: '#E6E9F8', text: '#3D4A9E' },
+          faith: { bg: '#EFE7DC', text: '#6B5138' },
+          veterans: { bg: '#E4EFE0', text: '#3E6B2F' },
+          disaster: { bg: '#FDE3D9', text: '#B04A22' },
+          gardening: { bg: '#EAF4D9', text: '#55701F' },
         },
       },
       borderRadius: {
