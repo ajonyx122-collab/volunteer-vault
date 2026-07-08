@@ -8,6 +8,7 @@ import Profile from './pages/Profile'
 import PublicVault from './pages/PublicVault'
 import Certificate from './pages/Certificate'
 import OrgDashboard from './pages/OrgDashboard'
+import PostOpportunity from './pages/PostOpportunity'
 import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/u/:username" element={<PublicVault />} />
           <Route path="/certificate/:username" element={<Certificate />} />
           <Route path="/dashboard" element={<OrgDashboard />} />
+          <Route path="/post-opportunity" element={<PostOpportunity />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
