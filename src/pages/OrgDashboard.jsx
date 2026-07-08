@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CATEGORIES, TAG_OPTIONS } from '../data/mockData'
+import { CATEGORIES, TAG_OPTIONS, US_STATES } from '../data/mockData'
 import { useAuth } from '../lib/AuthContext'
 import {
   fetchMyOrganization,
@@ -8,6 +8,8 @@ import {
   updateOrganization,
   fetchOrgOpportunities,
   createOpportunity,
+  fetchListingSignups,
+  verifyAttendance,
 } from '../lib/api'
 import VerifiedBadge from '../components/VerifiedBadge'
 import OrgAvatar from '../components/OrgAvatar'
@@ -19,6 +21,9 @@ const emptyDraft = {
   dates: [''],
   durationHours: 2,
   address: '',
+  city: '',
+  state: '',
+  zip: '',
   isOnline: false,
   tags: [],
   capacity: 20,
@@ -39,6 +44,7 @@ export default function OrgDashboard() {
   const [editingOrg, setEditingOrg] = useState(false)
   const [draftWebsite, setDraftWebsite] = useState('')
   const [draftDescription, setDraftDescription] = useState('')
+  const [expandedId, setExpandedId] = useState(null)
 
   useEffect(() => {
     if (!user) {
@@ -240,7 +246,7 @@ export default function OrgDashboard() {
         >
           <h2 className="font-display text-lg font-bold text-brand-green">Organization info</h2>
           <label className="text-xs font-bold text-brand-green/60">
-            Website (volunteers can check you out and register with you directly)
+            Website — optional! Plenty of great projects don't have one
             <input
               placeholder="e.g. greenshore.org"
               value={draftWebsite}
@@ -364,13 +370,43 @@ export default function OrgDashboard() {
           </label>
 
           {!draft.isOnline && (
-            <input
-              required
-              placeholder="Address"
-              value={draft.address}
-              onChange={(e) => updateDraft('address', e.target.value)}
-              className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
-            />
+            <>
+              <input
+                required
+                placeholder="Street address / meeting spot"
+                value={draft.address}
+                onChange={(e) => updateDraft('address', e.target.value)}
+                className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
+              />
+              <div className="grid gap-3 sm:grid-cols-3">
+                <input
+                  placeholder="City"
+                  value={draft.city}
+                  onChange={(e) => updateDraft('city', e.target.value)}
+                  className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
+                />
+                <select
+                  value={draft.state}
+                  onChange={(e) => updateDraft('state', e.target.value)}
+                  className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
+                >
+                  <option value="">State</option>
+                  {US_STATES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  placeholder="ZIP"
+                  inputMode="numeric"
+                  maxLength={5}
+                  value={draft.zip}
+                  onChange={(e) => updateDraft('zip', e.target.value.replace(/\D/g, ''))}
+                  className="rounded-pill border border-card-border px-4 py-2 text-sm outline-none"
+                />
+              </div>
+            </>
           )}
 
           <div>
@@ -422,27 +458,102 @@ export default function OrgDashboard() {
             </p>
           )}
           {myOpportunities.map((opp) => (
-            <div
-              key={opp.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-card-border bg-card p-4 shadow-card"
-            >
-              <div>
-                <Link to={`/opportunities/${opp.id}`} className="font-bold text-brand-green hover:underline">
-                  {opp.title}
-                </Link>
-                <p className="text-sm text-brand-green/60">
-                  {new Date(opp.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} ·{' '}
-                  {opp.isOnline ? '🌐 Online · ' : ''}
-                  {opp.spotsFilled}/{opp.capacity} signed up
-                </p>
+            <div key={opp.id} className="rounded-card border border-card-border bg-card p-4 shadow-card">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <Link to={`/opportunities/${opp.id}`} className="font-bold text-brand-green hover:underline">
+                    {opp.title}
+                  </Link>
+                  <p className="text-sm text-brand-green/60">
+                    {new Date(opp.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} ·{' '}
+                    {opp.isOnline ? '🌐 Online · ' : ''}
+                    {opp.spotsFilled}/{opp.capacity} signed up
+                  </p>
+                </div>
+                <button
+                  onClick={() => setExpandedId(expandedId === opp.id ? null : opp.id)}
+                  className="rounded-pill bg-gold px-4 py-1.5 text-xs font-bold text-gold-text shadow-soft"
+                >
+                  {expandedId === opp.id ? 'Close' : '✓ Check in volunteers'}
+                </button>
               </div>
-              <span className="rounded-pill bg-cream px-3 py-1 text-xs font-bold text-brand-green/70">
-                {Math.max(0, opp.capacity - opp.spotsFilled)} spots left
-              </span>
+              {expandedId === opp.id && <ListingVolunteers opportunity={opp} orgOwnerId={user.id} />}
             </div>
           ))}
         </div>
       </section>
+    </div>
+  )
+}
+
+// The trust loop: org sees who RSVP'd, taps verify, hours land in the
+// volunteer's vault as org-verified. No forms, no email chains.
+function ListingVolunteers({ opportunity, orgOwnerId }) {
+  const [volunteers, setVolunteers] = useState(null)
+  const [busyId, setBusyId] = useState(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchListingSignups(opportunity.id)
+      .then(setVolunteers)
+      .catch(() => setError("Couldn't load signups — run the latest database update and refresh."))
+  }, [opportunity.id])
+
+  async function handleVerify(volunteer) {
+    setBusyId(volunteer.userId)
+    setError('')
+    try {
+      await verifyAttendance({
+        opportunityId: opportunity.id,
+        volunteerId: volunteer.userId,
+        hours: opportunity.durationHours,
+        orgOwnerId,
+      })
+      setVolunteers((prev) =>
+        prev.map((v) => (v.userId === volunteer.userId ? { ...v, status: 'attended' } : v)),
+      )
+    } catch {
+      setError("Couldn't verify — check your connection and try again.")
+    }
+    setBusyId(null)
+  }
+
+  if (error && !volunteers) return <p className="mt-3 text-sm font-semibold text-coral">{error}</p>
+  if (!volunteers) return <p className="mt-3 text-sm text-brand-green/50">Loading signups...</p>
+
+  return (
+    <div className="mt-3 border-t border-card-border pt-3">
+      {volunteers.length === 0 && (
+        <p className="text-sm text-brand-green/60">No signups yet for this one.</p>
+      )}
+      {error && <p className="mb-2 text-sm font-semibold text-coral">{error}</p>}
+      <div className="flex flex-col gap-2">
+        {volunteers.map((v) => (
+          <div key={v.id} className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-brand-green">
+              {v.displayName}
+              {v.username && <span className="ml-1 text-xs text-brand-green/50">@{v.username}</span>}
+            </p>
+            {v.status === 'attended' ? (
+              <span className="rounded-pill bg-category-environment-bg px-3 py-1 text-xs font-bold text-category-environment-text">
+                ✓ Verified {opportunity.durationHours} hrs
+              </span>
+            ) : v.status === 'no_show' ? (
+              <span className="rounded-pill bg-card-border px-3 py-1 text-xs font-bold text-brand-green/50">
+                No-show
+              </span>
+            ) : (
+              <button
+                onClick={() => handleVerify(v)}
+                disabled={busyId === v.userId}
+                className="rounded-pill bg-brand-green px-4 py-1.5 text-xs font-bold text-cream-text shadow-soft disabled:opacity-50"
+              >
+                {busyId === v.userId ? 'Verifying...' : `✓ Attended — verify ${opportunity.durationHours} hrs`}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

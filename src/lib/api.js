@@ -44,6 +44,9 @@ function mapOpportunity(row, counts = {}) {
     goingFriends: [], // social layer lands in Phase 3
     isOnline: row.is_online ?? false,
     tags: row.tags ?? [],
+    city: row.city,
+    state: row.state,
+    zip: row.zip,
     distanceMiles: null, // needs geo, Phase 3 map work
     org: mapOrg(row.organizations),
   }
@@ -174,11 +177,81 @@ export async function reportOpportunity(opportunityId, userId, reason) {
 export async function fetchHourLogs(userId) {
   const { data, error } = await supabase
     .from('hour_logs')
-    .select('*, opportunities(title, category)')
+    .select('*, opportunities(title, category, organizations(name))')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
   if (error) throw error
   return data ?? []
+}
+
+// Everything the volunteer has RSVP'd to, upcoming first.
+export async function fetchMySignups(userId) {
+  const { data, error } = await supabase
+    .from('signups')
+    .select('id, status, opportunity_id, opportunities(id, title, starts_at, is_online, address, city, state, organizations(name))')
+    .eq('user_id', userId)
+  if (error) throw error
+  return (data ?? [])
+    .filter((s) => s.opportunities)
+    .map((s) => ({
+      signupId: s.id,
+      status: s.status,
+      opportunityId: s.opportunities.id,
+      title: s.opportunities.title,
+      startsAt: s.opportunities.starts_at,
+      isOnline: s.opportunities.is_online,
+      place: s.opportunities.is_online
+        ? 'Online'
+        : [s.opportunities.city, s.opportunities.state].filter(Boolean).join(', ') ||
+          s.opportunities.address ||
+          '',
+      orgName: s.opportunities.organizations?.name ?? '',
+    }))
+    .sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt))
+}
+
+// Org side: who signed up for a listing. signups has no direct FK to
+// profiles, so names come from a second query.
+export async function fetchListingSignups(opportunityId) {
+  const { data, error } = await supabase
+    .from('signups')
+    .select('id, user_id, status')
+    .eq('opportunity_id', opportunityId)
+  if (error) throw error
+  const signups = data ?? []
+  if (signups.length === 0) return []
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, display_name, username')
+    .in('id', signups.map((s) => s.user_id))
+  const byId = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
+  return signups.map((s) => ({
+    id: s.id,
+    userId: s.user_id,
+    status: s.status,
+    displayName: byId[s.user_id]?.display_name ?? 'Volunteer',
+    username: byId[s.user_id]?.username ?? '',
+  }))
+}
+
+// Marks a volunteer attended and writes a verified hour log in one go. The
+// unique index means a double-tap can't double anyone's hours.
+export async function verifyAttendance({ opportunityId, volunteerId, hours, orgOwnerId }) {
+  const { error: signupErr } = await supabase
+    .from('signups')
+    .update({ status: 'attended' })
+    .eq('opportunity_id', opportunityId)
+    .eq('user_id', volunteerId)
+  if (signupErr) throw signupErr
+  const { error: logErr } = await supabase.from('hour_logs').insert({
+    user_id: volunteerId,
+    opportunity_id: opportunityId,
+    hours: Number(hours),
+    status: 'verified',
+    verified_by: orgOwnerId,
+  })
+  // 23505 = already verified once — treat as success, not a failure
+  if (logErr && logErr.code !== '23505') throw logErr
 }
 
 // Turns a raw profile + hour logs into everything VaultView/Certificate render:
@@ -231,6 +304,7 @@ export function buildVaultData(profileRow, hourLogRows) {
   const activity = logs.map((l) => ({
     id: l.id,
     title: l.opportunities?.title ?? 'Logged hours',
+    orgName: l.opportunities?.organizations?.name ?? '',
     date: l.created_at,
     hours: Number(l.hours),
     status: l.status,
@@ -300,6 +374,9 @@ export async function createOpportunity(orgId, draft) {
     starts_at: startsAt,
     duration_hours: Number(draft.durationHours),
     address: draft.isOnline ? null : draft.address,
+    city: draft.isOnline ? null : draft.city?.trim() || null,
+    state: draft.isOnline ? null : draft.state || null,
+    zip: draft.isOnline ? null : draft.zip?.trim() || null,
     capacity: Number(draft.capacity),
     min_age: Number(draft.minAge),
     is_online: Boolean(draft.isOnline),

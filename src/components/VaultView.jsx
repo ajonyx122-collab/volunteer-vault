@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getCategoryMeta } from '../data/mockData'
+import { downloadHoursCsv } from '../lib/csv'
 import { CATEGORY_STYLES } from './categoryStyles'
 
 const CAUSE_BAR_COLORS = {
@@ -157,7 +158,17 @@ export default function VaultView({ user, activity, isOwner, onEdit }) {
 
         {/* Recent activity */}
         <section className="mt-10">
-          <h2 className="font-display text-xl font-extrabold text-brand-green">Recent activity</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-xl font-extrabold text-brand-green">Recent activity</h2>
+            {isOwner && activity.length > 0 && (
+              <button
+                onClick={() => downloadHoursCsv(user, activity)}
+                className="rounded-pill border border-card-border bg-card px-4 py-1.5 text-xs font-bold text-brand-green shadow-card"
+              >
+                ⬇ Download hours (CSV)
+              </button>
+            )}
+          </div>
           <div className="mt-4 flex flex-col gap-3">
             {activity.length === 0 && (
               <p className="rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">

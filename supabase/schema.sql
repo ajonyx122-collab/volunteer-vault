@@ -55,6 +55,9 @@ create table public.opportunities (
   min_age int not null default 12,
   is_online boolean not null default false,
   tags text[] not null default '{}',
+  city text,
+  state text,
+  zip text,
   created_at timestamptz not null default now()
 );
 
@@ -167,6 +170,36 @@ create policy "review as self" on public.reviews for insert with check (auth.uid
 alter table public.reports enable row level security;
 create policy "logged-in users can report" on public.reports
   for insert to authenticated with check (true);
+
+-- One hour log per volunteer per opportunity.
+create unique index hour_logs_once_per_opportunity on public.hour_logs (user_id, opportunity_id);
+
+-- Org owners manage signups + verify hours on their own listings.
+create policy "org owner reads listing signups" on public.signups
+  for select using (
+    exists (
+      select 1 from public.opportunities o
+      join public.organizations g on g.id = o.org_id
+      where o.id = signups.opportunity_id and g.owner_id = auth.uid()
+    )
+  );
+create policy "org owner updates listing signups" on public.signups
+  for update using (
+    exists (
+      select 1 from public.opportunities o
+      join public.organizations g on g.id = o.org_id
+      where o.id = signups.opportunity_id and g.owner_id = auth.uid()
+    )
+  );
+create policy "org owner verifies hours" on public.hour_logs
+  for insert to authenticated with check (
+    verified_by = auth.uid()
+    and exists (
+      select 1 from public.opportunities o
+      join public.organizations g on g.id = o.org_id
+      where o.id = hour_logs.opportunity_id and g.owner_id = auth.uid()
+    )
+  );
 
 -- Spots-left counts without exposing who signed up: a view that only returns
 -- totals. Views run as their owner, so this works even though signups are private.

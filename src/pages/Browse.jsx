@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { CATEGORIES } from '../data/mockData'
+import { CATEGORIES, US_STATES } from '../data/mockData'
 import { fetchOpportunities } from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
 import OpportunityCard from '../components/OpportunityCard'
@@ -24,6 +24,10 @@ export default function Browse() {
   const [loadingOpps, setLoadingOpps] = useState(true)
   const [query, setQuery] = useState(initialQuery)
   const [activeFilters, setActiveFilters] = useState([])
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [stateFilter, setStateFilter] = useState('')
+  const [zipFilter, setZipFilter] = useState('')
 
   useEffect(() => {
     fetchOpportunities()
@@ -68,9 +72,14 @@ export default function Browse() {
         const days = (new Date(opp.startsAt) - new Date()) / (1000 * 60 * 60 * 24)
         if (days > 7 || days < 0) return false
       }
+      if (dateFrom && new Date(opp.startsAt) < new Date(dateFrom)) return false
+      if (dateTo && new Date(opp.startsAt) > new Date(dateTo + 'T23:59:59')) return false
+      // Online listings are joinable from anywhere, so they pass location filters.
+      if (stateFilter && !opp.isOnline && opp.state !== stateFilter) return false
+      if (zipFilter && !opp.isOnline && !(opp.zip ?? '').startsWith(zipFilter.trim())) return false
       return true
     })
-  }, [opportunities, activeCategory, query, activeFilters])
+  }, [opportunities, activeCategory, query, activeFilters, dateFrom, dateTo, stateFilter, zipFilter])
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -115,6 +124,66 @@ export default function Browse() {
               {f.label}
             </button>
           ))}
+        </div>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
+            From
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="rounded-pill border border-card-border bg-card px-3 py-1.5 text-xs text-brand-green outline-none"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
+            To
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="rounded-pill border border-card-border bg-card px-3 py-1.5 text-xs text-brand-green outline-none"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
+            State
+            <select
+              value={stateFilter}
+              onChange={(e) => setStateFilter(e.target.value)}
+              className="rounded-pill border border-card-border bg-card px-3 py-1.5 text-xs text-brand-green outline-none"
+            >
+              <option value="">Any</option>
+              {US_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
+            ZIP
+            <input
+              inputMode="numeric"
+              maxLength={5}
+              placeholder="e.g. 30060"
+              value={zipFilter}
+              onChange={(e) => setZipFilter(e.target.value.replace(/\D/g, ''))}
+              className="w-24 rounded-pill border border-card-border bg-card px-3 py-1.5 text-xs text-brand-green outline-none"
+            />
+          </label>
+          {(dateFrom || dateTo || stateFilter || zipFilter) && (
+            <button
+              onClick={() => {
+                setDateFrom('')
+                setDateTo('')
+                setStateFilter('')
+                setZipFilter('')
+              }}
+              className="rounded-pill border border-card-border px-3 py-1.5 text-xs font-bold text-coral"
+            >
+              Clear
+            </button>
+          )}
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { fetchHourLogs, buildVaultData, updateProfile } from '../lib/api'
 import VaultView from '../components/VaultView'
+import MySignups from '../components/MySignups'
 
 export default function Profile() {
   const { user, profile, loading, refreshProfile } = useAuth()
@@ -81,6 +82,7 @@ export default function Profile() {
   return (
     <div>
       <VaultView user={vault.user} activity={vault.activity} isOwner onEdit={startEditing} />
+      <MySignups userId={user.id} />
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-green/40 p-4">
