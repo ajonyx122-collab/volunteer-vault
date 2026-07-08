@@ -13,6 +13,7 @@ function formatWhen(startsAt) {
 export default function OpportunityCard({ opportunity, org }) {
   const category = getCategoryMeta(opportunity.category)
   const spotsLeft = opportunity.capacity - opportunity.spotsFilled
+  const isExternal = !!opportunity.externalUrl
 
   return (
     <div className="flex w-full flex-col gap-3 rounded-card border border-card-border bg-card p-4 shadow-card sm:flex-row sm:items-center">
@@ -33,7 +34,7 @@ export default function OpportunityCard({ opportunity, org }) {
         <div className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-brand-green/70">
           <OrgAvatar org={org} size="sm" />
           <span className="truncate">
-            {org?.name} · {formatWhen(opportunity.startsAt)}
+            {org?.name} · {opportunity.isOngoing ? 'Ongoing' : formatWhen(opportunity.startsAt)}
             {opportunity.isOnline
               ? ' · 🌐 Online'
               : opportunity.distanceMiles != null && <> · {opportunity.distanceMiles} mi</>}
@@ -43,14 +44,22 @@ export default function OpportunityCard({ opportunity, org }) {
           <p className="mt-1 truncate text-sm italic text-brand-green/60">“{opportunity.reviewQuote}”</p>
         )}
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-          {opportunity.goingFriends.length > 0 && (
-            <span className="rounded-pill bg-category-music-bg px-2 py-0.5 font-semibold text-category-music-text">
-              {opportunity.goingFriends.length} friend{opportunity.goingFriends.length > 1 ? 's' : ''} going
+          {isExternal ? (
+            <span className="rounded-pill bg-category-tech-bg px-2 py-0.5 font-semibold text-category-tech-text">
+              🔗 Register on their site
             </span>
+          ) : (
+            <>
+              {opportunity.goingFriends.length > 0 && (
+                <span className="rounded-pill bg-category-music-bg px-2 py-0.5 font-semibold text-category-music-text">
+                  {opportunity.goingFriends.length} friend{opportunity.goingFriends.length > 1 ? 's' : ''} going
+                </span>
+              )}
+              <span className="rounded-pill bg-cream px-2 py-0.5 font-semibold text-brand-green/70">
+                {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}
+              </span>
+            </>
           )}
-          <span className="rounded-pill bg-cream px-2 py-0.5 font-semibold text-brand-green/70">
-            {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}
-          </span>
           {opportunity.tags.map((tag) => (
             <span key={tag} className="rounded-pill bg-category-animals-bg px-2 py-0.5 font-semibold text-category-animals-text">
               {tag}
@@ -63,7 +72,7 @@ export default function OpportunityCard({ opportunity, org }) {
         to={`/opportunities/${opportunity.id}`}
         className="shrink-0 rounded-pill bg-coral px-5 py-2 text-center text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
       >
-        Count me in
+        {isExternal ? 'See details' : 'Count me in'}
       </Link>
     </div>
   )

@@ -47,6 +47,8 @@ function mapOpportunity(row, counts = {}) {
     city: row.city,
     state: row.state,
     zip: row.zip,
+    externalUrl: row.external_url ?? null,
+    isOngoing: row.is_ongoing ?? false,
     distanceMiles: null, // needs geo, Phase 3 map work
     org: mapOrg(row.organizations),
   }

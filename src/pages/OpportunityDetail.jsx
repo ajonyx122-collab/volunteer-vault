@@ -127,6 +127,12 @@ export default function OpportunityDetail() {
   const category = getCategoryMeta(opportunity.category)
   const spotsLeft = opportunity.capacity - opportunity.spotsFilled
   const isFull = spotsLeft <= 0 && !joined
+  const isExternal = !!opportunity.externalUrl
+  const externalHref = isExternal
+    ? opportunity.externalUrl.startsWith('http')
+      ? opportunity.externalUrl
+      : `https://${opportunity.externalUrl}`
+    : null
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
@@ -172,11 +178,15 @@ export default function OpportunityDetail() {
           <div className="mt-8 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
             <div>
               <p className="font-bold text-brand-green">When</p>
-              <p className="text-brand-green/70">{formatWhen(opportunity.startsAt)}</p>
+              <p className="text-brand-green/70">
+                {opportunity.isOngoing ? 'Ongoing — start anytime' : formatWhen(opportunity.startsAt)}
+              </p>
             </div>
             <div>
               <p className="font-bold text-brand-green">Duration</p>
-              <p className="text-brand-green/70">{opportunity.durationHours} hrs</p>
+              <p className="text-brand-green/70">
+                {opportunity.isOngoing ? 'Flexible' : `${opportunity.durationHours} hrs`}
+              </p>
             </div>
             <div>
               <p className="font-bold text-brand-green">Where</p>
@@ -188,10 +198,12 @@ export default function OpportunityDetail() {
               <p className="font-bold text-brand-green">Min age</p>
               <p className="text-brand-green/70">{opportunity.minAge}+</p>
             </div>
-            <div>
-              <p className="font-bold text-brand-green">Spots</p>
-              <p className="text-brand-green/70">{spotsLeft > 0 ? `${spotsLeft} left` : 'Full'}</p>
-            </div>
+            {!isExternal && (
+              <div>
+                <p className="font-bold text-brand-green">Spots</p>
+                <p className="text-brand-green/70">{spotsLeft > 0 ? `${spotsLeft} left` : 'Full'}</p>
+              </div>
+            )}
             <div>
               <p className="font-bold text-brand-green">Hosted by</p>
               <p className="text-brand-green/70">{opportunity.org?.name}</p>
@@ -200,31 +212,52 @@ export default function OpportunityDetail() {
         </div>
 
         <aside className="flex w-full flex-col gap-4 md:w-72">
-          <div className="rounded-card border border-card-border bg-card p-5 text-center shadow-card">
-            <p className="font-display text-2xl font-extrabold text-brand-green">
-              {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}
-            </p>
-            <button
-              disabled={isFull || busy}
-              onClick={handleRsvp}
-              className={`mt-4 w-full rounded-pill px-6 py-3 text-sm font-bold shadow-soft transition-transform ${
-                joined
-                  ? 'bg-category-environment-bg text-category-environment-text hover:scale-105'
-                  : isFull
-                    ? 'cursor-not-allowed bg-card-border text-brand-green/40'
-                    : 'bg-coral text-cream-text hover:scale-105'
-              }`}
-            >
-              {busy ? '...' : joined ? "You're in! 🎉 (tap to cancel)" : isFull ? 'Full' : 'Count me in'}
-            </button>
-            <p className="mt-2 text-xs text-brand-green/50">
-              {user
-                ? 'No-shows hurt your streak, so only RSVP if you can make it.'
-                : 'You need an account to RSVP — joining is free.'}
-            </p>
-          </div>
+          {isExternal ? (
+            <div className="rounded-card border border-card-border bg-card p-5 text-center shadow-card">
+              <p className="font-display text-lg font-extrabold text-brand-green">Register with {opportunity.org?.name}</p>
+              <p className="mt-1 text-xs text-brand-green/60">
+                This opportunity is hosted on the organization's own site. Sign up there to get started.
+              </p>
+              <a
+                href={externalHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 block w-full rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+              >
+                Register on their site →
+              </a>
+              <p className="mt-3 rounded-card bg-cream px-3 py-2 text-xs text-brand-green/60">
+                Heads up: hours from external programs are tracked on that org's site, not verified
+                through VolunteerVault.
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-card border border-card-border bg-card p-5 text-center shadow-card">
+              <p className="font-display text-2xl font-extrabold text-brand-green">
+                {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}
+              </p>
+              <button
+                disabled={isFull || busy}
+                onClick={handleRsvp}
+                className={`mt-4 w-full rounded-pill px-6 py-3 text-sm font-bold shadow-soft transition-transform ${
+                  joined
+                    ? 'bg-category-environment-bg text-category-environment-text hover:scale-105'
+                    : isFull
+                      ? 'cursor-not-allowed bg-card-border text-brand-green/40'
+                      : 'bg-coral text-cream-text hover:scale-105'
+                }`}
+              >
+                {busy ? '...' : joined ? "You're in! 🎉 (tap to cancel)" : isFull ? 'Full' : 'Count me in'}
+              </button>
+              <p className="mt-2 text-xs text-brand-green/50">
+                {user
+                  ? 'No-shows hurt your streak, so only RSVP if you can make it.'
+                  : 'You need an account to RSVP — joining is free.'}
+              </p>
+            </div>
+          )}
 
-          {user && joined && (
+          {user && joined && !isExternal && (
             <div className="rounded-card border border-card-border bg-card p-5 shadow-card">
               <p className="font-bold text-brand-green">Your hours</p>
               {hourLog?.status === 'verified' ? (

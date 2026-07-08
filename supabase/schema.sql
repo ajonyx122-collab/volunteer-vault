@@ -58,6 +58,8 @@ create table public.opportunities (
   city text,
   state text,
   zip text,
+  external_url text,
+  is_ongoing boolean not null default false,
   created_at timestamptz not null default now()
 );
 
