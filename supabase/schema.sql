@@ -162,7 +162,7 @@ create policy "update own signup" on public.signups for update using (auth.uid()
 create policy "cancel own signup" on public.signups for delete using (auth.uid() = user_id);
 
 create policy "hour logs are public" on public.hour_logs for select using (true);
-create policy "log own hours" on public.hour_logs for insert with check (auth.uid() = user_id);
+-- (self-logging is restricted to pending status - see EVENT-CODE VERIFICATION below)
 
 create policy "reviews are public" on public.reviews for select using (true);
 create policy "review as self" on public.reviews for insert with check (auth.uid() = user_id);
@@ -211,39 +211,81 @@ create view public.signup_counts as
 
 grant select on public.signup_counts to anon, authenticated;
 
--- ============ STARTER DATA ============
--- Fixed UUIDs so re-running this block is easy to reason about.
+-- ============ EVENT-CODE VERIFICATION ============
+-- Codes live in their own table so they are never readable through the public
+-- opportunities API — only the org that owns the listing can see its code.
+create table public.check_in_codes (
+  opportunity_id uuid primary key references public.opportunities (id) on delete cascade,
+  code text not null default upper(substring(md5(random()::text) from 1 for 6))
+);
 
-insert into public.organizations (id, name, verified, description, location) values
-  ('11111111-1111-1111-1111-111111111101', 'Green Shore Coalition', true, 'Community-run beach and waterway cleanups across the county.', 'Riverside Park'),
-  ('11111111-1111-1111-1111-111111111102', 'Second Bowl Food Rescue', true, 'Rescuing surplus food and getting it to families who need it.', 'Downtown Community Kitchen'),
-  ('11111111-1111-1111-1111-111111111103', 'Paws & Purpose Shelter', true, 'No-kill animal shelter running on volunteer power.', 'Westside Animal Shelter'),
-  ('11111111-1111-1111-1111-111111111104', 'Brushstrokes Youth Arts', false, 'Free art programs for elementary schoolers, run by teen mentors.', 'Lincoln Community Center'),
-  ('11111111-1111-1111-1111-111111111105', 'Sunrise Senior Companions', true, 'Friendly visits, music, and games with residents at local senior homes.', 'Maple Grove Senior Living');
+alter table public.check_in_codes enable row level security;
+create policy "org owner sees own codes" on public.check_in_codes
+  for select using (
+    exists (
+      select 1 from public.opportunities o
+      join public.organizations g on g.id = o.org_id
+      where o.id = check_in_codes.opportunity_id and g.owner_id = auth.uid()
+    )
+  );
 
-insert into public.opportunities (id, org_id, title, category, description, starts_at, duration_hours, address, capacity, min_age) values
-  ('22222222-2222-2222-2222-222222222201', '11111111-1111-1111-1111-111111111101', 'Riverside Beach Cleanup', 'environment',
-   'Grab a bag and gloves — we''re clearing plastic and debris along the river trail before the summer crowds hit. Snacks and music provided.',
-   '2026-07-12 09:00:00-04', 2, 'Riverside Park, Main Entrance', 40, 12),
-  ('22222222-2222-2222-2222-222222222202', '11111111-1111-1111-1111-111111111102', 'Weekend Food Rescue Sort', 'food',
-   'Sort and pack rescued grocery surplus into family boxes. Indoors, easy pace, great for a first shift.',
-   '2026-07-13 13:00:00-04', 3, 'Downtown Community Kitchen', 20, 14),
-  ('22222222-2222-2222-2222-222222222203', '11111111-1111-1111-1111-111111111103', 'Shelter Dog Walking Shift', 'animals',
-   'Walk and socialize shelter dogs so they stay happy and adoptable. Comfortable shoes required.',
-   '2026-07-11 16:00:00-04', 2, 'Westside Animal Shelter', 15, 13),
-  ('22222222-2222-2222-2222-222222222204', '11111111-1111-1111-1111-111111111104', 'After-School Art Studio Helpers', 'art',
-   'Help elementary kids with painting and craft projects. No experience needed, just patience and good vibes.',
-   '2026-07-14 15:30:00-04', 1.5, 'Lincoln Community Center', 10, 14),
-  ('22222222-2222-2222-2222-222222222205', '11111111-1111-1111-1111-111111111105', 'Senior Center Music & Games Afternoon', 'music',
-   'Play board games, cards, and requested songs with residents. Bring an instrument if you''ve got one.',
-   '2026-07-13 14:00:00-04', 2, 'Maple Grove Senior Living', 12, 12),
-  ('22222222-2222-2222-2222-222222222206', '11111111-1111-1111-1111-111111111101', 'Trailhead Native Planting Day', 'environment',
-   'Plant native shrubs and grasses to fight erosion along the north trailhead. Tools and gloves provided.',
-   '2026-07-19 09:00:00-04', 3, 'North Trailhead Lot', 25, 12);
+create or replace function public.gen_check_in_code()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.check_in_codes (opportunity_id) values (new.id)
+  on conflict (opportunity_id) do nothing;
+  return new;
+end $$;
 
-insert into public.reviews (opportunity_id, reviewer_name, rating_organized, rating_welcoming, rating_impactful, quote, tip) values
-  ('22222222-2222-2222-2222-222222222201', 'Maya P.', 5, 5, 4, 'Way more fun than I expected — bring a hoodie, it''s breezy by the water.', 'Wear shoes you don''t mind getting sandy.'),
-  ('22222222-2222-2222-2222-222222222201', 'Theo R.', 4, 5, 5, 'Filled two whole bags in an hour, felt like we actually made a dent.', 'Get there right at 9 — parking fills up fast.'),
-  ('22222222-2222-2222-2222-222222222202', 'Jordan K.', 5, 5, 4, 'Organized and welcoming, the staff actually explain what you''re doing.', 'It''s chilly in the warehouse, bring a light jacket.'),
-  ('22222222-2222-2222-2222-222222222203', 'Priya S.', 5, 5, 5, 'Full every week for a reason. Sign up early!', 'Bring your own water bottle, it gets warm on the walking loop.'),
-  ('22222222-2222-2222-2222-222222222205', 'Jordan K.', 5, 5, 5, 'Genuinely one of the sweetest hours of my week.', 'Learn a card game beforehand, residents love teaching new ones too.');
+create trigger opportunities_gen_code
+  after insert on public.opportunities
+  for each row execute function public.gen_check_in_code();
+
+-- Volunteers may only self-log PENDING hours; verified comes from the org.
+create policy "log own pending hours" on public.hour_logs
+  for insert with check (auth.uid() = user_id and status = 'pending' and verified_by is null);
+
+create policy "org owner approves hours" on public.hour_logs
+  for update using (
+    exists (
+      select 1 from public.opportunities o
+      join public.organizations g on g.id = o.org_id
+      where o.id = hour_logs.opportunity_id and g.owner_id = auth.uid()
+    )
+  );
+
+-- Instant verify: volunteer types the event code; validation + verified log
+-- happen server-side so the client cannot fake it.
+create or replace function public.check_in_with_code(p_opportunity uuid, p_code text)
+returns void language plpgsql security definer set search_path = public as $$
+declare
+  v_hours numeric;
+  v_owner uuid;
+  v_code text;
+begin
+  if auth.uid() is null then
+    raise exception 'You need to be logged in.';
+  end if;
+
+  select o.duration_hours, g.owner_id, c.code
+    into v_hours, v_owner, v_code
+  from public.opportunities o
+  join public.organizations g on g.id = o.org_id
+  join public.check_in_codes c on c.opportunity_id = o.id
+  where o.id = p_opportunity;
+
+  if v_code is null then
+    raise exception 'This opportunity has no check-in code.';
+  end if;
+  if upper(trim(p_code)) <> v_code then
+    raise exception 'That code does not match — double-check with the organizer.';
+  end if;
+
+  insert into public.hour_logs (user_id, opportunity_id, hours, status, verified_by)
+  values (auth.uid(), p_opportunity, v_hours, 'verified', v_owner)
+  on conflict (user_id, opportunity_id)
+    do update set status = 'verified', hours = excluded.hours, verified_by = excluded.verified_by;
+
+  update public.signups set status = 'attended'
+  where user_id = auth.uid() and opportunity_id = p_opportunity;
+end $$;

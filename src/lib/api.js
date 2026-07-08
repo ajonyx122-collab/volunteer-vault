@@ -220,18 +220,73 @@ export async function fetchListingSignups(opportunityId) {
   if (error) throw error
   const signups = data ?? []
   if (signups.length === 0) return []
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, display_name, username')
-    .in('id', signups.map((s) => s.user_id))
+  const [{ data: profiles }, { data: logs }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, display_name, username')
+      .in('id', signups.map((s) => s.user_id)),
+    supabase
+      .from('hour_logs')
+      .select('id, user_id, hours, status')
+      .eq('opportunity_id', opportunityId),
+  ])
   const byId = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
+  const logByUser = Object.fromEntries((logs ?? []).map((l) => [l.user_id, l]))
   return signups.map((s) => ({
     id: s.id,
     userId: s.user_id,
     status: s.status,
     displayName: byId[s.user_id]?.display_name ?? 'Volunteer',
     username: byId[s.user_id]?.username ?? '',
+    hourLog: logByUser[s.user_id] ?? null,
   }))
+}
+
+// Instant self-verification: the volunteer types the event code the org
+// announced. Validation and the verified hour log happen inside the database
+// function, so the client can't fake it.
+export async function checkInWithCode(opportunityId, code) {
+  const { error } = await supabase.rpc('check_in_with_code', {
+    p_opportunity: opportunityId,
+    p_code: code,
+  })
+  if (error) throw error
+}
+
+// Backup path: volunteer requests hours (pending), org approves later.
+export async function requestHours(userId, opportunityId, hours) {
+  const { error } = await supabase.from('hour_logs').insert({
+    user_id: userId,
+    opportunity_id: opportunityId,
+    hours: Number(hours),
+    status: 'pending',
+  })
+  if (error && error.code !== '23505') throw error
+}
+
+export async function approveHours(logId) {
+  const { error } = await supabase.from('hour_logs').update({ status: 'verified' }).eq('id', logId)
+  if (error) throw error
+}
+
+export async function fetchMyHourLog(userId, opportunityId) {
+  const { data } = await supabase
+    .from('hour_logs')
+    .select('id, hours, status')
+    .eq('user_id', userId)
+    .eq('opportunity_id', opportunityId)
+    .maybeSingle()
+  return data ?? null
+}
+
+// Only returns a value for the org that owns the listing (RLS).
+export async function fetchCheckInCode(opportunityId) {
+  const { data } = await supabase
+    .from('check_in_codes')
+    .select('code')
+    .eq('opportunity_id', opportunityId)
+    .maybeSingle()
+  return data?.code ?? null
 }
 
 // Marks a volunteer attended and writes a verified hour log in one go. The

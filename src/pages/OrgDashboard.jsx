@@ -8,6 +8,8 @@ import {
   fetchOrgOpportunities,
   fetchListingSignups,
   verifyAttendance,
+  approveHours,
+  fetchCheckInCode,
 } from '../lib/api'
 import VerifiedBadge from '../components/VerifiedBadge'
 import OrgAvatar from '../components/OrgAvatar'
@@ -263,6 +265,7 @@ export default function OrgDashboard() {
 // volunteer's vault as org-verified. No forms, no email chains.
 function ListingVolunteers({ opportunity, orgOwnerId }) {
   const [volunteers, setVolunteers] = useState(null)
+  const [checkInCode, setCheckInCode] = useState(null)
   const [busyId, setBusyId] = useState(null)
   const [error, setError] = useState('')
 
@@ -270,6 +273,7 @@ function ListingVolunteers({ opportunity, orgOwnerId }) {
     fetchListingSignups(opportunity.id)
       .then(setVolunteers)
       .catch(() => setError("Couldn't load signups — run the latest database update and refresh."))
+    fetchCheckInCode(opportunity.id).then(setCheckInCode)
   }, [opportunity.id])
 
   async function handleVerify(volunteer) {
@@ -283,10 +287,32 @@ function ListingVolunteers({ opportunity, orgOwnerId }) {
         orgOwnerId,
       })
       setVolunteers((prev) =>
-        prev.map((v) => (v.userId === volunteer.userId ? { ...v, status: 'attended' } : v)),
+        prev.map((v) =>
+          v.userId === volunteer.userId
+            ? { ...v, status: 'attended', hourLog: { hours: opportunity.durationHours, status: 'verified' } }
+            : v,
+        ),
       )
     } catch {
       setError("Couldn't verify — check your connection and try again.")
+    }
+    setBusyId(null)
+  }
+
+  async function handleApprove(volunteer) {
+    setBusyId(volunteer.userId)
+    setError('')
+    try {
+      await approveHours(volunteer.hourLog.id)
+      setVolunteers((prev) =>
+        prev.map((v) =>
+          v.userId === volunteer.userId
+            ? { ...v, hourLog: { ...v.hourLog, status: 'verified' } }
+            : v,
+        ),
+      )
+    } catch {
+      setError("Couldn't approve — check your connection and try again.")
     }
     setBusyId(null)
   }
@@ -296,6 +322,18 @@ function ListingVolunteers({ opportunity, orgOwnerId }) {
 
   return (
     <div className="mt-3 border-t border-card-border pt-3">
+      {checkInCode && (
+        <div className="mb-3 flex flex-wrap items-center gap-3 rounded-card bg-cream p-3">
+          <span className="rounded-card bg-brand-green px-4 py-2 font-display text-xl font-extrabold tracking-[0.3em] text-cream-text">
+            {checkInCode}
+          </span>
+          <p className="min-w-0 flex-1 text-xs text-brand-green/70">
+            <span className="font-bold">Your event code.</span> Announce it or write it up at the
+            event — volunteers type it in the app and their hours verify instantly, no taps needed
+            from you.
+          </p>
+        </div>
+      )}
       {volunteers.length === 0 && (
         <p className="text-sm text-brand-green/60">No signups yet for this one.</p>
       )}
@@ -307,10 +345,18 @@ function ListingVolunteers({ opportunity, orgOwnerId }) {
               {v.displayName}
               {v.username && <span className="ml-1 text-xs text-brand-green/50">@{v.username}</span>}
             </p>
-            {v.status === 'attended' ? (
+            {v.hourLog?.status === 'verified' || v.status === 'attended' ? (
               <span className="rounded-pill bg-category-environment-bg px-3 py-1 text-xs font-bold text-category-environment-text">
-                ✓ Verified {opportunity.durationHours} hrs
+                ✓ Verified {v.hourLog?.hours ?? opportunity.durationHours} hrs
               </span>
+            ) : v.hourLog?.status === 'pending' ? (
+              <button
+                onClick={() => handleApprove(v)}
+                disabled={busyId === v.userId}
+                className="rounded-pill bg-gold px-4 py-1.5 text-xs font-bold text-gold-text shadow-soft disabled:opacity-50"
+              >
+                {busyId === v.userId ? 'Approving...' : `Approve requested ${v.hourLog.hours} hrs`}
+              </button>
             ) : v.status === 'no_show' ? (
               <span className="rounded-pill bg-card-border px-3 py-1 text-xs font-bold text-brand-green/50">
                 No-show

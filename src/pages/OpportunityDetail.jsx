@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getCategoryMeta } from '../data/mockData'
-import { fetchOpportunity, fetchMySignup, rsvp, cancelRsvp, reportOpportunity } from '../lib/api'
+import {
+  fetchOpportunity,
+  fetchMySignup,
+  rsvp,
+  cancelRsvp,
+  reportOpportunity,
+  fetchMyHourLog,
+  checkInWithCode,
+  requestHours,
+} from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
 import VerifiedBadge from '../components/VerifiedBadge'
 import OrgAvatar from '../components/OrgAvatar'
@@ -26,6 +35,9 @@ export default function OpportunityDetail() {
   const [joined, setJoined] = useState(false)
   const [busy, setBusy] = useState(false)
   const [reportState, setReportState] = useState('idle') // idle | asking | sent
+  const [hourLog, setHourLog] = useState(null)
+  const [code, setCode] = useState('')
+  const [codeState, setCodeState] = useState({ busy: false, error: '' })
 
   useEffect(() => {
     fetchOpportunity(id)
@@ -37,7 +49,32 @@ export default function OpportunityDetail() {
   useEffect(() => {
     if (!user || !id) return
     fetchMySignup(user.id, id).then((signup) => setJoined(!!signup))
+    fetchMyHourLog(user.id, id).then(setHourLog)
   }, [user, id])
+
+  async function handleCode(e) {
+    e.preventDefault()
+    setCodeState({ busy: true, error: '' })
+    try {
+      await checkInWithCode(id, code)
+      setHourLog({ hours: opportunity.durationHours, status: 'verified' })
+      setCode('')
+      setCodeState({ busy: false, error: '' })
+    } catch (err) {
+      setCodeState({ busy: false, error: err.message ?? 'That code did not work.' })
+    }
+  }
+
+  async function handleRequestHours() {
+    setCodeState({ busy: true, error: '' })
+    try {
+      await requestHours(user.id, id, opportunity.durationHours)
+      setHourLog({ hours: opportunity.durationHours, status: 'pending' })
+      setCodeState({ busy: false, error: '' })
+    } catch {
+      setCodeState({ busy: false, error: "Couldn't send the request — try again." })
+    }
+  }
 
   async function handleRsvp() {
     if (!user) {
@@ -186,6 +223,53 @@ export default function OpportunityDetail() {
                 : 'You need an account to RSVP — joining is free.'}
             </p>
           </div>
+
+          {user && joined && (
+            <div className="rounded-card border border-card-border bg-card p-5 shadow-card">
+              <p className="font-bold text-brand-green">Your hours</p>
+              {hourLog?.status === 'verified' ? (
+                <p className="mt-2 rounded-pill bg-category-environment-bg px-3 py-2 text-center text-sm font-bold text-category-environment-text">
+                  ✓ {hourLog.hours} hrs verified — they're in your vault
+                </p>
+              ) : hourLog?.status === 'pending' ? (
+                <p className="mt-2 rounded-pill bg-card-border px-3 py-2 text-center text-sm font-bold text-brand-green/60">
+                  ⏳ {hourLog.hours} hrs requested — waiting on the org
+                </p>
+              ) : (
+                <>
+                  <form onSubmit={handleCode} className="mt-2 flex gap-2">
+                    <input
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.toUpperCase())}
+                      placeholder="Event code"
+                      maxLength={6}
+                      className="w-full min-w-0 rounded-pill border border-card-border px-4 py-2 text-center text-sm font-bold tracking-widest outline-none"
+                    />
+                    <button
+                      type="submit"
+                      disabled={codeState.busy || code.length < 6}
+                      className="shrink-0 rounded-pill bg-brand-green px-4 py-2 text-sm font-bold text-cream-text shadow-soft disabled:opacity-50"
+                    >
+                      Verify
+                    </button>
+                  </form>
+                  <p className="mt-2 text-xs text-brand-green/50">
+                    Get the 6-character code from the organizer at the event — hours verify instantly.
+                  </p>
+                  <button
+                    onClick={handleRequestHours}
+                    disabled={codeState.busy}
+                    className="mt-2 w-full rounded-pill border border-card-border px-4 py-2 text-xs font-bold text-brand-green/70 hover:bg-cream disabled:opacity-50"
+                  >
+                    No code? Request hours from the org
+                  </button>
+                </>
+              )}
+              {codeState.error && (
+                <p className="mt-2 text-xs font-semibold text-coral">{codeState.error}</p>
+              )}
+            </div>
+          )}
 
           <div className="flex gap-3 rounded-card border border-card-border bg-card p-5 shadow-card">
             <OrgAvatar org={opportunity.org} size="md" />
