@@ -45,9 +45,16 @@ export default function OpportunityCard({ opportunity, org }) {
         )}
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
           {isExternal ? (
-            <span className="rounded-pill bg-category-tech-bg px-2 py-0.5 font-semibold text-category-tech-text">
-              🔗 Register on their site
-            </span>
+            <>
+              <span className="rounded-pill bg-category-tech-bg px-2 py-0.5 font-semibold text-category-tech-text">
+                🔗 Register on their site
+              </span>
+              {opportunity.hoursEstimate && (
+                <span className="rounded-pill bg-cream px-2 py-0.5 font-semibold text-brand-green/70">
+                  ⏱ {opportunity.hoursEstimate}
+                </span>
+              )}
+            </>
           ) : (
             <>
               {opportunity.goingFriends.length > 0 && (

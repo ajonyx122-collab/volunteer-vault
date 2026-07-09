@@ -1,0 +1,834 @@
+[
+  {
+    "name": "American Red Cross",
+    "description": "Disaster relief, blood drives, and emergency preparedness powered largely by volunteers nationwide.",
+    "website": "https://www.redcross.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.redcross.org&sz=128",
+    "category": "disaster",
+    "tags": [
+      "no experience needed",
+      "training provided"
+    ],
+    "remote": false,
+    "international": false,
+    "min_age": 16,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": true,
+    "opportunity": {
+      "title": "Become a Red Cross Volunteer",
+      "description": "Support disaster response, blood drives, and community preparedness — in person or in virtual support roles.",
+      "category": "disaster",
+      "tags": [
+        "no experience needed",
+        "training provided"
+      ],
+      "remote": false,
+      "min_age": 16,
+      "hours_estimate": "4+ hrs / shift",
+      "signup_link": "https://www.redcross.org/volunteer/become-a-volunteer.html"
+    }
+  },
+  {
+    "name": "Feeding America",
+    "description": "The nationwide network of 200+ food banks fighting hunger in every U.S. community.",
+    "website": "https://www.feedingamerica.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.feedingamerica.org&sz=128",
+    "category": "food",
+    "tags": [
+      "good for crews",
+      "counts for school hours"
+    ],
+    "remote": false,
+    "international": false,
+    "min_age": 14,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": true,
+    "opportunity": {
+      "title": "Volunteer at a Local Food Bank",
+      "description": "Sort and pack food, staff pantries, and support hunger-relief efforts through your nearest member food bank.",
+      "category": "food",
+      "tags": [
+        "good for crews",
+        "counts for school hours"
+      ],
+      "remote": false,
+      "min_age": 14,
+      "hours_estimate": "2-4 hrs / shift",
+      "signup_link": "https://www.feedingamerica.org/take-action/volunteer"
+    }
+  },
+  {
+    "name": "Habitat for Humanity",
+    "description": "Builds and repairs affordable homes alongside families in need, in the U.S. and around the world.",
+    "website": "https://www.habitat.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.habitat.org&sz=128",
+    "category": "community",
+    "tags": [
+      "good for crews",
+      "training provided"
+    ],
+    "remote": false,
+    "international": true,
+    "min_age": 16,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": true,
+    "opportunity": {
+      "title": "Build Homes with Habitat",
+      "description": "Help build and repair homes on a local build site or support ReStore resale shops. Training provided on site.",
+      "category": "community",
+      "tags": [
+        "good for crews",
+        "training provided"
+      ],
+      "remote": false,
+      "min_age": 16,
+      "hours_estimate": "Full day",
+      "signup_link": "https://www.habitat.org/volunteer"
+    }
+  },
+  {
+    "name": "Zooniverse",
+    "description": "The world's largest people-powered research platform for online citizen science.",
+    "website": "https://www.zooniverse.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.zooniverse.org&sz=128",
+    "category": "tech",
+    "tags": [
+      "no experience needed",
+      "one-time"
+    ],
+    "remote": true,
+    "international": true,
+    "min_age": 0,
+    "country": "Global",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": true,
+    "opportunity": {
+      "title": "Power Real Research Online",
+      "description": "Classify galaxies, tag wildlife photos, or transcribe records from home — bite-size tasks that fuel real science.",
+      "category": "tech",
+      "tags": [
+        "no experience needed",
+        "one-time"
+      ],
+      "remote": true,
+      "min_age": 0,
+      "hours_estimate": "Flexible",
+      "signup_link": "https://www.zooniverse.org/projects"
+    }
+  },
+  {
+    "name": "Smithsonian Transcription Center",
+    "description": "Digital volunteers transcribe the Smithsonian's historical documents to make them searchable for everyone.",
+    "website": "https://transcription.si.edu",
+    "logo_url": "https://www.google.com/s2/favicons?domain=transcription.si.edu&sz=128",
+    "category": "art",
+    "tags": [
+      "no experience needed",
+      "one-time"
+    ],
+    "remote": true,
+    "international": false,
+    "min_age": 13,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": true,
+    "opportunity": {
+      "title": "Transcribe Smithsonian Records",
+      "description": "Turn handwritten letters, journals, and labels into searchable text from your laptop — as little or as much as you like.",
+      "category": "art",
+      "tags": [
+        "no experience needed",
+        "one-time"
+      ],
+      "remote": true,
+      "min_age": 13,
+      "hours_estimate": "Flexible",
+      "signup_link": "https://transcription.si.edu"
+    }
+  },
+  {
+    "name": "Meals on Wheels America",
+    "description": "Local programs delivering meals and friendly visits to homebound seniors across the country.",
+    "website": "https://www.mealsonwheelsamerica.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.mealsonwheelsamerica.org&sz=128",
+    "category": "seniors",
+    "tags": [
+      "recurring"
+    ],
+    "remote": false,
+    "international": false,
+    "min_age": 16,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Deliver Meals to Seniors",
+      "description": "Bring meals and a warm hello to homebound older neighbors through your local Meals on Wheels program.",
+      "category": "seniors",
+      "tags": [
+        "recurring"
+      ],
+      "remote": false,
+      "min_age": 16,
+      "hours_estimate": "1-2 hrs / route",
+      "signup_link": "https://www.mealsonwheelsamerica.org/volunteer"
+    }
+  },
+  {
+    "name": "Best Buddies International",
+    "description": "Builds friendships and leadership for people with intellectual and developmental disabilities.",
+    "website": "https://www.bestbuddies.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.bestbuddies.org&sz=128",
+    "category": "community",
+    "tags": [
+      "no experience needed",
+      "recurring"
+    ],
+    "remote": false,
+    "international": true,
+    "min_age": 12,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Be a Buddy",
+      "description": "Form a one-to-one friendship or support programs for people with intellectual and developmental disabilities.",
+      "category": "community",
+      "tags": [
+        "no experience needed",
+        "recurring"
+      ],
+      "remote": false,
+      "min_age": 12,
+      "hours_estimate": "1-2 hrs / week",
+      "signup_link": "https://www.bestbuddies.org/get-involved/volunteer/"
+    }
+  },
+  {
+    "name": "UPchieve",
+    "description": "Free, on-demand online tutoring and college counseling for low-income high school students.",
+    "website": "https://upchieve.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=upchieve.org&sz=128",
+    "category": "education",
+    "tags": [
+      "no experience needed",
+      "counts for school hours"
+    ],
+    "remote": true,
+    "international": false,
+    "min_age": 14,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": true,
+    "opportunity": {
+      "title": "Tutor Students Online",
+      "description": "Get a text when a student needs help, hop on, and tutor 1:1 in 20+ subjects on your own schedule.",
+      "category": "education",
+      "tags": [
+        "no experience needed",
+        "counts for school hours"
+      ],
+      "remote": true,
+      "min_age": 14,
+      "hours_estimate": "Flexible",
+      "signup_link": "https://app.upchieve.org/sign-up/volunteer/account"
+    }
+  },
+  {
+    "name": "Learn To Be",
+    "description": "Free 1-on-1 online tutoring for underserved K-12 students nationwide.",
+    "website": "https://www.learntobe.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.learntobe.org&sz=128",
+    "category": "education",
+    "tags": [
+      "recurring",
+      "counts for school hours"
+    ],
+    "remote": true,
+    "international": false,
+    "min_age": 13,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Tutor a K-12 Student",
+      "description": "Meet weekly with a student who needs support in a subject you know well. Matching and training provided.",
+      "category": "education",
+      "tags": [
+        "recurring",
+        "counts for school hours"
+      ],
+      "remote": true,
+      "min_age": 13,
+      "hours_estimate": "1 hr / week",
+      "signup_link": "https://www.learntobe.org/volunteers"
+    }
+  },
+  {
+    "name": "Crisis Text Line",
+    "description": "Free, 24/7 mental-health crisis support delivered over text by trained volunteer counselors.",
+    "website": "https://www.crisistextline.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.crisistextline.org&sz=128",
+    "category": "medicine",
+    "tags": [
+      "training provided",
+      "recurring"
+    ],
+    "remote": true,
+    "international": false,
+    "min_age": 18,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Train as a Crisis Counselor",
+      "description": "Support people through their hardest moments over text. Full training provided; a serious ongoing commitment.",
+      "category": "medicine",
+      "tags": [
+        "training provided",
+        "recurring"
+      ],
+      "remote": true,
+      "min_age": 18,
+      "hours_estimate": "4 hrs / week",
+      "signup_link": "https://www.crisistextline.org/become-a-volunteer/"
+    }
+  },
+  {
+    "name": "Be My Eyes",
+    "description": "Connects blind and low-vision people with sighted volunteers for quick help over live video.",
+    "website": "https://www.bemyeyes.com",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.bemyeyes.com&sz=128",
+    "category": "community",
+    "tags": [
+      "no experience needed",
+      "one-time"
+    ],
+    "remote": true,
+    "international": true,
+    "min_age": 17,
+    "country": "Global",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Lend Your Eyes",
+      "description": "Answer a quick video call to help someone read a label, check an expiration date, or find something.",
+      "category": "community",
+      "tags": [
+        "no experience needed",
+        "one-time"
+      ],
+      "remote": true,
+      "min_age": 17,
+      "hours_estimate": "A few min",
+      "signup_link": "https://www.bemyeyes.com/become-a-volunteer"
+    }
+  },
+  {
+    "name": "Translators without Borders",
+    "description": "Provides translation for humanitarian and crisis-relief efforts in over 200 languages.",
+    "website": "https://translatorswithoutborders.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=translatorswithoutborders.org&sz=128",
+    "category": "community",
+    "tags": [
+      "recurring"
+    ],
+    "remote": true,
+    "international": true,
+    "min_age": 18,
+    "country": "Global",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Translate for Humanitarian Aid",
+      "description": "Bilingual? Translate health, crisis, and education materials for relief organizations worldwide.",
+      "category": "community",
+      "tags": [
+        "recurring"
+      ],
+      "remote": true,
+      "min_age": 18,
+      "hours_estimate": "Flexible",
+      "signup_link": "https://translatorswithoutborders.org/volunteer/"
+    }
+  },
+  {
+    "name": "UN Online Volunteering",
+    "description": "The United Nations platform connecting volunteers to remote work for nonprofits worldwide.",
+    "website": "https://www.onlinevolunteering.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.onlinevolunteering.org&sz=128",
+    "category": "community",
+    "tags": [
+      "leadership role"
+    ],
+    "remote": true,
+    "international": true,
+    "min_age": 18,
+    "country": "Global",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": false,
+    "opportunity": {
+      "title": "Volunteer Online for the UN",
+      "description": "Support UN agencies and nonprofits with writing, research, design, translation, and data — all remote.",
+      "category": "community",
+      "tags": [
+        "leadership role"
+      ],
+      "remote": true,
+      "min_age": 18,
+      "hours_estimate": "Flexible",
+      "signup_link": "https://www.onlinevolunteering.org"
+    }
+  },
+  {
+    "name": "The Trevor Project",
+    "description": "Crisis intervention and suicide prevention for LGBTQ young people.",
+    "website": "https://www.thetrevorproject.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.thetrevorproject.org&sz=128",
+    "category": "medicine",
+    "tags": [
+      "training provided",
+      "recurring"
+    ],
+    "remote": true,
+    "international": false,
+    "min_age": 18,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Support LGBTQ Youth",
+      "description": "Train as a digital crisis counselor supporting LGBTQ young people. Full training and a real commitment.",
+      "category": "medicine",
+      "tags": [
+        "training provided",
+        "recurring"
+      ],
+      "remote": true,
+      "min_age": 18,
+      "hours_estimate": "4 hrs / week",
+      "signup_link": "https://www.thetrevorproject.org/volunteer/"
+    }
+  },
+  {
+    "name": "Ronald McDonald House Charities",
+    "description": "Keeps families close to their hospitalized children with a home away from home.",
+    "website": "https://www.rmhc.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.rmhc.org&sz=128",
+    "category": "medicine",
+    "tags": [
+      "good for crews"
+    ],
+    "remote": false,
+    "international": true,
+    "min_age": 14,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": false,
+    "opportunity": {
+      "title": "Help Families at RMHC",
+      "description": "Cook meals, welcome families, or help run events at a local Ronald McDonald House. Roles vary by chapter.",
+      "category": "medicine",
+      "tags": [
+        "good for crews"
+      ],
+      "remote": false,
+      "min_age": 14,
+      "hours_estimate": "2-3 hrs / shift",
+      "signup_link": "https://www.rmhc.org/get-involved"
+    }
+  },
+  {
+    "name": "Special Olympics",
+    "description": "Sports training and competition for children and adults with intellectual disabilities.",
+    "website": "https://www.specialolympics.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.specialolympics.org&sz=128",
+    "category": "sports",
+    "tags": [
+      "good for crews"
+    ],
+    "remote": false,
+    "international": true,
+    "min_age": 12,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": false,
+    "opportunity": {
+      "title": "Volunteer at Special Olympics",
+      "description": "Coach, help run events, or cheer alongside athletes with intellectual disabilities. Virtual roles too.",
+      "category": "sports",
+      "tags": [
+        "good for crews"
+      ],
+      "remote": false,
+      "min_age": 12,
+      "hours_estimate": "Half day",
+      "signup_link": "https://www.specialolympics.org/ways-to-get-involved/volunteer"
+    }
+  },
+  {
+    "name": "Humane Society of the United States",
+    "description": "The nation's largest animal-protection organization.",
+    "website": "https://www.humanesociety.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.humanesociety.org&sz=128",
+    "category": "animals",
+    "tags": [
+      "recurring"
+    ],
+    "remote": false,
+    "international": false,
+    "min_age": 16,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Advocate for Animals",
+      "description": "Support animal-welfare campaigns through advocacy, phone banking, and local action.",
+      "category": "animals",
+      "tags": [
+        "recurring"
+      ],
+      "remote": false,
+      "min_age": 16,
+      "hours_estimate": "Flexible",
+      "signup_link": "https://www.humanesociety.org/volunteer"
+    }
+  },
+  {
+    "name": "National Park Service",
+    "description": "Volunteers-In-Parks help care for America’s national parks and historic sites.",
+    "website": "https://www.nps.gov",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.nps.gov&sz=128",
+    "category": "environment",
+    "tags": [
+      "outdoors",
+      "good for crews"
+    ],
+    "remote": false,
+    "international": false,
+    "min_age": 16,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": false,
+    "opportunity": {
+      "title": "Volunteer in a National Park",
+      "description": "Maintain trails, help visitors, or support conservation projects in a national park near you.",
+      "category": "environment",
+      "tags": [
+        "outdoors",
+        "good for crews"
+      ],
+      "remote": false,
+      "min_age": 16,
+      "hours_estimate": "Half day",
+      "signup_link": "https://www.nps.gov/getinvolved/volunteer.htm"
+    }
+  },
+  {
+    "name": "Operation Gratitude",
+    "description": "Sends care packages and letters of appreciation to troops, veterans, and first responders.",
+    "website": "https://www.operationgratitude.com",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.operationgratitude.com&sz=128",
+    "category": "veterans",
+    "tags": [
+      "no experience needed",
+      "one-time"
+    ],
+    "remote": true,
+    "international": false,
+    "min_age": 0,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "one-time",
+    "featured": false,
+    "opportunity": {
+      "title": "Write to Troops & Veterans",
+      "description": "Write heartfelt thank-you letters to service members, veterans, and first responders. All ages welcome.",
+      "category": "veterans",
+      "tags": [
+        "no experience needed",
+        "one-time"
+      ],
+      "remote": true,
+      "min_age": 0,
+      "hours_estimate": "1 hr",
+      "signup_link": "https://www.operationgratitude.com/volunteer/"
+    }
+  },
+  {
+    "name": "DoSomething.org",
+    "description": "Youth-led campaigns for social change built specifically for teens and young adults.",
+    "website": "https://www.dosomething.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.dosomething.org&sz=128",
+    "category": "community",
+    "tags": [
+      "no experience needed",
+      "counts for school hours"
+    ],
+    "remote": true,
+    "international": false,
+    "min_age": 13,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": false,
+    "opportunity": {
+      "title": "Join a Youth Campaign",
+      "description": "Take action on causes you care about through campaigns designed for young people — mostly from your phone.",
+      "category": "community",
+      "tags": [
+        "no experience needed",
+        "counts for school hours"
+      ],
+      "remote": true,
+      "min_age": 13,
+      "hours_estimate": "Flexible",
+      "signup_link": "https://www.dosomething.org"
+    }
+  },
+  {
+    "name": "Girls on the Run",
+    "description": "Builds confidence in girls through a fun, experience-based running program.",
+    "website": "https://www.girlsontherun.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.girlsontherun.org&sz=128",
+    "category": "sports",
+    "tags": [
+      "recurring"
+    ],
+    "remote": false,
+    "international": false,
+    "min_age": 14,
+    "country": "United States",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": false,
+    "opportunity": {
+      "title": "Coach or Cheer with GOTR",
+      "description": "Coach, run as a buddy, or help at events to help girls build confidence. Teen roles available locally.",
+      "category": "sports",
+      "tags": [
+        "recurring"
+      ],
+      "remote": false,
+      "min_age": 14,
+      "hours_estimate": "2 hrs / week",
+      "signup_link": "https://www.girlsontherun.org/volunteer"
+    }
+  },
+  {
+    "name": "iNaturalist",
+    "description": "A community mapping biodiversity by observing and identifying plants and animals.",
+    "website": "https://www.inaturalist.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.inaturalist.org&sz=128",
+    "category": "environment",
+    "tags": [
+      "no experience needed",
+      "outdoors"
+    ],
+    "remote": true,
+    "international": true,
+    "min_age": 13,
+    "country": "Global",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Map Biodiversity",
+      "description": "Photograph and identify plants and animals around you — your observations feed real biodiversity research.",
+      "category": "environment",
+      "tags": [
+        "no experience needed",
+        "outdoors"
+      ],
+      "remote": true,
+      "min_age": 13,
+      "hours_estimate": "Flexible",
+      "signup_link": "https://www.inaturalist.org"
+    }
+  },
+  {
+    "name": "Tarjimly",
+    "description": "Connects bilingual volunteers with refugees and aid workers who need real-time translation.",
+    "website": "https://www.tarjimly.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.tarjimly.org&sz=128",
+    "category": "community",
+    "tags": [
+      "recurring"
+    ],
+    "remote": true,
+    "international": true,
+    "min_age": 16,
+    "country": "Global",
+    "state": null,
+    "city": null,
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Translate for Refugees",
+      "description": "Get matched in real time with refugees and aid workers who need translation help through the Tarjimly app.",
+      "category": "community",
+      "tags": [
+        "recurring"
+      ],
+      "remote": true,
+      "min_age": 16,
+      "hours_estimate": "A few min",
+      "signup_link": "https://www.tarjimly.org/get-involved"
+    }
+  },
+  {
+    "name": "Atlanta Community Food Bank",
+    "description": "Sources and distributes food across 29 metro Atlanta and north Georgia counties.",
+    "website": "https://www.acfb.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=www.acfb.org&sz=128",
+    "category": "food",
+    "tags": [
+      "good for crews",
+      "counts for school hours"
+    ],
+    "remote": false,
+    "international": false,
+    "min_age": 14,
+    "country": "United States",
+    "state": "GA",
+    "city": "Atlanta",
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "both",
+    "featured": false,
+    "opportunity": {
+      "title": "Sort Food in Atlanta",
+      "description": "Sort and box donated food at the Product Rescue Center to help feed families across metro Atlanta.",
+      "category": "food",
+      "tags": [
+        "good for crews",
+        "counts for school hours"
+      ],
+      "remote": false,
+      "min_age": 14,
+      "hours_estimate": "2.5 hrs / shift",
+      "signup_link": "https://www.acfb.org/volunteer/"
+    }
+  },
+  {
+    "name": "LifeLine Animal Project",
+    "description": "Runs metro Atlanta’s county animal shelters with a no-kill mission.",
+    "website": "https://lifelineanimal.org",
+    "logo_url": "https://www.google.com/s2/favicons?domain=lifelineanimal.org&sz=128",
+    "category": "animals",
+    "tags": [
+      "recurring"
+    ],
+    "remote": false,
+    "international": false,
+    "min_age": 13,
+    "country": "United States",
+    "state": "GA",
+    "city": "Atlanta",
+    "verified": true,
+    "counts_for_service_hours": true,
+    "commitment_type": "ongoing",
+    "featured": false,
+    "opportunity": {
+      "title": "Help Shelter Animals",
+      "description": "Walk dogs, socialize cats, and support adoptions at metro Atlanta shelters. Great recurring local role.",
+      "category": "animals",
+      "tags": [
+        "recurring"
+      ],
+      "remote": false,
+      "min_age": 13,
+      "hours_estimate": "2 hrs / shift",
+      "signup_link": "https://lifelineanimal.org/volunteer/"
+    }
+  }
+]

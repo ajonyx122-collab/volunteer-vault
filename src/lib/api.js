@@ -14,6 +14,17 @@ function mapOrg(row) {
     logoUrl: row.logo_url,
     website: row.website,
     ownerId: row.owner_id,
+    // directory fields (migration 005)
+    category: row.category,
+    remote: row.remote ?? false,
+    international: row.international ?? false,
+    minAge: row.min_age,
+    country: row.country,
+    state: row.state,
+    city: row.city,
+    countsForServiceHours: row.counts_for_service_hours ?? true,
+    commitmentType: row.commitment_type ?? 'both',
+    featured: row.featured ?? false,
   }
 }
 
@@ -43,11 +54,14 @@ function mapOpportunity(row, counts = {}) {
     reviewQuote: row.reviews?.[0]?.quote ?? '',
     goingFriends: [], // social layer lands in Phase 3
     isOnline: row.is_online ?? false,
+    remote: row.remote ?? row.is_online ?? false,
     tags: row.tags ?? [],
     city: row.city,
     state: row.state,
     zip: row.zip,
-    externalUrl: row.external_url ?? null,
+    hoursEstimate: row.hours_estimate ?? null,
+    signupLink: row.signup_link ?? row.external_url ?? null,
+    externalUrl: row.external_url ?? row.signup_link ?? null,
     isOngoing: row.is_ongoing ?? false,
     distanceMiles: null, // needs geo, Phase 3 map work
     org: mapOrg(row.organizations),

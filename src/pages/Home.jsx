@@ -6,17 +6,24 @@ import CategoryChip from '../components/CategoryChip'
 import OpportunityCard from '../components/OpportunityCard'
 import StatPill from '../components/StatPill'
 
+const isRemote = (o) => o.remote || o.isOnline || o.org?.remote
+const minAgeOf = (o) => o.minAge ?? o.org?.minAge ?? 0
+
 export default function Home() {
   const [interest, setInterest] = useState('')
   const [location, setLocation] = useState('')
-  const [nearYou, setNearYou] = useState([])
+  const [opps, setOpps] = useState([])
   const navigate = useNavigate()
 
   useEffect(() => {
     fetchOpportunities()
-      .then((opps) => setNearYou(opps.slice(0, 4)))
-      .catch(() => setNearYou([]))
+      .then(setOpps)
+      .catch(() => setOpps([]))
   }, [])
+
+  const featured = opps.filter((o) => o.org?.featured).slice(0, 4)
+  const highSchool = opps.filter((o) => minAgeOf(o) <= 14).slice(0, 4)
+  const remote = opps.filter(isRemote).slice(0, 4)
 
   function handleSearch(e) {
     e.preventDefault()
@@ -82,20 +89,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Happening near you */}
-      <section className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-2xl font-extrabold text-brand-green">Happening near you</h2>
-          <Link to="/browse" className="text-sm font-bold text-coral hover:underline">
-            See all
-          </Link>
-        </div>
-        <div className="flex flex-col gap-4">
-          {nearYou.map((opp) => (
-            <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />
-          ))}
-        </div>
-      </section>
+      {/* Featured */}
+      {featured.length > 0 && (
+        <OppSection title="Featured" blurb="Hand-picked, well-known organizations recruiting right now.">
+          {featured}
+        </OppSection>
+      )}
+
+      {/* Great for high school students */}
+      {highSchool.length > 0 && (
+        <OppSection
+          title="Great for high school students"
+          blurb="Open to volunteers 14 and under — perfect for service hours."
+        >
+          {highSchool}
+        </OppSection>
+      )}
+
+      {/* Remote opportunities */}
+      {remote.length > 0 && (
+        <OppSection title="Remote opportunities" blurb="Make an impact from your couch — no car required.">
+          {remote}
+        </OppSection>
+      )}
 
       {/* Your vault = your proof */}
       <section className="bg-brand-green">
@@ -169,7 +185,7 @@ export default function Home() {
       </section>
 
       {/* Org CTA */}
-      <section className="bg-gold">
+      <section id="org-cta" className="bg-gold">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-10 text-center sm:flex-row sm:px-6 sm:text-left">
           <div>
             <h2 className="font-display text-xl font-extrabold text-gold-text">
@@ -188,5 +204,26 @@ export default function Home() {
         </div>
       </section>
     </div>
+  )
+}
+
+function OppSection({ title, blurb, children }) {
+  return (
+    <section className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <div>
+          <h2 className="font-display text-2xl font-extrabold text-brand-green">{title}</h2>
+          <p className="text-sm text-brand-green/60">{blurb}</p>
+        </div>
+        <Link to="/browse" className="shrink-0 text-sm font-bold text-coral hover:underline">
+          See all
+        </Link>
+      </div>
+      <div className="flex flex-col gap-4">
+        {children.map((opp) => (
+          <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />
+        ))}
+      </div>
+    </section>
   )
 }
