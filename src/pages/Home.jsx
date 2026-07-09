@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { CATEGORIES, leaderboard } from '../data/mockData'
+import { CATEGORIES } from '../data/mockData'
 import { fetchOpportunities } from '../lib/api'
 import CategoryChip from '../components/CategoryChip'
 import OpportunityCard from '../components/OpportunityCard'
@@ -24,6 +24,11 @@ export default function Home() {
   const featured = opps.filter((o) => o.org?.featured).slice(0, 4)
   const highSchool = opps.filter((o) => minAgeOf(o) <= 14).slice(0, 4)
   const remote = opps.filter(isRemote).slice(0, 4)
+
+  // Real, honest counts derived from what's actually in the directory.
+  const orgCount = new Set(opps.map((o) => o.orgId)).size
+  const remoteCount = opps.filter(isRemote).length
+  const causeCount = new Set(opps.map((o) => o.category)).size
 
   function handleSearch(e) {
     e.preventDefault()
@@ -72,11 +77,13 @@ export default function Home() {
             </button>
           </form>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <StatPill value="12,400+" label="hours logged" tone="dark" />
-            <StatPill value="380+" label="verified orgs" tone="dark" />
-            <StatPill value="60" label="schools competing" tone="dark" />
-          </div>
+          {orgCount > 0 && (
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <StatPill value={orgCount} label="organizations" tone="dark" />
+              <StatPill value={remoteCount} label="you can do remotely" tone="dark" />
+              <StatPill value={causeCount} label="causes to explore" tone="dark" />
+            </div>
+          )}
         </div>
       </section>
 
@@ -132,9 +139,9 @@ export default function Home() {
             </Link>
           </div>
           <div className="flex flex-1 flex-wrap justify-center gap-3">
-            <StatPill value="62" label="verified hours" tone="dark" />
-            <StatPill value="9wk" label="streak" tone="dark" />
-            <StatPill value="3" label="badges" tone="dark" />
+            <StatPill value="✓" label="org-verified hours" tone="dark" />
+            <StatPill value="🔥" label="weekly streaks" tone="dark" />
+            <StatPill value="🏅" label="badges you earn" tone="dark" />
           </div>
         </div>
       </section>
@@ -161,26 +168,21 @@ export default function Home() {
         </div>
       </section>
 
-      {/* School showdown */}
+      {/* School showdown — honest pre-launch teaser (real leaderboards land in Phase 4) */}
       <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-        <div className="rounded-card border border-card-border bg-card p-6 shadow-card sm:p-8">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-2xl font-extrabold text-brand-green">School showdown</h2>
-            <Link to="/leaderboards" className="text-sm font-bold text-coral hover:underline">
-              Full leaderboard
-            </Link>
-          </div>
-          <ol className="flex flex-col gap-2">
-            {leaderboard.map((row, i) => (
-              <li
-                key={row.school}
-                className="flex items-center justify-between rounded-pill bg-cream px-4 py-3 text-sm font-semibold text-brand-green"
-              >
-                <span>#{i + 1} {row.school}</span>
-                <span className="text-gold-text">{row.hours.toLocaleString()} hrs</span>
-              </li>
-            ))}
-          </ol>
+        <div className="rounded-card border border-card-border bg-card p-8 text-center shadow-card sm:p-10">
+          <p className="text-4xl">🏆</p>
+          <h2 className="mt-2 font-display text-2xl font-extrabold text-brand-green">School showdown</h2>
+          <p className="mx-auto mt-2 max-w-md text-brand-green/70">
+            Soon your school will rack up verified hours and climb a real leaderboard against
+            rival schools. No board yet — log the first hours and put your school on the map.
+          </p>
+          <Link
+            to="/browse"
+            className="mt-5 inline-block rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+          >
+            Start racking up hours
+          </Link>
         </div>
       </section>
 
