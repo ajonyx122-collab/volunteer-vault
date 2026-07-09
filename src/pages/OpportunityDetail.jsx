@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getCategoryMeta } from '../data/mockData'
+import { CATEGORY_STYLES } from '../components/categoryStyles'
 import {
   fetchOpportunity,
   fetchMySignup,
@@ -23,6 +24,17 @@ function formatWhen(startsAt) {
     month: 'long',
     day: 'numeric',
   }) + ' · ' + date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+}
+
+// Never render a blank "Where". Fall back through the most specific location we
+// know to a friendly nationwide/worldwide label.
+function locationLabel(o) {
+  if (o.isOnline || o.remote || o.org?.remote) return '🌐 Online — join from anywhere'
+  const parts = [o.city || o.org?.city, o.state || o.org?.state].filter(Boolean)
+  if (parts.length) return parts.join(', ')
+  if (o.address) return o.address
+  if (o.org?.international) return '🌍 Multiple locations (worldwide)'
+  return '📍 Multiple locations (nationwide)'
 }
 
 export default function OpportunityDetail() {
@@ -140,7 +152,22 @@ export default function OpportunityDetail() {
         ← Back to browse
       </Link>
 
-      <div className="mt-4 flex flex-col gap-8 md:flex-row">
+      {/* Hero banner: real photo once an org uploads one, warm category art meanwhile */}
+      <div
+        className={`mt-4 flex h-44 items-center justify-center overflow-hidden rounded-card ${
+          CATEGORY_STYLES[opportunity.category]?.chip ?? 'bg-cream'
+        }`}
+      >
+        {opportunity.org?.imageUrl ? (
+          <img src={opportunity.org.imageUrl} alt={opportunity.org.name} className="h-full w-full object-cover" />
+        ) : (
+          <span className="text-7xl" aria-hidden>
+            {category?.icon ?? '💚'}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-6 flex flex-col gap-8 md:flex-row">
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-3xl">{category?.icon}</span>
@@ -185,18 +212,18 @@ export default function OpportunityDetail() {
             <div>
               <p className="font-bold text-brand-green">Duration</p>
               <p className="text-brand-green/70">
-                {opportunity.isOngoing ? 'Flexible' : `${opportunity.durationHours} hrs`}
+                {opportunity.hoursEstimate ?? (opportunity.isOngoing ? 'Flexible' : `${opportunity.durationHours} hrs`)}
               </p>
             </div>
             <div>
               <p className="font-bold text-brand-green">Where</p>
-              <p className="text-brand-green/70">
-                {opportunity.isOnline ? '🌐 Online — join from anywhere' : opportunity.address}
-              </p>
+              <p className="text-brand-green/70">{locationLabel(opportunity)}</p>
             </div>
             <div>
               <p className="font-bold text-brand-green">Min age</p>
-              <p className="text-brand-green/70">{opportunity.minAge}+</p>
+              <p className="text-brand-green/70">
+                {opportunity.minAge > 0 ? `${opportunity.minAge}+` : 'All ages'}
+              </p>
             </div>
             {!isExternal && (
               <div>

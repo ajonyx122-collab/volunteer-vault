@@ -12,6 +12,7 @@ function mapOrg(row) {
     description: row.description,
     location: row.location,
     logoUrl: row.logo_url,
+    imageUrl: row.image_url,
     website: row.website,
     ownerId: row.owner_id,
     // directory fields (migration 005)

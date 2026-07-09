@@ -1,9 +1,10 @@
 [
   {
     "name": "American Red Cross",
-    "description": "Disaster relief, blood drives, and emergency preparedness powered largely by volunteers nationwide.",
+    "description": "One of the most recognized humanitarian organizations in the country, responding to disasters big and small every single day.",
     "website": "https://www.redcross.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.redcross.org&sz=128",
+    "image_url": null,
     "category": "disaster",
     "tags": [
       "no experience needed",
@@ -21,7 +22,7 @@
     "featured": true,
     "opportunity": {
       "title": "Become a Red Cross Volunteer",
-      "description": "Support disaster response, blood drives, and community preparedness — in person or in virtual support roles.",
+      "description": "Volunteers are the heart of the Red Cross - more than 90% of the workforce is unpaid. You can help families recover after home fires and natural disasters, support blood drives that keep hospitals stocked, teach preparedness in your community, or take on virtual roles like casework and social media from home. Full training is provided, so no experience is needed to start making a real difference.",
       "category": "disaster",
       "tags": [
         "no experience needed",
@@ -35,9 +36,10 @@
   },
   {
     "name": "Feeding America",
-    "description": "The nationwide network of 200+ food banks fighting hunger in every U.S. community.",
+    "description": "The largest hunger-relief organization in the United States, powering a network of more than 200 food banks and 60,000 pantries and meal programs.",
     "website": "https://www.feedingamerica.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.feedingamerica.org&sz=128",
+    "image_url": null,
     "category": "food",
     "tags": [
       "good for crews",
@@ -55,7 +57,7 @@
     "featured": true,
     "opportunity": {
       "title": "Volunteer at a Local Food Bank",
-      "description": "Sort and pack food, staff pantries, and support hunger-relief efforts through your nearest member food bank.",
+      "description": "Hunger exists in every county in America, and food banks rely on volunteers to move millions of pounds of food each week. Through your nearest Feeding America member bank you can sort and box donated groceries, pack weekend meal kits for kids, staff mobile pantries, or help at distribution events. Shifts are flexible, welcoming to groups, and a great way to log service hours with friends.",
       "category": "food",
       "tags": [
         "good for crews",
@@ -69,9 +71,10 @@
   },
   {
     "name": "Habitat for Humanity",
-    "description": "Builds and repairs affordable homes alongside families in need, in the U.S. and around the world.",
+    "description": "A global nonprofit that has helped more than 46 million people build or improve a place they can call home.",
     "website": "https://www.habitat.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.habitat.org&sz=128",
+    "image_url": null,
     "category": "community",
     "tags": [
       "good for crews",
@@ -89,7 +92,7 @@
     "featured": true,
     "opportunity": {
       "title": "Build Homes with Habitat",
-      "description": "Help build and repair homes on a local build site or support ReStore resale shops. Training provided on site.",
+      "description": "Habitat brings volunteers and future homeowners together to build affordable housing side by side. On a local build site you might frame walls, paint, or landscape, and no construction experience is required because team leaders teach you everything on site. If swinging a hammer is not your thing, Habitat ReStore resale shops also need help sorting and selling donated goods to fund the mission.",
       "category": "community",
       "tags": [
         "good for crews",
@@ -103,9 +106,10 @@
   },
   {
     "name": "Zooniverse",
-    "description": "The world's largest people-powered research platform for online citizen science.",
+    "description": "The world largest platform for people-powered research, connecting volunteers with real scientists on hundreds of active projects.",
     "website": "https://www.zooniverse.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.zooniverse.org&sz=128",
+    "image_url": null,
     "category": "tech",
     "tags": [
       "no experience needed",
@@ -123,7 +127,7 @@
     "featured": true,
     "opportunity": {
       "title": "Power Real Research Online",
-      "description": "Classify galaxies, tag wildlife photos, or transcribe records from home — bite-size tasks that fuel real science.",
+      "description": "Zooniverse lets anyone contribute to genuine scientific discovery from a laptop or phone. You might classify distant galaxies, identify animals in trail-camera photos, or transcribe historic weather logs and letters, and your work goes directly to researchers who publish real findings. There is no minimum time commitment, tasks take just minutes each, and projects publish guidance for younger volunteers.",
       "category": "tech",
       "tags": [
         "no experience needed",
@@ -137,9 +141,10 @@
   },
   {
     "name": "Smithsonian Transcription Center",
-    "description": "Digital volunteers transcribe the Smithsonian's historical documents to make them searchable for everyone.",
+    "description": "The Smithsonian Institution digital volunteer program, opening up the world largest museum and research complex to everyone.",
     "website": "https://transcription.si.edu",
     "logo_url": "https://www.google.com/s2/favicons?domain=transcription.si.edu&sz=128",
+    "image_url": null,
     "category": "art",
     "tags": [
       "no experience needed",
@@ -157,7 +162,7 @@
     "featured": true,
     "opportunity": {
       "title": "Transcribe Smithsonian Records",
-      "description": "Turn handwritten letters, journals, and labels into searchable text from your laptop — as little or as much as you like.",
+      "description": "Behind the Smithsonian are millions of handwritten documents, field notes, diaries, and specimen labels that computers cannot read. As a digital volunteer you turn those images into searchable, accessible text that researchers and the public can use. Work as little or as much as you like from home, pick projects that match your interests from science to history to art, and see your contributions become part of the permanent record.",
       "category": "art",
       "tags": [
         "no experience needed",
@@ -171,9 +176,10 @@
   },
   {
     "name": "Meals on Wheels America",
-    "description": "Local programs delivering meals and friendly visits to homebound seniors across the country.",
+    "description": "A network of more than 5,000 community programs delivering meals and companionship to homebound seniors nationwide.",
     "website": "https://www.mealsonwheelsamerica.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.mealsonwheelsamerica.org&sz=128",
+    "image_url": null,
     "category": "seniors",
     "tags": [
       "recurring"
@@ -190,7 +196,7 @@
     "featured": false,
     "opportunity": {
       "title": "Deliver Meals to Seniors",
-      "description": "Bring meals and a warm hello to homebound older neighbors through your local Meals on Wheels program.",
+      "description": "For many homebound older adults, a Meals on Wheels volunteer is the only person they see all day. Volunteers deliver hot meals along a local route and take a moment to check in, share a smile, and make sure their neighbor is safe and well. Routes usually take an hour or two, fit around a normal schedule, and the friendly visit means as much as the food.",
       "category": "seniors",
       "tags": [
         "recurring"
@@ -203,9 +209,10 @@
   },
   {
     "name": "Best Buddies International",
-    "description": "Builds friendships and leadership for people with intellectual and developmental disabilities.",
+    "description": "A nonprofit dedicated to friendship, jobs, and leadership development for people with intellectual and developmental disabilities.",
     "website": "https://www.bestbuddies.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.bestbuddies.org&sz=128",
+    "image_url": null,
     "category": "community",
     "tags": [
       "no experience needed",
@@ -223,7 +230,7 @@
     "featured": false,
     "opportunity": {
       "title": "Be a Buddy",
-      "description": "Form a one-to-one friendship or support programs for people with intellectual and developmental disabilities.",
+      "description": "Best Buddies pairs volunteers in one-to-one friendships with people who have intellectual and developmental disabilities, and runs school and college chapters across the country. As a buddy you hang out, text, and share activities with your match, building a real friendship that changes both of your lives. Chapters welcome middle and high schoolers, and the e-Buddies program offers an online pen-pal option too.",
       "category": "community",
       "tags": [
         "no experience needed",
@@ -237,9 +244,10 @@
   },
   {
     "name": "UPchieve",
-    "description": "Free, on-demand online tutoring and college counseling for low-income high school students.",
+    "description": "A free, on-demand online tutoring nonprofit built for low-income high school students who need academic support after hours.",
     "website": "https://upchieve.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=upchieve.org&sz=128",
+    "image_url": null,
     "category": "education",
     "tags": [
       "no experience needed",
@@ -257,7 +265,7 @@
     "featured": true,
     "opportunity": {
       "title": "Tutor Students Online",
-      "description": "Get a text when a student needs help, hop on, and tutor 1:1 in 20+ subjects on your own schedule.",
+      "description": "UPchieve connects you with students who often do not have access to private tutoring, right when they are stuck on homework. You get a text notification when a student requests help, hop into a virtual classroom, and work through math, science, or writing one on one, or help with college and financial-aid questions. You set your own availability, there is no minimum commitment, and your hours are tracked so they can count toward service requirements.",
       "category": "education",
       "tags": [
         "no experience needed",
@@ -271,9 +279,10 @@
   },
   {
     "name": "Learn To Be",
-    "description": "Free 1-on-1 online tutoring for underserved K-12 students nationwide.",
+    "description": "A nonprofit providing free 1-on-1 online tutoring to underserved K-12 students across the country.",
     "website": "https://www.learntobe.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.learntobe.org&sz=128",
+    "image_url": null,
     "category": "education",
     "tags": [
       "recurring",
@@ -291,7 +300,7 @@
     "featured": false,
     "opportunity": {
       "title": "Tutor a K-12 Student",
-      "description": "Meet weekly with a student who needs support in a subject you know well. Matching and training provided.",
+      "description": "Learn To Be matches you with a student who needs steady support in a subject you know well, then gives you the tools and training to help them week after week. Sessions happen in an online classroom on a schedule you set with your student, and consistency is what makes the difference. It is a rewarding way to build a mentoring relationship and rack up meaningful, verifiable service hours.",
       "category": "education",
       "tags": [
         "recurring",
@@ -305,9 +314,10 @@
   },
   {
     "name": "Crisis Text Line",
-    "description": "Free, 24/7 mental-health crisis support delivered over text by trained volunteer counselors.",
+    "description": "A free, confidential, 24/7 mental-health support line staffed by trained volunteer crisis counselors reaching people over text.",
     "website": "https://www.crisistextline.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.crisistextline.org&sz=128",
+    "image_url": null,
     "category": "medicine",
     "tags": [
       "training provided",
@@ -325,7 +335,7 @@
     "featured": false,
     "opportunity": {
       "title": "Train as a Crisis Counselor",
-      "description": "Support people through their hardest moments over text. Full training provided; a serious ongoing commitment.",
+      "description": "Crisis Text Line volunteers support people through anxiety, depression, self-harm, and moments of real crisis, all over text message. You receive around 30 hours of world-class training before ever taking a conversation, and a supervisor backs you up on every shift. This is a serious commitment of roughly 4 hours a week, and it is one of the most meaningful ways to help that exists.",
       "category": "medicine",
       "tags": [
         "training provided",
@@ -339,9 +349,10 @@
   },
   {
     "name": "Be My Eyes",
-    "description": "Connects blind and low-vision people with sighted volunteers for quick help over live video.",
+    "description": "A free app that connects people who are blind or have low vision with sighted volunteers for visual help through live video.",
     "website": "https://www.bemyeyes.com",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.bemyeyes.com&sz=128",
+    "image_url": null,
     "category": "community",
     "tags": [
       "no experience needed",
@@ -359,7 +370,7 @@
     "featured": false,
     "opportunity": {
       "title": "Lend Your Eyes",
-      "description": "Answer a quick video call to help someone read a label, check an expiration date, or find something.",
+      "description": "When someone who is blind or low-vision needs a quick pair of eyes, Be My Eyes rings available volunteers around the world, and whoever answers first hops on a short video call. You might read a food label, check an expiration date, describe a photo, or help someone find something they dropped. Calls take just a few minutes, come only when you are free, and millions of volunteers already share the load.",
       "category": "community",
       "tags": [
         "no experience needed",
@@ -373,9 +384,10 @@
   },
   {
     "name": "Translators without Borders",
-    "description": "Provides translation for humanitarian and crisis-relief efforts in over 200 languages.",
+    "description": "Part of CLEAR Global, a nonprofit closing the language gap in humanitarian and crisis response worldwide.",
     "website": "https://translatorswithoutborders.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=translatorswithoutborders.org&sz=128",
+    "image_url": null,
     "category": "community",
     "tags": [
       "recurring"
@@ -392,7 +404,7 @@
     "featured": false,
     "opportunity": {
       "title": "Translate for Humanitarian Aid",
-      "description": "Bilingual? Translate health, crisis, and education materials for relief organizations worldwide.",
+      "description": "When disasters and health crises strike, information has to reach people in a language they actually understand, and that is where this community of volunteer linguists comes in. If you are fluent in more than one language you can translate health guidance, crisis alerts, and education materials for relief organizations operating in over 200 languages. Work is remote and flexible, and every translation can genuinely help keep people safe.",
       "category": "community",
       "tags": [
         "recurring"
@@ -405,9 +417,10 @@
   },
   {
     "name": "UN Online Volunteering",
-    "description": "The United Nations platform connecting volunteers to remote work for nonprofits worldwide.",
+    "description": "The official United Nations platform connecting volunteers with nonprofits and UN agencies for remote work that advances global development.",
     "website": "https://www.onlinevolunteering.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.onlinevolunteering.org&sz=128",
+    "image_url": null,
     "category": "community",
     "tags": [
       "leadership role"
@@ -424,7 +437,7 @@
     "featured": false,
     "opportunity": {
       "title": "Volunteer Online for the UN",
-      "description": "Support UN agencies and nonprofits with writing, research, design, translation, and data — all remote.",
+      "description": "Through the UN Online Volunteering service you can support development organizations anywhere in the world without leaving home. Assignments range from writing and research to graphic design, translation, data analysis, and mentoring, and they plug directly into projects working on poverty, health, education, and human rights. It is a standout way for college-age volunteers to gain real experience while contributing to the UN Sustainable Development Goals.",
       "category": "community",
       "tags": [
         "leadership role"
@@ -437,9 +450,10 @@
   },
   {
     "name": "The Trevor Project",
-    "description": "Crisis intervention and suicide prevention for LGBTQ young people.",
+    "description": "The leading suicide-prevention and crisis-intervention organization for LGBTQ young people.",
     "website": "https://www.thetrevorproject.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.thetrevorproject.org&sz=128",
+    "image_url": null,
     "category": "medicine",
     "tags": [
       "training provided",
@@ -457,7 +471,7 @@
     "featured": false,
     "opportunity": {
       "title": "Support LGBTQ Youth",
-      "description": "Train as a digital crisis counselor supporting LGBTQ young people. Full training and a real commitment.",
+      "description": "The Trevor Project provides 24/7 crisis support to LGBTQ young people who may have nowhere else to turn. As a trained digital crisis counselor you support youth over chat and text, and the organization provides thorough training and ongoing supervision before and during your shifts. It is a serious ongoing commitment for adult volunteers, and the impact on a young person in crisis can be life-saving.",
       "category": "medicine",
       "tags": [
         "training provided",
@@ -471,9 +485,10 @@
   },
   {
     "name": "Ronald McDonald House Charities",
-    "description": "Keeps families close to their hospitalized children with a home away from home.",
+    "description": "A nonprofit that keeps families close to their sick children with a home away from home near hospitals worldwide.",
     "website": "https://www.rmhc.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.rmhc.org&sz=128",
+    "image_url": null,
     "category": "medicine",
     "tags": [
       "good for crews"
@@ -490,7 +505,7 @@
     "featured": false,
     "opportunity": {
       "title": "Help Families at RMHC",
-      "description": "Cook meals, welcome families, or help run events at a local Ronald McDonald House. Roles vary by chapter.",
+      "description": "When a child is seriously ill, Ronald McDonald House gives their family a warm place to stay just steps from the hospital, and volunteers make that house feel like home. You might cook and serve a family meal, welcome guests at the front desk, organize activities for siblings, or help run fundraising events. Roles and age minimums vary by local chapter, and groups are often welcome.",
       "category": "medicine",
       "tags": [
         "good for crews"
@@ -503,9 +518,10 @@
   },
   {
     "name": "Special Olympics",
-    "description": "Sports training and competition for children and adults with intellectual disabilities.",
+    "description": "A global movement providing year-round sports training and competition for children and adults with intellectual disabilities.",
     "website": "https://www.specialolympics.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.specialolympics.org&sz=128",
+    "image_url": null,
     "category": "sports",
     "tags": [
       "good for crews"
@@ -522,7 +538,7 @@
     "featured": false,
     "opportunity": {
       "title": "Volunteer at Special Olympics",
-      "description": "Coach, help run events, or cheer alongside athletes with intellectual disabilities. Virtual roles too.",
+      "description": "Special Olympics puts on training and competitions for athletes with intellectual disabilities, and volunteers make every event possible. You can coach a sport, help run competition day, hand out medals, cheer from the sidelines, or support school-based Unified programs where athletes and partners play together. Roles suit all ages, many are one-day commitments, and the energy at these events is unforgettable.",
       "category": "sports",
       "tags": [
         "good for crews"
@@ -535,9 +551,10 @@
   },
   {
     "name": "Humane Society of the United States",
-    "description": "The nation's largest animal-protection organization.",
+    "description": "The largest animal-protection organization in the country, working to end cruelty to animals everywhere.",
     "website": "https://www.humanesociety.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.humanesociety.org&sz=128",
+    "image_url": null,
     "category": "animals",
     "tags": [
       "recurring"
@@ -554,7 +571,7 @@
     "featured": false,
     "opportunity": {
       "title": "Advocate for Animals",
-      "description": "Support animal-welfare campaigns through advocacy, phone banking, and local action.",
+      "description": "The Humane Society tackles animal welfare on a national scale, from puppy mills and wildlife protection to farm-animal welfare and disaster rescue. Volunteers power that work through advocacy, phone and text banking for animal-protection laws, event support, and helping spread the word online. If you care about animals and want your voice to influence real policy, this is a flexible way to help.",
       "category": "animals",
       "tags": [
         "recurring"
@@ -567,9 +584,10 @@
   },
   {
     "name": "National Park Service",
-    "description": "Volunteers-In-Parks help care for America’s national parks and historic sites.",
+    "description": "The federal agency caring for more than 400 national parks, monuments, and historic sites across America.",
     "website": "https://www.nps.gov",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.nps.gov&sz=128",
+    "image_url": null,
     "category": "environment",
     "tags": [
       "outdoors",
@@ -587,7 +605,7 @@
     "featured": false,
     "opportunity": {
       "title": "Volunteer in a National Park",
-      "description": "Maintain trails, help visitors, or support conservation projects in a national park near you.",
+      "description": "The Volunteers-In-Parks program invites you to help protect the places that belong to all of us. Depending on the park you might maintain trails, restore habitat, greet and guide visitors, assist at a visitor center, or support citizen-science and conservation projects. Opportunities range from a single day of trail work to ongoing seasonal roles, and many parks welcome families and groups.",
       "category": "environment",
       "tags": [
         "outdoors",
@@ -601,9 +619,10 @@
   },
   {
     "name": "Operation Gratitude",
-    "description": "Sends care packages and letters of appreciation to troops, veterans, and first responders.",
+    "description": "A nonprofit that has sent millions of care packages and letters to troops, veterans, and first responders.",
     "website": "https://www.operationgratitude.com",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.operationgratitude.com&sz=128",
+    "image_url": null,
     "category": "veterans",
     "tags": [
       "no experience needed",
@@ -620,8 +639,8 @@
     "commitment_type": "one-time",
     "featured": false,
     "opportunity": {
-      "title": "Write to Troops & Veterans",
-      "description": "Write heartfelt thank-you letters to service members, veterans, and first responders. All ages welcome.",
+      "title": "Write to Troops and Veterans",
+      "description": "Operation Gratitude lets anyone say thank you to the people who serve, no matter where you are. The simplest way to help is writing heartfelt letters of appreciation to deployed troops, veterans, and first responders, which get included in care packages shipped nationwide. It is an all-ages activity you can do solo, with a club, or as a family, and every letter genuinely brightens someone day.",
       "category": "veterans",
       "tags": [
         "no experience needed",
@@ -635,9 +654,10 @@
   },
   {
     "name": "DoSomething.org",
-    "description": "Youth-led campaigns for social change built specifically for teens and young adults.",
+    "description": "One of the largest nonprofits built specifically for young people and social change, with millions of members.",
     "website": "https://www.dosomething.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.dosomething.org&sz=128",
+    "image_url": null,
     "category": "community",
     "tags": [
       "no experience needed",
@@ -655,7 +675,7 @@
     "featured": false,
     "opportunity": {
       "title": "Join a Youth Campaign",
-      "description": "Take action on causes you care about through campaigns designed for young people — mostly from your phone.",
+      "description": "DoSomething runs volunteer campaigns designed by and for young people on issues like the environment, mental health, education, and equality. Most campaigns can be done right from your phone, whether that is collecting supplies, spreading awareness, or taking a concrete action in your community. Many campaigns also enter you into scholarship drawings, making it a smart way to do good and get rewarded.",
       "category": "community",
       "tags": [
         "no experience needed",
@@ -669,9 +689,10 @@
   },
   {
     "name": "Girls on the Run",
-    "description": "Builds confidence in girls through a fun, experience-based running program.",
+    "description": "A physical-activity based youth development program that builds confidence in girls through the power of running.",
     "website": "https://www.girlsontherun.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.girlsontherun.org&sz=128",
+    "image_url": null,
     "category": "sports",
     "tags": [
       "recurring"
@@ -688,7 +709,7 @@
     "featured": false,
     "opportunity": {
       "title": "Coach or Cheer with GOTR",
-      "description": "Coach, run as a buddy, or help at events to help girls build confidence. Teen roles available locally.",
+      "description": "Girls on the Run combines running with lessons that help girls build confidence, kindness, and decision-making skills. Volunteers can coach a team over a season, run alongside a girl as a race-day buddy, or help organize community 5K events. Coaching is the most rewarding role and no running expertise is required, just enthusiasm and a willingness to be a positive role model.",
       "category": "sports",
       "tags": [
         "recurring"
@@ -701,9 +722,10 @@
   },
   {
     "name": "iNaturalist",
-    "description": "A community mapping biodiversity by observing and identifying plants and animals.",
+    "description": "A joint initiative of the California Academy of Sciences and National Geographic and one of the most popular nature apps in the world.",
     "website": "https://www.inaturalist.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.inaturalist.org&sz=128",
+    "image_url": null,
     "category": "environment",
     "tags": [
       "no experience needed",
@@ -721,7 +743,7 @@
     "featured": false,
     "opportunity": {
       "title": "Map Biodiversity",
-      "description": "Photograph and identify plants and animals around you — your observations feed real biodiversity research.",
+      "description": "Every photo you take of a wild plant, animal, or fungus on iNaturalist becomes a data point that scientists use to track biodiversity and climate change. Snap a picture, and the community and its AI help identify the species, adding your observation to a global research database. It turns a walk outside into real citizen science, and it is completely free and beginner-friendly.",
       "category": "environment",
       "tags": [
         "no experience needed",
@@ -735,9 +757,10 @@
   },
   {
     "name": "Tarjimly",
-    "description": "Connects bilingual volunteers with refugees and aid workers who need real-time translation.",
+    "description": "A nonprofit and app that connects bilingual volunteers with refugees, immigrants, and the aid workers helping them.",
     "website": "https://www.tarjimly.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.tarjimly.org&sz=128",
+    "image_url": null,
     "category": "community",
     "tags": [
       "recurring"
@@ -754,7 +777,7 @@
     "featured": false,
     "opportunity": {
       "title": "Translate for Refugees",
-      "description": "Get matched in real time with refugees and aid workers who need translation help through the Tarjimly app.",
+      "description": "Language barriers can keep refugees and immigrants from getting medical care, legal help, or safety information. Tarjimly matches you in real time with someone who needs translation in a language you speak, right through the app, for a single conversation at a time. Sessions are short and on-demand, and being fluent in a second language suddenly becomes a way to change someone life.",
       "category": "community",
       "tags": [
         "recurring"
@@ -767,9 +790,10 @@
   },
   {
     "name": "Atlanta Community Food Bank",
-    "description": "Sources and distributes food across 29 metro Atlanta and north Georgia counties.",
+    "description": "A regional food bank sourcing and distributing food across 29 metro Atlanta and north Georgia counties.",
     "website": "https://www.acfb.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=www.acfb.org&sz=128",
+    "image_url": null,
     "category": "food",
     "tags": [
       "good for crews",
@@ -787,7 +811,7 @@
     "featured": false,
     "opportunity": {
       "title": "Sort Food in Atlanta",
-      "description": "Sort and box donated food at the Product Rescue Center to help feed families across metro Atlanta.",
+      "description": "The Atlanta Community Food Bank distributes tens of millions of meals a year, and its Product Rescue Center depends on volunteers to make that happen. Volunteers sort, inspect, and box donated groceries so they can go out to partner pantries across metro Atlanta and north Georgia. Shifts are a couple of hours, welcoming to school and club groups, and a great local option for service hours.",
       "category": "food",
       "tags": [
         "good for crews",
@@ -801,9 +825,10 @@
   },
   {
     "name": "LifeLine Animal Project",
-    "description": "Runs metro Atlanta’s county animal shelters with a no-kill mission.",
+    "description": "The nonprofit that runs metro Atlanta county animal shelters with a mission to end the killing of healthy and treatable pets.",
     "website": "https://lifelineanimal.org",
     "logo_url": "https://www.google.com/s2/favicons?domain=lifelineanimal.org&sz=128",
+    "image_url": null,
     "category": "animals",
     "tags": [
       "recurring"
@@ -820,7 +845,7 @@
     "featured": false,
     "opportunity": {
       "title": "Help Shelter Animals",
-      "description": "Walk dogs, socialize cats, and support adoptions at metro Atlanta shelters. Great recurring local role.",
+      "description": "LifeLine operates the Fulton and DeKalb County animal shelters and works to keep them no-kill, which takes a lot of caring hands. Volunteers walk and socialize dogs, spend calming time with cats, help at adoption events, and take photos that help pets find homes faster. It is a rewarding recurring role for local animal lovers, with orientation and training provided.",
       "category": "animals",
       "tags": [
         "recurring"
