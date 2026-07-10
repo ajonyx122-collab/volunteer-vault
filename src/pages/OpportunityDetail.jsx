@@ -50,6 +50,7 @@ export default function OpportunityDetail() {
   const [hourLog, setHourLog] = useState(null)
   const [code, setCode] = useState('')
   const [codeState, setCodeState] = useState({ busy: false, error: '' })
+  const [rsvpError, setRsvpError] = useState('')
 
   useEffect(() => {
     fetchOpportunity(id)
@@ -94,6 +95,7 @@ export default function OpportunityDetail() {
       return
     }
     setBusy(true)
+    setRsvpError('')
     try {
       if (joined) {
         await cancelRsvp(user.id, id)
@@ -104,10 +106,16 @@ export default function OpportunityDetail() {
         setJoined(true)
         setOpportunity((o) => ({ ...o, spotsFilled: o.spotsFilled + 1 }))
       }
-    } catch {
-      // e.g. double-click raced the unique constraint — refetch state
-      const signup = await fetchMySignup(user.id, id)
+    } catch (err) {
+      // e.g. two people raced for the last spot, or a double-click raced the
+      // unique constraint — either way, refetch the real state from the server
+      // rather than trusting our optimistic guess.
+      const [signup, fresh] = await Promise.all([fetchMySignup(user.id, id), fetchOpportunity(id)])
       setJoined(!!signup)
+      if (fresh) setOpportunity(fresh)
+      if (err.message?.includes('full')) {
+        setRsvpError("Just filled up — someone beat you to the last spot.")
+      }
     }
     setBusy(false)
   }
@@ -276,6 +284,7 @@ export default function OpportunityDetail() {
               >
                 {busy ? '...' : joined ? "You're in! 🎉 (tap to cancel)" : isFull ? 'Full' : 'Count me in'}
               </button>
+              {rsvpError && <p className="mt-2 text-xs font-semibold text-coral">{rsvpError}</p>}
               <p className="mt-2 text-xs text-brand-green/50">
                 {user
                   ? 'No-shows hurt your streak, so only RSVP if you can make it.'

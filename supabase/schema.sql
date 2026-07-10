@@ -258,6 +258,28 @@ create view public.signup_counts as
 
 grant select on public.signup_counts to anon, authenticated;
 
+-- The UI disables "Count me in" once full, but that's client-side only —
+-- this makes capacity a real database rule so a direct API call or two
+-- people racing for the last spot can't over-book a listing.
+create or replace function public.check_signup_capacity()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  v_capacity int;
+  v_current_count int;
+begin
+  select capacity into v_capacity from public.opportunities where id = new.opportunity_id;
+  select coalesce(signed_up, 0) into v_current_count
+    from public.signup_counts where opportunity_id = new.opportunity_id;
+  if v_current_count >= v_capacity then
+    raise exception 'This opportunity is full.';
+  end if;
+  return new;
+end $$;
+
+create trigger signups_enforce_capacity
+  before insert on public.signups
+  for each row execute function public.check_signup_capacity();
+
 -- ============ EVENT-CODE VERIFICATION ============
 -- Codes live in their own table so they are never readable through the public
 -- opportunities API — only the org that owns the listing can see its code.
