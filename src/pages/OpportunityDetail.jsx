@@ -184,6 +184,11 @@ export default function OpportunityDetail() {
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {opportunity.org?.verified && <VerifiedBadge verified />}
+            {opportunity.org?.submittedBy && (
+              <span className="rounded-pill bg-category-community-bg px-3 py-1 text-xs font-bold text-category-community-text">
+                🙌 Community organized
+              </span>
+            )}
             {opportunity.isOnline && (
               <span className="rounded-pill bg-category-tech-bg px-3 py-1 text-xs font-bold text-category-tech-text">
                 🌐 Online
@@ -203,6 +208,13 @@ export default function OpportunityDetail() {
           </div>
 
           <p className="mt-6 text-brand-green/80">{opportunity.description}</p>
+
+          {opportunity.whatToBring && (
+            <div className="mt-4 rounded-card border border-card-border bg-cream p-4">
+              <p className="text-sm font-bold text-brand-green">🎒 What to bring</p>
+              <p className="mt-1 text-sm text-brand-green/70">{opportunity.whatToBring}</p>
+            </div>
+          )}
 
           {opportunity.reviewQuote && (
             <blockquote className="mt-6 rounded-card border border-card-border bg-card p-4 italic text-brand-green/70 shadow-card">

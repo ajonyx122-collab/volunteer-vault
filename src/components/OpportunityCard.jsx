@@ -27,6 +27,11 @@ export default function OpportunityCard({ opportunity, org }) {
             {opportunity.title}
           </Link>
           {org?.verified && <VerifiedBadge verified />}
+          {org?.submittedBy && (
+            <span className="rounded-pill bg-category-community-bg px-2 py-0.5 text-xs font-bold text-category-community-text">
+              🙌 Community organized
+            </span>
+          )}
           {opportunity.vibeRating != null && (
             <span className="text-xs font-bold text-gold-text">★ {opportunity.vibeRating}</span>
           )}

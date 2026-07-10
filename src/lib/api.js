@@ -15,6 +15,7 @@ function mapOrg(row) {
     imageUrl: row.image_url,
     website: row.website,
     ownerId: row.owner_id,
+    submittedBy: row.submitted_by,
     // directory fields (migration 005)
     category: row.category,
     remote: row.remote ?? false,
@@ -64,6 +65,7 @@ function mapOpportunity(row, counts = {}) {
     signupLink: row.signup_link ?? row.external_url ?? null,
     externalUrl: row.external_url ?? row.signup_link ?? null,
     isOngoing: row.is_ongoing ?? false,
+    whatToBring: row.what_to_bring ?? null,
     distanceMiles: null, // needs geo, Phase 3 map work
     org: mapOrg(row.organizations),
   }
@@ -524,6 +526,7 @@ export async function createOpportunity(orgId, draft) {
     min_age: Number(draft.minAge),
     is_online: Boolean(draft.isOnline),
     is_ongoing: Boolean(draft.isOngoing),
+    what_to_bring: draft.whatToBring?.trim() || null,
     tags: draft.tags ?? [],
   }))
   const { data, error } = await supabase.from('opportunities').insert(rows).select()

@@ -13,11 +13,15 @@ const emptyQuickAdd = {
   city: '',
   state: '',
   isOnline: false,
+  eventDate: '',
+  headcount: 15,
+  whatToBring: '',
 }
 
 export default function SuggestOpportunity() {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
+  const [mode, setMode] = useState('org') // 'org' (existing place) | 'event' (one-time project you're running)
   const [suggestion, setSuggestion] = useState(emptySuggestion)
   const [quickAdd, setQuickAdd] = useState(emptyQuickAdd)
   const [busy, setBusy] = useState(false)
@@ -47,9 +51,16 @@ export default function SuggestOpportunity() {
 
   // Signed-in volunteers add a real, immediately-visible listing (shown as
   // "Pending" until AJ verifies it — same honest badge every unverified org
-  // gets) instead of dropping into a private review queue.
+  // gets) instead of dropping into a private review queue. Two shapes share
+  // this one flow: flagging an existing place ("org" mode, always-open/
+  // ongoing) and organizing your own one-time project ("event" mode, with a
+  // real date, headcount, and what to bring — the Phase 3 community post).
   async function handleQuickAddSubmit(e) {
     e.preventDefault()
+    if (mode === 'event' && !quickAdd.eventDate) {
+      setError('Pick a date and time for your event.')
+      return
+    }
     setBusy(true)
     setError('')
     try {
@@ -62,19 +73,20 @@ export default function SuggestOpportunity() {
         website: quickAdd.website,
       })
       await createOpportunity(org.id, {
-        title: `Volunteer with ${quickAdd.name}`,
+        title: mode === 'event' ? quickAdd.name : `Volunteer with ${quickAdd.name}`,
         category: quickAdd.category,
         description: quickAdd.description,
-        dates: [new Date().toISOString()],
+        dates: [mode === 'event' ? new Date(quickAdd.eventDate).toISOString() : new Date().toISOString()],
         durationHours: 2,
         address: '',
         city: quickAdd.city,
         state: quickAdd.state,
         zip: '',
         isOnline: quickAdd.isOnline,
-        isOngoing: true,
+        isOngoing: mode === 'org',
+        whatToBring: mode === 'event' ? quickAdd.whatToBring : '',
         tags: [],
-        capacity: 20,
+        capacity: mode === 'event' ? Number(quickAdd.headcount) : 20,
         minAge: 0,
       })
       setSent(true)
@@ -109,7 +121,7 @@ export default function SuggestOpportunity() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-display font-bold text-brand-green">
-                💡 Know a place that should be here?
+                💡 Know a place, or organizing your own project?
               </p>
               <p className="mt-0.5 text-sm text-brand-green/60">
                 {user
@@ -117,12 +129,35 @@ export default function SuggestOpportunity() {
                   : "Suggest an organization and we'll add it to the directory."}
               </p>
             </div>
-            <button
-              onClick={() => setOpen((v) => !v)}
-              className="shrink-0 rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
-            >
-              {open ? 'Cancel' : user ? 'Add an opportunity' : 'Suggest an opportunity'}
-            </button>
+            {user ? (
+              <div className="flex shrink-0 gap-2">
+                <button
+                  onClick={() => {
+                    setMode('org')
+                    setOpen(open && mode === 'org' ? false : true)
+                  }}
+                  className="rounded-pill bg-brand-green px-4 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+                >
+                  {open && mode === 'org' ? 'Cancel' : '📍 Add a place'}
+                </button>
+                <button
+                  onClick={() => {
+                    setMode('event')
+                    setOpen(open && mode === 'event' ? false : true)
+                  }}
+                  className="rounded-pill bg-coral px-4 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+                >
+                  {open && mode === 'event' ? 'Cancel' : '📅 Organize a project'}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setOpen((v) => !v)}
+                className="shrink-0 rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+              >
+                {open ? 'Cancel' : 'Suggest an opportunity'}
+              </button>
+            )}
           </div>
 
           {open && user && (
@@ -130,7 +165,7 @@ export default function SuggestOpportunity() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <input
                   required
-                  placeholder="Organization or place name"
+                  placeholder={mode === 'event' ? "What's the project called?" : 'Organization or place name'}
                   value={quickAdd.name}
                   onChange={(e) => updateQuickAdd('name', e.target.value)}
                   className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
@@ -149,12 +184,39 @@ export default function SuggestOpportunity() {
               </div>
               <textarea
                 required
-                placeholder="What would volunteers do there?"
+                placeholder={mode === 'event' ? 'What will you be doing?' : 'What would volunteers do there?'}
                 value={quickAdd.description}
                 onChange={(e) => updateQuickAdd('description', e.target.value)}
                 rows={3}
                 className="rounded-card border border-card-border px-4 py-2.5 text-sm outline-none"
               />
+
+              {mode === 'event' && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1 text-xs font-bold text-brand-green/60">
+                    When
+                    <input
+                      required
+                      type="datetime-local"
+                      value={quickAdd.eventDate}
+                      onChange={(e) => updateQuickAdd('eventDate', e.target.value)}
+                      className="rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-xs font-bold text-brand-green/60">
+                    How many people can join
+                    <input
+                      required
+                      type="number"
+                      min="1"
+                      value={quickAdd.headcount}
+                      onChange={(e) => updateQuickAdd('headcount', e.target.value)}
+                      className="rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
+                    />
+                  </label>
+                </div>
+              )}
+
               <label className="flex items-center gap-2 text-sm font-semibold text-brand-green">
                 <input
                   type="checkbox"
@@ -187,13 +249,22 @@ export default function SuggestOpportunity() {
                     </select>
                   </>
                 )}
-                <input
-                  type="url"
-                  placeholder="Website (optional)"
-                  value={quickAdd.website}
-                  onChange={(e) => updateQuickAdd('website', e.target.value)}
-                  className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
-                />
+                {mode === 'org' ? (
+                  <input
+                    type="url"
+                    placeholder="Website (optional)"
+                    value={quickAdd.website}
+                    onChange={(e) => updateQuickAdd('website', e.target.value)}
+                    className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
+                  />
+                ) : (
+                  <input
+                    placeholder="What to bring (optional)"
+                    value={quickAdd.whatToBring}
+                    onChange={(e) => updateQuickAdd('whatToBring', e.target.value)}
+                    className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
+                  />
+                )}
               </div>
               {error && <p className="text-sm font-semibold text-coral">{error}</p>}
               <button
@@ -201,7 +272,7 @@ export default function SuggestOpportunity() {
                 disabled={busy}
                 className="self-start rounded-pill bg-brand-green px-6 py-2.5 text-sm font-bold text-cream-text shadow-soft disabled:opacity-60"
               >
-                {busy ? 'Adding...' : 'Add opportunity'}
+                {busy ? 'Adding...' : mode === 'event' ? 'Post project' : 'Add opportunity'}
               </button>
             </form>
           )}

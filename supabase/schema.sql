@@ -70,6 +70,9 @@ create table public.opportunities (
   zip text,
   external_url text,
   is_ongoing boolean not null default false,
+  -- set on community-organized projects (a specific one-time event someone
+  -- is personally running), null on org listings and ongoing programs.
+  what_to_bring text,
   created_at timestamptz not null default now()
 );
 
