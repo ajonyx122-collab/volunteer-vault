@@ -1,7 +1,6 @@
--- ============================================================
--- VolunteerVault -- metro batch (NYC, LA, Chicago, Houston, Phoenix)
--- Run once, top to bottom. 97 real local organizations total.
--- ============================================================
+-- Combined metro batch: migrations 009-013 (NYC, LA, Chicago, Houston, Phoenix).
+-- Run these five migrations in order - Phoenix's Mission Continues listing
+-- depends on the LA org row existing first. Safe to re-run.
 
 -- Migration 009: 20 real, local New York City organizations,
 -- researched individually. Pure inserts with fixed ids - safe to re-run.
@@ -58,7 +57,6 @@ values
   ('b4000000-0000-4000-8000-000000000020', 'b3000000-0000-4000-8000-000000000020', 'Volunteer at the Met', 'art', 'Volunteers help visitors throughout the museum and library and support events and public programs, with full training provided and no prior museum experience required. Standard volunteer positions are for adults 18 and up, so this is one to bookmark for college rather than high school.', array['recurring'], 18, false, false, true, 'Varies', 'https://www.metmuseum.org/support/volunteer', 'https://www.metmuseum.org/support/volunteer', '2026-01-01T00:00:00Z', 'New York', 'NY')
 on conflict (id) do nothing;
 
-
 -- Migration 010: 18 real, local Los Angeles organizations,
 -- researched individually. Pure inserts with fixed ids - safe to re-run.
 
@@ -109,7 +107,6 @@ values
   ('c6000000-0000-4000-8000-000000000017', 'c5000000-0000-4000-8000-000000000017', 'Tutor a Student Experiencing Homelessness', 'education', 'Volunteers provide 1:1 academic tutoring and mentorship to students experiencing homelessness, often meeting at shelters, motels, or other locations where families are staying. It is a meaningful option if you want your tutoring to directly address educational gaps caused by housing instability.', array['recurring'], 16, false, false, true, '1-2 hrs / week', 'https://schoolonwheels.org/', 'https://schoolonwheels.org/', '2026-01-01T00:00:00Z', 'Los Angeles', 'CA'),
   ('c6000000-0000-4000-8000-000000000018', 'c5000000-0000-4000-8000-000000000018', 'Volunteer or Coach with Special Olympics SoCal', 'sports', 'Team volunteers can start at age 14, coaches at 16, and advanced coaches at 18, with full training provided so no prior coaching background is required. It is a great long-term option if you want to build toward a real coaching role over a few seasons.', array['recurring', 'leadership role'], 14, false, false, true, '1-2 hrs / week', 'https://sosc.org/volunteer/', 'https://sosc.org/volunteer/', '2026-01-01T00:00:00Z', 'Los Angeles', 'CA')
 on conflict (id) do nothing;
-
 
 -- Migration 011: 19 real, local Chicago organizations,
 -- researched individually. Pure inserts with fixed ids - safe to re-run.
@@ -163,7 +160,6 @@ values
   ('d8000000-0000-4000-8000-000000000018', 'd7000000-0000-4000-8000-000000000018', 'Coach or Referee for AYSO Soccer', 'sports', 'AYSO provides free training to every coach and referee, so no soccer background is required, just enthusiasm and a positive attitude working with kids. It is a great pick if you want a season-long commitment with a specific sport rather than a one-time event.', array['recurring', 'leadership role'], 16, false, false, true, '2-3 hrs / week', 'https://www.northsidechicagoayso.com/Default.aspx?tabid=931979', 'https://www.northsidechicagoayso.com/Default.aspx?tabid=931979', '2026-01-01T00:00:00Z', 'Chicago', 'IL'),
   ('d8000000-0000-4000-8000-000000000019', 'd7000000-0000-4000-8000-000000000019', 'Volunteer with Chicago Veterans', 'veterans', 'Chicago Veterans runs volunteer opportunities throughout the year supporting its peer community programs and service events for local veterans. It is a good fit if you want your service specifically directed at supporting the veteran community in Chicago.', array['recurring'], 18, false, false, true, 'Varies', 'https://chicagovets.org/volunteer/', 'https://chicagovets.org/volunteer/', '2026-01-01T00:00:00Z', 'Chicago', 'IL')
 on conflict (id) do nothing;
-
 
 -- Migration 012: 20 real, local Houston organizations,
 -- researched individually. Pure inserts with fixed ids - safe to re-run.
@@ -220,9 +216,10 @@ values
   ('ea000000-0000-4000-8000-000000000020', 'e9000000-0000-4000-8000-000000000020', 'Be a Big in Houston', 'community', 'Bigs commit to spending a few hours a month with their matched Little doing everyday activities and building a consistent friendship over at least a year. Because it is an ongoing one-on-one relationship with a minor, mentors must be adults, making this a great one to bookmark for college.', array['leadership role', 'recurring'], 18, false, false, true, '2-4 hrs / month', 'https://bbbstx.org/houston/', 'https://bbbstx.org/houston/', '2026-01-01T00:00:00Z', 'Houston', 'TX')
 on conflict (id) do nothing;
 
-
--- Migration 013: 20 real, local Phoenix organizations,
+-- Migration 013: 19 real, local Phoenix organizations,
 -- researched individually. Pure inserts with fixed ids - safe to re-run.
+-- MUST run after migration 010 (LA) - the Phoenix "Mission Continues" listing
+-- attaches to the organization row that migration 010 creates.
 
 insert into public.organizations
   (id, owner_id, name, description, website, logo_url, category, tags, remote, international,
@@ -244,7 +241,10 @@ values
   ('fb000000-0000-4000-8000-000000000014', null, 'Arizona Animal Welfare League', 'The oldest and largest no-kill animal shelter in Arizona, founded in 1971, rehoming and rehabilitating thousands of rescue animals each year.', 'https://aawl.org', 'https://www.google.com/s2/favicons?domain=aawl.org&sz=128', 'animals', array['recurring', 'family friendly'], false, false, 16, 'United States', 'AZ', 'Phoenix', true, true, 'ongoing', false),
   ('fb000000-0000-4000-8000-000000000015', null, 'Humane Society of Central Arizona', 'A regional animal shelter and adoption center serving Central Arizona communities outside the immediate Phoenix core.', 'https://humanesocietycentralaz.org', 'https://www.google.com/s2/favicons?domain=humanesocietycentralaz.org&sz=128', 'animals', array['recurring'], false, false, 16, 'United States', 'AZ', 'Phoenix', true, true, 'ongoing', false),
   ('fb000000-0000-4000-8000-000000000016', null, 'Maricopa County Animal Care and Control', 'The public animal shelter system for Maricopa County, caring for thousands of dogs and cats a year across its Phoenix-area locations.', 'https://www.maricopa.gov', 'https://www.google.com/s2/favicons?domain=www.maricopa.gov&sz=128', 'animals', array['recurring'], false, false, 16, 'United States', 'AZ', 'Phoenix', true, true, 'ongoing', false),
-  ('fb000000-0000-4000-8000-000000000017', null, 'The Mission Continues', 'A national nonprofit mobilizing veterans to continue serving their communities, with an active Phoenix platoon open to veterans and civilians alike.', 'https://www.missioncontinues.org', 'https://www.google.com/s2/favicons?domain=www.missioncontinues.org&sz=128', 'veterans', array['leadership role', 'good for crews'], false, false, 18, 'United States', 'AZ', 'Phoenix', true, true, 'ongoing', false),
+  -- Note: "The Mission Continues" is NOT re-inserted here as a new org - it
+  -- already exists as a single organization from the LA batch (migration 010,
+  -- id c5000000-...-14). The Phoenix opportunity below attaches to that same
+  -- org instead of creating a duplicate organization row.
   ('fb000000-0000-4000-8000-000000000018', null, 'Youth for Troops', 'An all-volunteer nonprofit built around young people supporting troops and veterans through letters, care packages, and outreach.', 'https://youthfortroops.org', 'https://www.google.com/s2/favicons?domain=youthfortroops.org&sz=128', 'veterans', array['family friendly', 'creative work'], false, false, 0, 'United States', 'AZ', 'Phoenix', true, true, 'both', false),
   ('fb000000-0000-4000-8000-000000000019', null, 'Special Olympics Arizona', 'The Arizona chapter of Special Olympics, providing year-round sports training and competition for athletes with intellectual disabilities across the state.', 'https://specialolympicsarizona.org', 'https://www.google.com/s2/favicons?domain=specialolympicsarizona.org&sz=128', 'sports', array['recurring', 'leadership role'], false, false, 14, 'United States', 'AZ', 'Phoenix', true, true, 'both', false),
   ('fb000000-0000-4000-8000-000000000020', null, 'City of Phoenix Volunteer Portal', 'The official city volunteer portal listing openings across Phoenix departments, including youth sports coaching positions.', 'https://volunteer.phoenix.gov', 'https://www.google.com/s2/favicons?domain=volunteer.phoenix.gov&sz=128', 'sports', array['recurring', 'leadership role'], false, false, 16, 'United States', 'AZ', 'Phoenix', true, true, 'both', false)
@@ -270,10 +270,8 @@ values
   ('fc000000-0000-4000-8000-000000000014', 'fb000000-0000-4000-8000-000000000014', 'Volunteer with Arizona Animal Welfare League', 'animals', 'Volunteers help care for and socialize shelter animals, with fostering also available if you want to help from home. It is a good option if you are interested in the no-kill movement specifically.', array['recurring', 'family friendly'], 16, false, false, true, '2-3 hrs', 'https://aawl.org/content/volunteer', 'https://aawl.org/content/volunteer', '2026-01-01T00:00:00Z', 'Phoenix', 'AZ'),
   ('fc000000-0000-4000-8000-000000000015', 'fb000000-0000-4000-8000-000000000015', 'Volunteer at Humane Society of Central Arizona', 'animals', 'Volunteers 16 and 17 can serve on their own with parent or guardian consent, helping with shelter care and adoption support. It is a good pick if you are located further out from downtown Phoenix.', array['recurring'], 16, false, false, true, '2-3 hrs', 'https://humanesocietycentralaz.org/volunteer/', 'https://humanesocietycentralaz.org/volunteer/', '2026-01-01T00:00:00Z', 'Phoenix', 'AZ'),
   ('fc000000-0000-4000-8000-000000000016', 'fb000000-0000-4000-8000-000000000016', 'Volunteer with MCACC', 'animals', 'Volunteers support animal care, socialization, and adoption events across Maricopa County shelter locations. It is a solid countywide option if you want to help no matter which part of the Phoenix metro you live in.', array['recurring'], 16, false, false, true, '2-3 hrs', 'https://www.maricopa.gov/294/Volunteer', 'https://www.maricopa.gov/294/Volunteer', '2026-01-01T00:00:00Z', 'Phoenix', 'AZ'),
-  ('fc000000-0000-4000-8000-000000000017', 'fb000000-0000-4000-8000-000000000017', 'Join The Mission Continues Phoenix Platoon', 'veterans', 'The Phoenix Platoon welcomes anyone with a passion for service, regardless of veteran status, working alongside nonprofit partners and community leaders on local projects. It is a good option if you want to serve alongside veterans on community-focused projects.', array['leadership role', 'good for crews'], 18, false, false, true, 'Varies', 'https://www.missioncontinues.org/service-platoon/Phoenix/', 'https://www.missioncontinues.org/service-platoon/Phoenix/', '2026-01-01T00:00:00Z', 'Phoenix', 'AZ'),
+  ('fc000000-0000-4000-8000-000000000017', 'c5000000-0000-4000-8000-000000000014', 'Join The Mission Continues Phoenix Platoon', 'veterans', 'The Phoenix Platoon welcomes anyone with a passion for service, regardless of veteran status, working alongside nonprofit partners and community leaders on local projects. It is a good option if you want to serve alongside veterans on community-focused projects.', array['leadership role', 'good for crews'], 18, false, false, true, 'Varies', 'https://www.missioncontinues.org/service-platoon/Phoenix/', 'https://www.missioncontinues.org/service-platoon/Phoenix/', '2026-01-01T00:00:00Z', 'Phoenix', 'AZ'),
   ('fc000000-0000-4000-8000-000000000018', 'fb000000-0000-4000-8000-000000000018', 'Support Troops and Veterans as a Youth Volunteer', 'veterans', 'Volunteers of any age can help assemble care packages, write letters, and support outreach events honoring troops and veterans. It is one of the few veteran-support organizations built specifically around youth participation.', array['family friendly', 'creative work'], 0, false, false, true, 'Varies', 'https://youthfortroops.org/', 'https://youthfortroops.org/', '2026-01-01T00:00:00Z', 'Phoenix', 'AZ'),
   ('fc000000-0000-4000-8000-000000000019', 'fb000000-0000-4000-8000-000000000019', 'Volunteer with Special Olympics Arizona', 'sports', 'Volunteers are needed as coaches, trainers, officials, event organizers, and Unified Partners who play alongside athletes directly. No sports expertise is required, since training and support are provided for every role.', array['recurring', 'leadership role'], 14, false, false, true, '1-2 hrs / week', 'https://specialolympicsarizona.org/volunteer/', 'https://specialolympicsarizona.org/volunteer/', '2026-01-01T00:00:00Z', 'Phoenix', 'AZ'),
   ('fc000000-0000-4000-8000-000000000020', 'fb000000-0000-4000-8000-000000000020', 'Coach Youth Sports Through the City of Phoenix', 'sports', 'The city portal posts open youth sports coaching positions alongside other city volunteer roles, making it easy to browse current openings in one place. It is a good option if coaching interests you but you are not tied to one specific league yet.', array['recurring', 'leadership role'], 16, false, false, true, 'Varies', 'https://volunteer.phoenix.gov/custom/501/volunteer_home', 'https://volunteer.phoenix.gov/custom/501/volunteer_home', '2026-01-01T00:00:00Z', 'Phoenix', 'AZ')
 on conflict (id) do nothing;
-
-
