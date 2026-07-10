@@ -31,6 +31,10 @@ create table public.profiles (
 create table public.organizations (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid references auth.users (id) on delete set null,
+  -- Set instead of owner_id when a volunteer quick-adds a place they know
+  -- without becoming its dashboard-managing account (see the insert policy
+  -- below). Never both set at once.
+  submitted_by uuid references auth.users (id) on delete set null,
   name text not null,
   verified boolean not null default false,
   description text,
@@ -161,12 +165,18 @@ create policy "insert own profile" on public.profiles for insert with check (aut
 create policy "update own profile" on public.profiles for update using (auth.uid() = id);
 
 create policy "orgs are public" on public.organizations for select using (true);
-create policy "create org as self" on public.organizations for insert with check (auth.uid() = owner_id);
+create policy "create org as self" on public.organizations for insert
+  with check (auth.uid() = owner_id or (owner_id is null and auth.uid() = submitted_by));
 create policy "update own org" on public.organizations for update using (auth.uid() = owner_id);
 
 create policy "opportunities are public" on public.opportunities for select using (true);
 create policy "org owner creates listings" on public.opportunities for insert
-  with check (exists (select 1 from public.organizations o where o.id = org_id and o.owner_id = auth.uid()));
+  with check (
+    exists (
+      select 1 from public.organizations o
+      where o.id = org_id and (o.owner_id = auth.uid() or o.submitted_by = auth.uid())
+    )
+  );
 create policy "org owner updates listings" on public.opportunities for update
   using (exists (select 1 from public.organizations o where o.id = org_id and o.owner_id = auth.uid()));
 create policy "org owner deletes listings" on public.opportunities for delete

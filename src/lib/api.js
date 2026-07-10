@@ -426,6 +426,19 @@ export async function createOrganization(userId, { name, location }) {
   return mapOrg(data)
 }
 
+// A volunteer quick-adding a place they know, distinct from createOrganization:
+// submitted_by tracks who flagged it without making them its dashboard owner,
+// so it never collides with a real org account (see migration 023).
+export async function createCommunityOrg(userId, { name, location, website }) {
+  const { data, error } = await supabase
+    .from('organizations')
+    .insert({ submitted_by: userId, name, location, website: website || null })
+    .select()
+    .single()
+  if (error) throw error
+  return mapOrg(data)
+}
+
 export async function updateOrganization(orgId, { description, website }) {
   const { data, error } = await supabase
     .from('organizations')
@@ -464,6 +477,7 @@ export async function createOpportunity(orgId, draft) {
     capacity: Number(draft.capacity),
     min_age: Number(draft.minAge),
     is_online: Boolean(draft.isOnline),
+    is_ongoing: Boolean(draft.isOngoing),
     tags: draft.tags ?? [],
   }))
   const { data, error } = await supabase.from('opportunities').insert(rows).select()
