@@ -9,7 +9,7 @@ const navLinks = [
 ]
 
 export default function NavBar() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const navigate = useNavigate()
 
   async function handleLogout() {
@@ -46,6 +46,14 @@ export default function NavBar() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
+              {profile?.is_admin && (
+                <Link
+                  to="/admin"
+                  className="text-sm font-semibold text-cream-muted hover:text-cream-text"
+                >
+                  Admin
+                </Link>
+              )}
               <Link
                 to="/profile"
                 className="text-sm font-semibold text-cream-muted hover:text-cream-text"

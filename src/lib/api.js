@@ -203,6 +203,52 @@ export async function submitSuggestion({ orgName, website, notes, city, state, s
   if (error) throw error
 }
 
+// ---- admin review (gated in the UI by profile.is_admin; RLS also enforces it) ----
+
+export async function fetchPendingOrganizations() {
+  const { data, error } = await supabase
+    .from('organizations')
+    .select('*, opportunities(id, title)')
+    .eq('verified', false)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map((row) => ({ ...mapOrg(row), opportunities: row.opportunities ?? [] }))
+}
+
+export async function verifyOrganization(orgId) {
+  const { error } = await supabase.from('organizations').update({ verified: true }).eq('id', orgId)
+  if (error) throw error
+}
+
+export async function deleteOrganization(orgId) {
+  const { error } = await supabase.from('organizations').delete().eq('id', orgId)
+  if (error) throw error
+}
+
+export async function fetchPendingSuggestions() {
+  const { data, error } = await supabase
+    .from('suggestions')
+    .select('*')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map((s) => ({
+    id: s.id,
+    orgName: s.org_name,
+    website: s.website,
+    notes: s.notes,
+    city: s.city,
+    state: s.state,
+    submitterEmail: s.submitter_email,
+    createdAt: s.created_at,
+  }))
+}
+
+export async function updateSuggestionStatus(id, status) {
+  const { error } = await supabase.from('suggestions').update({ status }).eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchHourLogs(userId) {
   const { data, error } = await supabase
     .from('hour_logs')

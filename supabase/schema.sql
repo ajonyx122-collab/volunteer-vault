@@ -25,8 +25,14 @@ create table public.profiles (
   school text,
   grad_year int,
   avatar_url text,
+  is_admin boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+-- SECURITY: revoke column-level UPDATE on is_admin so no client-side request
+-- (even one satisfying "update own profile" below) can ever self-promote.
+-- Only the service role, which bypasses grants entirely, can flip it.
+revoke update (is_admin) on public.profiles from authenticated, anon;
 
 create table public.organizations (
   id uuid primary key default gen_random_uuid(),
@@ -200,6 +206,17 @@ create policy "logged-in users can report" on public.reports
 alter table public.suggestions enable row level security;
 create policy "anyone can suggest an opportunity" on public.suggestions
   for insert with check (true);
+
+-- Admins can verify/remove any org and read/action suggestions (on top of
+-- the owner-scoped policies above — Postgres OR's multiple permissive ones).
+create policy "admins manage any org" on public.organizations
+  for update using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin));
+create policy "admins delete any org" on public.organizations
+  for delete using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin));
+create policy "admins read suggestions" on public.suggestions
+  for select using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin));
+create policy "admins update suggestions" on public.suggestions
+  for update using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin));
 
 -- One hour log per volunteer per opportunity.
 create unique index hour_logs_once_per_opportunity on public.hour_logs (user_id, opportunity_id);
