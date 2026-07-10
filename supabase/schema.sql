@@ -72,6 +72,20 @@ create table public.reports (
   created_at timestamptz not null default now()
 );
 
+-- Anyone can suggest an org/opportunity to add; AJ reviews in the Supabase
+-- table editor (which bypasses RLS) and manually adds approved ones.
+create table public.suggestions (
+  id uuid primary key default gen_random_uuid(),
+  org_name text not null,
+  website text not null,
+  notes text not null,
+  city text,
+  state text,
+  submitter_email text,
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at timestamptz not null default now()
+);
+
 create table public.signups (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -172,6 +186,10 @@ create policy "review as self" on public.reviews for insert with check (auth.uid
 alter table public.reports enable row level security;
 create policy "logged-in users can report" on public.reports
   for insert to authenticated with check (true);
+
+alter table public.suggestions enable row level security;
+create policy "anyone can suggest an opportunity" on public.suggestions
+  for insert with check (true);
 
 -- One hour log per volunteer per opportunity.
 create unique index hour_logs_once_per_opportunity on public.hour_logs (user_id, opportunity_id);

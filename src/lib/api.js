@@ -191,6 +191,18 @@ export async function reportOpportunity(opportunityId, userId, reason) {
   if (error) throw error
 }
 
+export async function submitSuggestion({ orgName, website, notes, city, state, submitterEmail }) {
+  const { error } = await supabase.from('suggestions').insert({
+    org_name: orgName,
+    website,
+    notes,
+    city: city || null,
+    state: state || null,
+    submitter_email: submitterEmail || null,
+  })
+  if (error) throw error
+}
+
 export async function fetchHourLogs(userId) {
   const { data, error } = await supabase
     .from('hour_logs')

@@ -5,6 +5,7 @@ import { fetchOpportunities } from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
 import OpportunityCard from '../components/OpportunityCard'
 import MapPreview from '../components/MapPreview'
+import SuggestOpportunity from '../components/SuggestOpportunity'
 
 const TOGGLES = [
   { id: 'remote', label: '🌐 Remote only' },
@@ -95,7 +96,9 @@ export default function Browse() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-3xl font-extrabold text-brand-green">Browse opportunities</h1>
+      <SuggestOpportunity />
+
+      <h1 className="mt-6 font-display text-3xl font-extrabold text-brand-green">Browse opportunities</h1>
       <p className="mt-1 text-brand-green/60">Real organizations recruiting volunteers right now — filter down to your people.</p>
 
       <div className="mt-6 flex flex-col gap-3">
