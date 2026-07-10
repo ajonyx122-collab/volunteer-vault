@@ -34,7 +34,7 @@ export default function Browse() {
   const [opportunities, setOpportunities] = useState([])
   const [loadingOpps, setLoadingOpps] = useState(true)
   const [query, setQuery] = useState(initialQuery)
-  const [toggles, setToggles] = useState([])
+  const [toggles, setToggles] = useState(searchParams.get('remote') ? ['remote'] : [])
   const [stateFilter, setStateFilter] = useState('')
   const [commitment, setCommitment] = useState('')
   const [age, setAge] = useState('')

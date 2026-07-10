@@ -15,6 +15,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import ComingSoon from './pages/ComingSoon'
 import AdminReview from './pages/AdminReview'
+import MapView from './pages/MapView'
 
 export default function App() {
   return (
@@ -37,15 +38,7 @@ export default function App() {
           <Route path="/admin" element={<AdminReview />} />
           {/* Community posts now live directly on Browse ("Organize a project") */}
           <Route path="/community" element={<Navigate to="/browse" replace />} />
-          <Route
-            path="/map"
-            element={
-              <ComingSoon
-                title="Full map view — coming soon"
-                blurb="An interactive map with pins and RSVP caps lands in Phase 3. The mini preview on Browse is live today."
-              />
-            }
-          />
+          <Route path="/map" element={<MapView />} />
           <Route
             path="/leaderboards"
             element={
