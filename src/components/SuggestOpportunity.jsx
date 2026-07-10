@@ -230,6 +230,7 @@ export default function SuggestOpportunity() {
                 {!quickAdd.isOnline && (
                   <>
                     <input
+                      required={mode === 'event'}
                       placeholder="City"
                       value={quickAdd.city}
                       onChange={(e) => updateQuickAdd('city', e.target.value)}
