@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { CATEGORIES, US_STATES } from '../data/mockData'
 import { fetchOpportunities } from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
@@ -27,6 +27,7 @@ const commitmentOf = (o) => o.org?.commitmentType ?? 'both'
 
 export default function Browse() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeCategory = searchParams.get('category')
   const initialQuery = searchParams.get('q') ?? ''
@@ -96,7 +97,7 @@ export default function Browse() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <SuggestOpportunity />
+      <SuggestOpportunity onOrganizeClick={() => navigate('/community')} />
 
       <h1 className="mt-6 font-display text-3xl font-extrabold text-brand-green">Browse opportunities</h1>
       <p className="mt-1 text-brand-green/60">Real organizations recruiting volunteers right now — filter down to your people.</p>
@@ -110,8 +111,8 @@ export default function Browse() {
           className="w-full rounded-pill border border-card-border bg-card px-5 py-3 text-sm text-brand-green shadow-card outline-none placeholder:text-brand-green/40"
         />
 
-        {/* Category / cause */}
-        <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
+        {/* Category / cause — wraps instead of scrolling so nothing gets cut off */}
+        <div className="flex flex-wrap gap-2">
           {CATEGORIES.map((c) => (
             <button
               key={c.id}

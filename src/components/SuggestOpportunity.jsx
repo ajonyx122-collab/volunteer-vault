@@ -7,18 +7,19 @@ import { useAuth } from '../lib/AuthContext'
 const emptySuggestion = { orgName: '', website: '', notes: '', city: '', state: '', submitterEmail: '' }
 const emptyQuickAdd = {
   name: '',
+  organizerName: '',
   category: CATEGORIES[0].id,
   description: '',
   website: '',
   city: '',
   state: '',
   isOnline: false,
-  eventDate: '',
+  eventDates: [''],
   headcount: 15,
   whatToBring: '',
 }
 
-export default function SuggestOpportunity({ onPosted }) {
+export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState('org') // 'org' (existing place) | 'event' (one-time project you're running)
@@ -33,6 +34,13 @@ export default function SuggestOpportunity({ onPosted }) {
   }
   function updateQuickAdd(field, value) {
     setQuickAdd((prev) => ({ ...prev, [field]: value }))
+  }
+  function updateEventDate(index, value) {
+    setQuickAdd((prev) => {
+      const eventDates = [...prev.eventDates]
+      eventDates[index] = value
+      return { ...prev, eventDates }
+    })
   }
 
   async function handleSuggestSubmit(e) {
@@ -53,12 +61,13 @@ export default function SuggestOpportunity({ onPosted }) {
   // "Pending" until AJ verifies it — same honest badge every unverified org
   // gets) instead of dropping into a private review queue. Two shapes share
   // this one flow: flagging an existing place ("org" mode, always-open/
-  // ongoing) and organizing your own one-time project ("event" mode, with a
-  // real date, headcount, and what to bring — the Phase 3 community post).
+  // ongoing) and organizing your own project ("event" mode, with real
+  // date(s), headcount, and what to bring — the Phase 3 community post).
   async function handleQuickAddSubmit(e) {
     e.preventDefault()
-    if (mode === 'event' && !quickAdd.eventDate) {
-      setError('Pick a date and time for your event.')
+    const dates = mode === 'event' ? quickAdd.eventDates.filter(Boolean) : []
+    if (mode === 'event' && dates.length === 0) {
+      setError('Pick at least one date for your project.')
       return
     }
     setBusy(true)
@@ -68,7 +77,7 @@ export default function SuggestOpportunity({ onPosted }) {
         ? 'Online'
         : [quickAdd.city, quickAdd.state].filter(Boolean).join(', ')
       const org = await createCommunityOrg(user.id, {
-        name: quickAdd.name,
+        name: mode === 'event' ? quickAdd.organizerName : quickAdd.name,
         location,
         website: quickAdd.website,
       })
@@ -76,7 +85,7 @@ export default function SuggestOpportunity({ onPosted }) {
         title: mode === 'event' ? quickAdd.name : `Volunteer with ${quickAdd.name}`,
         category: quickAdd.category,
         description: quickAdd.description,
-        dates: [mode === 'event' ? new Date(quickAdd.eventDate).toISOString() : new Date().toISOString()],
+        dates: mode === 'event' ? dates : [new Date().toISOString()],
         durationHours: 2,
         address: '',
         city: quickAdd.city,
@@ -143,12 +152,16 @@ export default function SuggestOpportunity({ onPosted }) {
                 </button>
                 <button
                   onClick={() => {
+                    if (onOrganizeClick) {
+                      onOrganizeClick()
+                      return
+                    }
                     setMode('event')
                     setOpen(open && mode === 'event' ? false : true)
                   }}
                   className="rounded-pill bg-coral px-4 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
                 >
-                  {open && mode === 'event' ? 'Cancel' : '📅 Organize a project'}
+                  {open && mode === 'event' && !onOrganizeClick ? 'Cancel' : '📅 Organize a project'}
                 </button>
               </div>
             ) : (
@@ -183,28 +196,79 @@ export default function SuggestOpportunity({ onPosted }) {
                   ))}
                 </select>
               </div>
-              <textarea
-                required
-                placeholder={mode === 'event' ? 'What will you be doing?' : 'What would volunteers do there?'}
-                value={quickAdd.description}
-                onChange={(e) => updateQuickAdd('description', e.target.value)}
-                rows={3}
-                className="rounded-card border border-card-border px-4 py-2.5 text-sm outline-none"
-              />
 
               {mode === 'event' && (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="flex flex-col gap-1 text-xs font-bold text-brand-green/60">
-                    When
-                    <input
-                      required
-                      type="datetime-local"
-                      value={quickAdd.eventDate}
-                      onChange={(e) => updateQuickAdd('eventDate', e.target.value)}
-                      className="rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1 text-xs font-bold text-brand-green/60">
+                <input
+                  required
+                  placeholder="Your name or group name (who's running this?)"
+                  value={quickAdd.organizerName}
+                  onChange={(e) => updateQuickAdd('organizerName', e.target.value)}
+                  className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
+                />
+              )}
+
+              <div>
+                <textarea
+                  required
+                  placeholder={
+                    mode === 'event'
+                      ? 'What will you be doing? Cover what, where, who, and what to expect...'
+                      : 'What would volunteers do there?'
+                  }
+                  value={quickAdd.description}
+                  onChange={(e) => updateQuickAdd('description', e.target.value)}
+                  rows={5}
+                  className="w-full rounded-card border border-card-border px-4 py-2.5 text-sm outline-none"
+                />
+                {mode === 'event' && (
+                  <p className="mt-1 text-xs text-brand-green/50">
+                    The more detail, the better — aim for 6-12 sentences so nobody's confused about
+                    what showing up actually means.
+                  </p>
+                )}
+              </div>
+
+              {mode === 'event' && (
+                <>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-xs font-bold text-brand-green/60">
+                      When — recurring? Add every date, one listing per date.
+                    </p>
+                    {quickAdd.eventDates.map((date, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <input
+                          required
+                          type="datetime-local"
+                          value={date}
+                          onChange={(e) => updateEventDate(i, e.target.value)}
+                          className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
+                        />
+                        {quickAdd.eventDates.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateQuickAdd(
+                                'eventDates',
+                                quickAdd.eventDates.filter((_, di) => di !== i),
+                              )
+                            }
+                            aria-label="Remove date"
+                            className="rounded-pill border border-card-border px-3 py-1.5 text-sm font-bold text-coral"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => updateQuickAdd('eventDates', [...quickAdd.eventDates, ''])}
+                      className="self-start rounded-pill border border-card-border bg-cream px-4 py-2 text-xs font-bold text-brand-green"
+                    >
+                      + Add another date
+                    </button>
+                  </div>
+                  <label className="flex flex-col gap-1 text-xs font-bold text-brand-green/60 sm:w-56">
                     How many people can join
                     <input
                       required
@@ -215,7 +279,7 @@ export default function SuggestOpportunity({ onPosted }) {
                       className="rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
                     />
                   </label>
-                </div>
+                </>
               )}
 
               <label className="flex items-center gap-2 text-sm font-semibold text-brand-green">
@@ -274,7 +338,13 @@ export default function SuggestOpportunity({ onPosted }) {
                 disabled={busy}
                 className="self-start rounded-pill bg-brand-green px-6 py-2.5 text-sm font-bold text-cream-text shadow-soft disabled:opacity-60"
               >
-                {busy ? 'Adding...' : mode === 'event' ? 'Post project' : 'Add opportunity'}
+                {busy
+                  ? 'Adding...'
+                  : mode === 'event'
+                    ? quickAdd.eventDates.filter(Boolean).length > 1
+                      ? `Post ${quickAdd.eventDates.filter(Boolean).length} dates`
+                      : 'Post project'
+                    : 'Add opportunity'}
               </button>
             </form>
           )}

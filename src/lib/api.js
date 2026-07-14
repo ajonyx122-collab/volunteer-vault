@@ -507,6 +507,22 @@ export async function fetchOrgOpportunities(orgId) {
   return (data ?? []).map((row) => mapOpportunity(row, counts))
 }
 
+// A community organizer's posts each get their own org row (see
+// createCommunityOrg), so this spans every org they've submitted_by, not
+// just one — that's the "manage what you posted" list on /community.
+export async function fetchMyCommunityPosts(userId) {
+  const [{ data, error }, counts] = await Promise.all([
+    supabase
+      .from('opportunities')
+      .select(OPP_SELECT)
+      .eq('organizations.submitted_by', userId)
+      .order('starts_at'),
+    fetchSignupCounts(),
+  ])
+  if (error) throw error
+  return (data ?? []).filter((row) => row.organizations).map((row) => mapOpportunity(row, counts))
+}
+
 // draft.dates is an array of datetime strings — one listing per date, so a
 // recurring event (weekly cleanup etc.) shows up on each day it happens.
 export async function createOpportunity(orgId, draft) {

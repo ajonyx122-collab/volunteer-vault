@@ -224,13 +224,16 @@ create policy "admins update suggestions" on public.suggestions
 -- One hour log per volunteer per opportunity.
 create unique index hour_logs_once_per_opportunity on public.hour_logs (user_id, opportunity_id);
 
--- Org owners manage signups + verify hours on their own listings.
+-- Org owners AND community-post organizers (submitted_by) manage signups +
+-- verify hours on their own listings — this is how a community organizer
+-- finds out who RSVP'd, in place of email notifications.
 create policy "org owner reads listing signups" on public.signups
   for select using (
     exists (
       select 1 from public.opportunities o
       join public.organizations g on g.id = o.org_id
-      where o.id = signups.opportunity_id and g.owner_id = auth.uid()
+      where o.id = signups.opportunity_id
+        and (g.owner_id = auth.uid() or g.submitted_by = auth.uid())
     )
   );
 create policy "org owner updates listing signups" on public.signups
@@ -238,7 +241,8 @@ create policy "org owner updates listing signups" on public.signups
     exists (
       select 1 from public.opportunities o
       join public.organizations g on g.id = o.org_id
-      where o.id = signups.opportunity_id and g.owner_id = auth.uid()
+      where o.id = signups.opportunity_id
+        and (g.owner_id = auth.uid() or g.submitted_by = auth.uid())
     )
   );
 create policy "org owner verifies hours" on public.hour_logs
@@ -247,7 +251,8 @@ create policy "org owner verifies hours" on public.hour_logs
     and exists (
       select 1 from public.opportunities o
       join public.organizations g on g.id = o.org_id
-      where o.id = hour_logs.opportunity_id and g.owner_id = auth.uid()
+      where o.id = hour_logs.opportunity_id
+        and (g.owner_id = auth.uid() or g.submitted_by = auth.uid())
     )
   );
 
@@ -297,7 +302,8 @@ create policy "org owner sees own codes" on public.check_in_codes
     exists (
       select 1 from public.opportunities o
       join public.organizations g on g.id = o.org_id
-      where o.id = check_in_codes.opportunity_id and g.owner_id = auth.uid()
+      where o.id = check_in_codes.opportunity_id
+        and (g.owner_id = auth.uid() or g.submitted_by = auth.uid())
     )
   );
 

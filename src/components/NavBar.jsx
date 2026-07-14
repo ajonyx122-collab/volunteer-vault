@@ -19,8 +19,8 @@ export default function NavBar() {
 
   return (
     <header className="sticky top-0 z-50 bg-brand-green shadow-soft">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link to="/" className="flex items-center gap-2">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
+        <Link to="/" className="flex shrink-0 items-center gap-2">
           <img src="/brand/logo-white.png" alt="" className="h-9 w-9" />
           <span className="font-display text-lg font-extrabold text-cream-text">
             Volunteer<span className="text-gold">VAULT</span>
@@ -43,7 +43,7 @@ export default function NavBar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           {user ? (
             <>
               {profile?.is_admin && (
