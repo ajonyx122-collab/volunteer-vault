@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import NavBar from './components/NavBar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -16,6 +16,7 @@ import ResetPassword from './pages/ResetPassword'
 import ComingSoon from './pages/ComingSoon'
 import AdminReview from './pages/AdminReview'
 import MapView from './pages/MapView'
+import Community from './pages/Community'
 
 export default function App() {
   return (
@@ -36,8 +37,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={<AdminReview />} />
-          {/* Community posts now live directly on Browse ("Organize a project") */}
-          <Route path="/community" element={<Navigate to="/browse" replace />} />
+          <Route path="/community" element={<Community />} />
           <Route path="/map" element={<MapView />} />
           <Route
             path="/leaderboards"

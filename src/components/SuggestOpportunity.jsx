@@ -18,7 +18,7 @@ const emptyQuickAdd = {
   whatToBring: '',
 }
 
-export default function SuggestOpportunity() {
+export default function SuggestOpportunity({ onPosted }) {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState('org') // 'org' (existing place) | 'event' (one-time project you're running)
@@ -91,6 +91,7 @@ export default function SuggestOpportunity() {
       })
       setSent(true)
       setQuickAdd(emptyQuickAdd)
+      onPosted?.()
     } catch {
       setError("Couldn't add that — check your connection and try again.")
     }
