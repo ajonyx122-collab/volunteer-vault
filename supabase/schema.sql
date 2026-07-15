@@ -47,6 +47,12 @@ create table public.organizations (
   location text,
   logo_url text,
   website text,
+  contact_email text,
+  contact_phone text,
+  -- Private moderation note from an admin, shown on the org's own
+  -- dashboard. Deliberately left out of the public opportunities/
+  -- organizations select in api.js — see migration 029.
+  admin_note text,
   created_at timestamptz not null default now()
 );
 
@@ -243,6 +249,9 @@ create policy "org owner reads listing signups" on public.signups
         and (g.owner_id = auth.uid() or g.submitted_by = auth.uid())
     )
   );
+-- Powers the admin org-detail page's "how many signed up" view.
+create policy "admins read any signups" on public.signups
+  for select using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin));
 create policy "org owner updates listing signups" on public.signups
   for update using (
     exists (

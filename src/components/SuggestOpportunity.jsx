@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CATEGORIES, US_STATES } from '../data/mockData'
+import { CATEGORIES, US_STATES, TAG_OPTIONS } from '../data/mockData'
 import { submitSuggestion, createCommunityOrg, createOpportunity } from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
 
@@ -11,6 +11,8 @@ const emptyQuickAdd = {
   category: CATEGORIES[0].id,
   description: '',
   website: '',
+  contactEmail: '',
+  contactPhone: '',
   city: '',
   state: '',
   isOnline: false,
@@ -18,6 +20,7 @@ const emptyQuickAdd = {
   isOngoing: false,
   headcount: 15,
   whatToBring: '',
+  tags: [],
 }
 
 export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
@@ -42,6 +45,12 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
       eventDates[index] = value
       return { ...prev, eventDates }
     })
+  }
+  function toggleQuickAddTag(tag) {
+    setQuickAdd((prev) => ({
+      ...prev,
+      tags: prev.tags.includes(tag) ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag],
+    }))
   }
 
   async function handleSuggestSubmit(e) {
@@ -82,6 +91,8 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
         name: mode === 'event' ? quickAdd.organizerName : quickAdd.name,
         location,
         website: quickAdd.website,
+        contactEmail: quickAdd.contactEmail,
+        contactPhone: quickAdd.contactPhone,
       })
       await createOpportunity(org.id, {
         title: mode === 'event' ? quickAdd.name : `Volunteer with ${quickAdd.name}`,
@@ -96,7 +107,7 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
         isOnline: quickAdd.isOnline,
         isOngoing: mode === 'org' || eventIsOngoing,
         whatToBring: mode === 'event' ? quickAdd.whatToBring : '',
-        tags: [],
+        tags: mode === 'event' ? quickAdd.tags : [],
         capacity: mode === 'event' ? Number(quickAdd.headcount) : 20,
         minAge: 0,
       })
@@ -293,6 +304,28 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
                       className="rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
                     />
                   </label>
+
+                  <div>
+                    <p className="text-xs font-bold text-brand-green/60">
+                      Tags — help the right people find it (optional)
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {TAG_OPTIONS.map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => toggleQuickAddTag(tag)}
+                          className={`rounded-pill px-3 py-1.5 text-xs font-bold transition-colors ${
+                            quickAdd.tags.includes(tag)
+                              ? 'bg-brand-green text-cream-text'
+                              : 'border border-card-border bg-cream text-brand-green/70'
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -345,6 +378,28 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
                     className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
                   />
                 )}
+              </div>
+
+              <div>
+                <p className="text-xs font-bold text-brand-green/60">
+                  Contact info — so volunteers can reach out (optional)
+                </p>
+                <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                  <input
+                    type="email"
+                    placeholder="Contact email (optional)"
+                    value={quickAdd.contactEmail}
+                    onChange={(e) => updateQuickAdd('contactEmail', e.target.value)}
+                    className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Contact phone (optional)"
+                    value={quickAdd.contactPhone}
+                    onChange={(e) => updateQuickAdd('contactPhone', e.target.value)}
+                    className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
+                  />
+                </div>
               </div>
               {error && <p className="text-sm font-semibold text-coral">{error}</p>}
               <button

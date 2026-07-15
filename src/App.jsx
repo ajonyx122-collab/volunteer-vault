@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import NavBar from './components/NavBar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -14,6 +15,7 @@ import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import AdminReview from './pages/AdminReview'
+import AdminOrgDetail from './pages/AdminOrgDetail'
 import MapView from './pages/MapView'
 import Community from './pages/Community'
 import Leaderboards from './pages/Leaderboards'
@@ -38,6 +40,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={<AdminReview />} />
+          <Route path="/admin/orgs/:id" element={<AdminOrgDetail />} />
           <Route path="/community" element={<Community />} />
           <Route path="/map" element={<MapView />} />
           <Route path="/leaderboards" element={<Leaderboards />} />
@@ -45,6 +48,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <Analytics />
     </div>
   )
 }

@@ -18,6 +18,8 @@ export default function OrgDashboard() {
   const [editingOrg, setEditingOrg] = useState(false)
   const [draftWebsite, setDraftWebsite] = useState('')
   const [draftDescription, setDraftDescription] = useState('')
+  const [draftContactEmail, setDraftContactEmail] = useState('')
+  const [draftContactPhone, setDraftContactPhone] = useState('')
   const [expandedId, setExpandedId] = useState(null)
 
   useEffect(() => {
@@ -49,6 +51,8 @@ export default function OrgDashboard() {
   function startEditingOrg() {
     setDraftWebsite(org.website ?? '')
     setDraftDescription(org.description ?? '')
+    setDraftContactEmail(org.contactEmail ?? '')
+    setDraftContactPhone(org.contactPhone ?? '')
     setEditingOrg(true)
   }
 
@@ -60,6 +64,8 @@ export default function OrgDashboard() {
       const updated = await updateOrganization(org.id, {
         description: draftDescription,
         website: draftWebsite,
+        contactEmail: draftContactEmail,
+        contactPhone: draftContactPhone,
       })
       setOrg(updated)
       setEditingOrg(false)
@@ -191,6 +197,28 @@ export default function OrgDashboard() {
               className="mt-1 w-full rounded-card border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
             />
           </label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-xs font-bold text-brand-green/60">
+              Contact email — optional
+              <input
+                type="email"
+                placeholder="hello@yourorg.org"
+                value={draftContactEmail}
+                onChange={(e) => setDraftContactEmail(e.target.value)}
+                className="mt-1 w-full rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
+              />
+            </label>
+            <label className="text-xs font-bold text-brand-green/60">
+              Contact phone — optional
+              <input
+                type="tel"
+                placeholder="(555) 555-5555"
+                value={draftContactPhone}
+                onChange={(e) => setDraftContactPhone(e.target.value)}
+                className="mt-1 w-full rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
+              />
+            </label>
+          </div>
           {error && <p className="text-sm font-semibold text-coral">{error}</p>}
           <button
             type="submit"
@@ -200,6 +228,13 @@ export default function OrgDashboard() {
             {busy ? 'Saving...' : 'Save org info'}
           </button>
         </form>
+      )}
+
+      {org.adminNote && (
+        <div className="mt-4 rounded-card border border-gold bg-category-food-bg p-4 text-sm text-gold-text shadow-card">
+          <p className="font-bold">📝 Note from a VolunteerVault admin</p>
+          <p className="mt-1">{org.adminNote}</p>
+        </div>
       )}
 
       {!org.verified && (

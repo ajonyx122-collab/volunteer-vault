@@ -38,6 +38,7 @@ export default function PostOpportunity() {
   const [draft, setDraft] = useState(emptyDraft)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [showExample, setShowExample] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -128,6 +129,70 @@ export default function PostOpportunity() {
           <p className="text-sm text-brand-green/60">for {org.name}</p>
         </div>
       </div>
+
+      <button
+        onClick={() => setShowExample((v) => !v)}
+        className="mt-4 rounded-pill border border-card-border bg-card px-4 py-2 text-xs font-bold text-brand-green shadow-card hover:bg-cream"
+      >
+        {showExample ? 'Hide example ▲' : 'New here? See what a good listing looks like ▼'}
+      </button>
+
+      {showExample && (
+        <div className="mt-3 rounded-card border-2 border-dashed border-gold bg-card p-5 shadow-card sm:p-6">
+          <span className="rounded-pill bg-gold px-3 py-1 text-xs font-bold text-gold-text">
+            📋 EXAMPLE — not a real listing
+          </span>
+          <p className="mt-3 font-display text-lg font-bold text-brand-green">
+            Saturday Shelter Support Shift
+          </p>
+          <dl className="mt-3 flex flex-col gap-3 text-sm">
+            <div>
+              <dt className="font-bold text-brand-green/60">Category</dt>
+              <dd className="text-brand-green">🐾 Animals</dd>
+            </div>
+            <div>
+              <dt className="font-bold text-brand-green/60">
+                Description — say exactly what a volunteer will spend their time doing, not just what
+                your org does in general.
+              </dt>
+              <dd className="mt-1 leading-relaxed text-brand-green">
+                "Volunteers help walk dogs, clean kennels, and socialize cats during our busiest
+                adoption hours. No experience needed — a staff member walks you through everything
+                in the first 15 minutes. Closed-toe shoes required; we'll provide gloves and aprons.
+                Great for first-timers and regulars alike, and a good pick if you're coming with a
+                club or a group of friends."
+              </dd>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <dt className="font-bold text-brand-green/60">When</dt>
+                <dd className="text-brand-green">Saturdays, 10am–12pm (recurring — add every date)</dd>
+              </div>
+              <div>
+                <dt className="font-bold text-brand-green/60">Capacity</dt>
+                <dd className="text-brand-green">8 volunteers per shift</dd>
+              </div>
+            </div>
+            <div>
+              <dt className="font-bold text-brand-green/60">Tags</dt>
+              <dd className="mt-1 flex flex-wrap gap-2">
+                {['no experience needed', 'good for crews', 'animal handling', 'physical work'].map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-pill bg-cream px-3 py-1 text-xs font-bold text-brand-green"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </dd>
+            </div>
+          </dl>
+          <p className="mt-4 text-xs text-brand-green/50">
+            Runs every week with no end date in sight? Check "This is ongoing" in the When section
+            below instead of adding dates one by one.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-8">
         {/* The basics */}

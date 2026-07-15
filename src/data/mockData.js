@@ -49,21 +49,86 @@ export function getCauseBadgeCopy(categoryId) {
   return { label: meta ? `${meta.label} regular` : 'Cause regular', icon: meta?.icon ?? '💚' }
 }
 
-// Tags orgs can put on a listing — the niche layer on top of categories.
+// Tags orgs/organizers can put on a listing — the niche layer on top of
+// categories. Grouped here by theme for readability; rendered as one flat
+// list of toggle chips in the posting forms.
 export const TAG_OPTIONS = [
+  // Experience & group type
   'good for crews',
   'chill first-timer pick',
   'no experience needed',
-  'counts for school hours',
-  'counts for club hours',
-  'one-time',
-  'recurring',
-  'outdoors',
-  'indoors',
+  'training provided',
+  'skilled volunteers wanted',
+  'bring your own skills',
+  'good for solo volunteers',
+  'good for classes',
   'family friendly',
   'leadership role',
-  'physical work',
+  'great for making friends',
+  'quiet and low-key',
+  'high energy',
+  // Skills & interests
+  'tech skills useful',
+  'bilingual helpful',
+  'public speaking',
+  'teaching or tutoring',
+  'writing or editing',
+  'photography',
+  'cooking or baking',
+  'gardening skills',
+  'arts and crafts',
+  'music or performance',
+  'sports or coaching',
+  'event planning',
+  'social media savvy',
+  'driving required',
+  'animal handling',
+  'building or repair',
+  'sewing or crafting',
   'creative work',
+  // Commitment & schedule
+  'one-time',
+  'recurring',
+  'weekly',
+  'monthly',
+  'seasonal',
+  'drop-in anytime',
+  'sign up for a shift',
+  'short commitment',
+  'long-term commitment',
+  // Time of day
+  'morning',
+  'afternoon',
+  'evening',
+  'weekend',
+  'weekday',
+  'early bird',
+  'night owl',
+  // Physical demand & setting
+  'outdoors',
+  'indoors',
+  'physical work',
+  'light activity',
+  'sit-down friendly',
+  'lots of walking',
+  'heavy lifting',
+  'all-weather',
+  'rain or shine',
+  // Perks
+  'free food provided',
+  'snacks provided',
+  'transportation provided',
+  't-shirt included',
+  // Accessibility & inclusion
+  'wheelchair accessible',
+  'sensory-friendly',
+  'LGBTQ+ friendly',
+  'faith-based',
+  // Age
+  'great for younger teens',
+  'great for older teens',
+  'college students welcome',
+  'adult supervision required',
 ]
 
 export const US_STATES = [

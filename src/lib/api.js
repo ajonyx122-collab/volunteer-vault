@@ -20,6 +20,12 @@ function mapOrg(row) {
     logoUrl: row.logo_url,
     imageUrl: row.image_url,
     website: row.website,
+    contactEmail: row.contact_email,
+    contactPhone: row.contact_phone,
+    // Only present when the caller explicitly selected it (owner's own
+    // dashboard fetch, admin queries) — never included in the public
+    // opportunities join, see OPP_SELECT below.
+    adminNote: row.admin_note,
     ownerId: row.owner_id,
     submittedBy: row.submitted_by,
     // directory fields (migration 005)
@@ -100,7 +106,11 @@ async function fetchSignupCounts() {
   return Object.fromEntries((data ?? []).map((r) => [r.opportunity_id, r.signed_up]))
 }
 
-const OPP_SELECT = '*, organizations(*), reviews(rating_organized, rating_welcoming, rating_impactful, quote)'
+// Explicit org column list (not organizations(*)) so admin_note never rides
+// along on the public opportunities feed — see mapOrg's note on adminNote.
+const ORG_COLUMNS =
+  'id, name, verified, description, location, logo_url, image_url, website, contact_email, contact_phone, owner_id, submitted_by, category, remote, international, min_age, country, state, city, counts_for_service_hours, commitment_type, featured'
+const OPP_SELECT = `*, organizations(${ORG_COLUMNS}), reviews(rating_organized, rating_welcoming, rating_impactful, quote)`
 
 export async function fetchOpportunities() {
   const [{ data, error }, counts] = await Promise.all([
@@ -223,10 +233,13 @@ export async function submitSuggestion({ orgName, website, notes, city, state, s
 
 // ---- admin review (gated in the UI by profile.is_admin; RLS also enforces it) ----
 
+const ADMIN_OPP_PREVIEW =
+  'id, title, category, description, starts_at, duration_hours, is_ongoing, is_online, capacity, min_age, tags, city, state'
+
 export async function fetchPendingOrganizations() {
   const { data, error } = await supabase
     .from('organizations')
-    .select('*, opportunities(id, title)')
+    .select(`*, opportunities(${ADMIN_OPP_PREVIEW})`)
     .eq('verified', false)
     .order('created_at', { ascending: false })
   if (error) throw error
@@ -241,6 +254,105 @@ export async function verifyOrganization(orgId) {
 export async function deleteOrganization(orgId) {
   const { error } = await supabase.from('organizations').delete().eq('id', orgId)
   if (error) throw error
+}
+
+// Admin-only: every org on the platform (not just pending), newest first,
+// with how many listings each has posted — powers the admin "All
+// organizations" list, which links to fetchOrgAdminDetail for the full picture.
+export async function fetchAllOrganizationsForAdmin() {
+  const { data, error } = await supabase
+    .from('organizations')
+    .select('*, opportunities(id)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map((row) => ({ ...mapOrg(row), listingCount: row.opportunities?.length ?? 0 }))
+}
+
+// Admin-only: one org's full picture — its info plus every listing it's
+// posted, each with signups and hours logged. Powers /admin/orgs/:id.
+export async function fetchOrgAdminDetail(orgId) {
+  const { data: orgRow, error: orgErr } = await supabase
+    .from('organizations')
+    .select('*')
+    .eq('id', orgId)
+    .maybeSingle()
+  if (orgErr) throw orgErr
+  if (!orgRow) return null
+
+  const { data: opps, error: oppErr } = await supabase
+    .from('opportunities')
+    .select(`${ADMIN_OPP_PREVIEW}, external_url`)
+    .eq('org_id', orgId)
+    .order('starts_at', { ascending: false })
+  if (oppErr) throw oppErr
+
+  const oppIds = (opps ?? []).map((o) => o.id)
+  let signupCounts = {}
+  let hourTotals = {}
+  if (oppIds.length > 0) {
+    const [{ data: signups }, { data: logs }] = await Promise.all([
+      supabase.from('signups').select('opportunity_id').in('opportunity_id', oppIds),
+      supabase.from('hour_logs').select('opportunity_id, hours').in('opportunity_id', oppIds),
+    ])
+    ;(signups ?? []).forEach((s) => {
+      signupCounts[s.opportunity_id] = (signupCounts[s.opportunity_id] ?? 0) + 1
+    })
+    ;(logs ?? []).forEach((l) => {
+      hourTotals[l.opportunity_id] = (hourTotals[l.opportunity_id] ?? 0) + Number(l.hours)
+    })
+  }
+
+  const listings = (opps ?? []).map((o) => ({
+    id: o.id,
+    title: o.title,
+    category: o.category,
+    description: o.description,
+    startsAt: o.starts_at,
+    durationHours: Number(o.duration_hours),
+    isOngoing: o.is_ongoing,
+    isOnline: o.is_online,
+    isExternal: !!o.external_url,
+    capacity: o.capacity,
+    minAge: o.min_age,
+    tags: o.tags ?? [],
+    city: o.city,
+    state: o.state,
+    signupCount: signupCounts[o.id] ?? 0,
+    hoursLogged: hourTotals[o.id] ?? 0,
+  }))
+
+  return { org: mapOrg(orgRow), listings }
+}
+
+// Admin-only: platform-wide totals for a simple overview block. Everything
+// computed client-side from small aggregate queries, same philosophy as
+// buildVaultData/buildLeaderboards — no separate reporting infra.
+export async function fetchPlatformStats() {
+  const [
+    { count: volunteerCount },
+    { count: orgCount },
+    { count: listingCount },
+    { count: signupCount },
+    { data: hourRows },
+  ] = await Promise.all([
+    supabase.from('profiles').select('id', { count: 'exact', head: true }),
+    supabase.from('organizations').select('id', { count: 'exact', head: true }),
+    supabase.from('opportunities').select('id', { count: 'exact', head: true }),
+    supabase.from('signups').select('id', { count: 'exact', head: true }),
+    supabase.from('hour_logs').select('hours, served_on, status'),
+  ])
+
+  const verifiedHours = (hourRows ?? [])
+    .filter(isLogVerified)
+    .reduce((sum, l) => sum + Number(l.hours), 0)
+
+  return {
+    volunteerCount: volunteerCount ?? 0,
+    orgCount: orgCount ?? 0,
+    listingCount: listingCount ?? 0,
+    signupCount: signupCount ?? 0,
+    verifiedHours: Math.round(verifiedHours),
+  }
 }
 
 export async function fetchPendingSuggestions() {
@@ -648,10 +760,16 @@ export async function fetchMyOrganization(userId) {
   return mapOrg(data)
 }
 
-export async function createOrganization(userId, { name, location }) {
+export async function createOrganization(userId, { name, location, contactEmail, contactPhone }) {
   const { data, error } = await supabase
     .from('organizations')
-    .insert({ owner_id: userId, name, location })
+    .insert({
+      owner_id: userId,
+      name,
+      location,
+      contact_email: contactEmail?.trim() || null,
+      contact_phone: contactPhone?.trim() || null,
+    })
     .select()
     .single()
   if (error) throw error
@@ -661,25 +779,46 @@ export async function createOrganization(userId, { name, location }) {
 // A volunteer quick-adding a place they know, distinct from createOrganization:
 // submitted_by tracks who flagged it without making them its dashboard owner,
 // so it never collides with a real org account (see migration 023).
-export async function createCommunityOrg(userId, { name, location, website }) {
+export async function createCommunityOrg(userId, { name, location, website, contactEmail, contactPhone }) {
   const { data, error } = await supabase
     .from('organizations')
-    .insert({ submitted_by: userId, name, location, website: website || null })
+    .insert({
+      submitted_by: userId,
+      name,
+      location,
+      website: website || null,
+      contact_email: contactEmail?.trim() || null,
+      contact_phone: contactPhone?.trim() || null,
+    })
     .select()
     .single()
   if (error) throw error
   return mapOrg(data)
 }
 
-export async function updateOrganization(orgId, { description, website }) {
+export async function updateOrganization(orgId, { description, website, contactEmail, contactPhone }) {
   const { data, error } = await supabase
     .from('organizations')
-    .update({ description: description?.trim() || null, website: website?.trim() || null })
+    .update({
+      description: description?.trim() || null,
+      website: website?.trim() || null,
+      contact_email: contactEmail?.trim() || null,
+      contact_phone: contactPhone?.trim() || null,
+    })
     .eq('id', orgId)
     .select()
     .single()
   if (error) throw error
   return mapOrg(data)
+}
+
+// Admin-only write (RLS: "admins manage any org"). Pass note: '' to clear it.
+export async function adminSetOrgNote(orgId, note) {
+  const { error } = await supabase
+    .from('organizations')
+    .update({ admin_note: note?.trim() || null })
+    .eq('id', orgId)
+  if (error) throw error
 }
 
 export async function fetchOrgOpportunities(orgId) {
