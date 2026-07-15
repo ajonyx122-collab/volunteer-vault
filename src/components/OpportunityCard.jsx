@@ -10,13 +10,22 @@ function formatWhen(startsAt) {
     date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
 }
 
-export default function OpportunityCard({ opportunity, org }) {
+// bold=true swaps the thin border/soft shadow for the punchier green-
+// bordered, hard-shadow card style (Community page) without touching the
+// default look everywhere else this card is used (Home, Browse).
+export default function OpportunityCard({ opportunity, org, bold = false }) {
   const category = getCategoryMeta(opportunity.category)
   const spotsLeft = opportunity.capacity - opportunity.spotsFilled
   const isExternal = !!opportunity.externalUrl
 
   return (
-    <div className="flex w-full flex-col gap-3 rounded-card border border-card-border bg-card p-4 shadow-card transition-all hover:-translate-y-1 hover:shadow-pop sm:flex-row sm:items-center">
+    <div
+      className={`flex w-full flex-col gap-3 rounded-card bg-card p-4 transition-all sm:flex-row sm:items-center ${
+        bold
+          ? 'border-2 border-brand-green shadow-pop-soft hover:-translate-y-1 hover:shadow-pop'
+          : 'border border-card-border shadow-card hover:-translate-y-1 hover:shadow-pop'
+      }`}
+    >
       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-cream text-2xl">
         {category?.icon ?? '💚'}
       </div>
@@ -82,7 +91,9 @@ export default function OpportunityCard({ opportunity, org }) {
 
       <Link
         to={`/opportunities/${opportunity.id}`}
-        className="shrink-0 rounded-pill bg-coral px-5 py-2 text-center text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
+        className={`shrink-0 rounded-pill bg-coral px-5 py-2 text-center text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none ${
+          bold ? 'border-2 border-brand-green' : ''
+        }`}
       >
         {isExternal ? 'See details' : 'Count me in'}
       </Link>

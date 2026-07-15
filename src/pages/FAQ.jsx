@@ -133,7 +133,7 @@ const SECTIONS = [
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="rounded-card border border-card-border bg-card shadow-card">
+    <div className="rounded-card border-2 border-brand-green bg-card shadow-pop-soft">
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
@@ -151,7 +151,7 @@ function FAQItem({ q, a }) {
 export default function FAQ() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="font-display text-3xl font-extrabold text-brand-green">Questions? Answers.</h1>
+      <h1 className="text-sticker font-display text-4xl font-extrabold">Questions? Answers.</h1>
       <p className="mt-2 text-brand-green/70">
         Everything you might be wondering about finding opportunities, logging hours, and building
         your vault.

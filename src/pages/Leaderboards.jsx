@@ -56,7 +56,7 @@ export default function Leaderboards() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="font-display text-3xl font-extrabold text-brand-green">Leaderboards</h1>
+      <h1 className="text-sticker font-display text-4xl font-extrabold">Leaderboards</h1>
       <p className="mt-2 text-brand-green/70">
         Real people, real hours, real bragging rights. See who's crushing it.
       </p>
@@ -115,8 +115,10 @@ export default function Leaderboards() {
         {visible.map((e) => (
           <div
             key={e.userId}
-            className={`flex items-center gap-3 rounded-card border p-3 shadow-card ${
-              e.userId === profile?.id ? 'border-gold bg-category-food-bg' : 'border-card-border bg-card'
+            className={`flex items-center gap-3 rounded-card border-2 p-3 ${
+              e.userId === profile?.id
+                ? 'border-gold bg-category-food-bg shadow-pop-soft'
+                : 'border-brand-green bg-card shadow-pop-soft'
             }`}
           >
             <span className="w-8 shrink-0 text-center font-display text-lg font-extrabold text-brand-green/60">

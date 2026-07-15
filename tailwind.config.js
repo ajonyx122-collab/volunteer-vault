@@ -58,6 +58,9 @@ export default {
         // section backgrounds, not just cream/white ones.
         pop: '4px 4px 0 rgba(15, 26, 20, 0.9)',
         'pop-lg': '6px 6px 0 rgba(15, 26, 20, 0.9)',
+        // Softer tan offset shadow for the bolder green-bordered card style
+        // (Community/Leaderboards/FAQ) — same hard-edge feel, lighter touch.
+        'pop-soft': '7px 7px 0 #EDE6D4',
       },
     },
   },

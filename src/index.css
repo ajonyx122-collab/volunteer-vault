@@ -37,6 +37,17 @@ h3,
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M2 14 Q 20 2, 38 12 T 74 12 T 110 12 T 146 12 T 182 12 T 198 12' stroke='%23E8983E' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
+/* Puffy "sticker" page-title treatment — cream fill so it reads as a
+   die-cut shape against the cream page, thick green outline + offset
+   shadow to give it depth. Used sparingly on a few page titles. */
+.text-sticker {
+  color: #faf9f5;
+  -webkit-text-stroke: 3px #1b4a30;
+  paint-order: stroke fill;
+  text-shadow: 5px 5px 0 #1b4a30;
+  letter-spacing: -0.01em;
+}
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }

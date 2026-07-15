@@ -35,7 +35,7 @@ export default function Community() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="font-display text-3xl font-extrabold text-brand-green">Community projects</h1>
+      <h1 className="text-sticker font-display text-4xl font-extrabold">Community projects</h1>
       <p className="mt-1 text-brand-green/60">
         Real people organizing real projects — a beach cleanup, a food drive, whatever your cause
         needs. Post one, or join someone else's.
@@ -125,7 +125,7 @@ export default function Community() {
           </p>
           <div className="mt-4 flex flex-col gap-3">
             {myPosts.map((opp) => (
-              <div key={opp.id} className="rounded-card border border-card-border bg-card p-4 shadow-card">
+              <div key={opp.id} className="rounded-card border-2 border-brand-green bg-card p-4 shadow-pop-soft">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <Link to={`/opportunities/${opp.id}`} className="font-bold text-brand-green hover:underline">
@@ -174,7 +174,7 @@ export default function Community() {
             </div>
           )}
           {opps.map((opp) => (
-            <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />
+            <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} bold />
           ))}
         </div>
       </section>
