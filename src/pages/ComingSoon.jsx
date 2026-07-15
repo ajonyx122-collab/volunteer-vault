@@ -8,7 +8,7 @@ export default function ComingSoon({ title, blurb }) {
       <p className="text-brand-green/70">{blurb}</p>
       <Link
         to="/browse"
-        className="rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+        className="rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
       >
         Browse opportunities instead
       </Link>

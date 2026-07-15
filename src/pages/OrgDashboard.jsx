@@ -86,10 +86,10 @@ export default function OrgDashboard() {
         <h1 className="font-display text-2xl font-extrabold text-brand-green">Org dashboard</h1>
         <p className="text-brand-green/70">Log in with your organization account to manage listings.</p>
         <div className="flex gap-3">
-          <Link to="/login" className="rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105">
+          <Link to="/login" className="rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none">
             Log in
           </Link>
-          <Link to="/signup" className="rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105">
+          <Link to="/signup" className="rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none">
             Join free
           </Link>
         </div>
@@ -124,7 +124,7 @@ export default function OrgDashboard() {
           <button
             type="submit"
             disabled={busy}
-            className="mt-2 rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105 disabled:opacity-60"
+            className="mt-2 rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none disabled:opacity-60"
           >
             {busy ? 'Creating...' : 'Create organization'}
           </button>
@@ -154,7 +154,7 @@ export default function OrgDashboard() {
           </button>
           <Link
             to="/post-opportunity"
-            className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+            className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
           >
             + New opportunity
           </Link>

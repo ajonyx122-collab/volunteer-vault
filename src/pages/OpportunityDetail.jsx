@@ -269,7 +269,7 @@ export default function OpportunityDetail() {
                 href={externalHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 block w-full rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+                className="mt-4 block w-full rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
               >
                 Register on their site →
               </a>
@@ -286,12 +286,12 @@ export default function OpportunityDetail() {
               <button
                 disabled={isFull || busy}
                 onClick={handleRsvp}
-                className={`mt-4 w-full rounded-pill px-6 py-3 text-sm font-bold shadow-soft transition-transform ${
+                className={`mt-4 w-full rounded-pill px-6 py-3 text-sm font-bold transition-all ${
                   joined
-                    ? 'bg-category-environment-bg text-category-environment-text hover:scale-105'
+                    ? 'bg-category-environment-bg text-category-environment-text shadow-pop hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none'
                     : isFull
                       ? 'cursor-not-allowed bg-card-border text-brand-green/40'
-                      : 'bg-coral text-cream-text hover:scale-105'
+                      : 'bg-coral text-cream-text shadow-pop hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none'
                 }`}
               >
                 {busy ? '...' : joined ? "You're in! 🎉 (tap to cancel)" : isFull ? 'Full' : 'Count me in'}
@@ -315,7 +315,7 @@ export default function OpportunityDetail() {
                   </p>
                   <button
                     onClick={() => setLogModal('create')}
-                    className="mt-3 w-full rounded-pill bg-brand-green px-4 py-2.5 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+                    className="mt-3 w-full rounded-pill bg-brand-green px-4 py-2.5 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
                   >
                     I'm participating
                   </button>

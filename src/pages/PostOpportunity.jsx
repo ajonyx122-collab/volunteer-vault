@@ -106,7 +106,7 @@ export default function PostOpportunity() {
         </p>
         <Link
           to={user ? '/dashboard' : '/login'}
-          className="rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+          className="rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
         >
           {user ? 'Go to dashboard' : 'Log in'}
         </Link>
@@ -395,7 +395,7 @@ export default function PostOpportunity() {
         <button
           type="submit"
           disabled={busy}
-          className="rounded-pill bg-coral px-8 py-3.5 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105 disabled:opacity-60"
+          className="rounded-pill bg-coral px-8 py-3.5 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none disabled:opacity-60"
         >
           {busy
             ? 'Publishing...'

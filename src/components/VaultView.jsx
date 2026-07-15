@@ -64,7 +64,7 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
           <div className="flex flex-wrap justify-center gap-3">
             <button
               onClick={handleCopyLink}
-              className="rounded-pill bg-gold px-5 py-2 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105"
+              className="rounded-pill bg-gold px-5 py-2 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
             >
               {copied ? 'Link copied! ✓' : isOwner ? 'Share my vault' : 'Copy link'}
             </button>

@@ -151,7 +151,7 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
         {user ? (
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+            className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
           >
             {showForm ? 'Cancel' : 'Leave a review'}
           </button>
@@ -214,7 +214,7 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
           <button
             type="submit"
             disabled={busy}
-            className="mt-1 self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105 disabled:opacity-60"
+            className="mt-1 self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none disabled:opacity-60"
           >
             {busy ? 'Posting...' : 'Post review'}
           </button>

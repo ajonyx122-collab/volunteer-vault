@@ -16,7 +16,7 @@ export default function OpportunityCard({ opportunity, org }) {
   const isExternal = !!opportunity.externalUrl
 
   return (
-    <div className="flex w-full flex-col gap-3 rounded-card border border-card-border bg-card p-4 shadow-card sm:flex-row sm:items-center">
+    <div className="flex w-full flex-col gap-3 rounded-card border border-card-border bg-card p-4 shadow-card transition-all hover:-translate-y-1 hover:shadow-pop sm:flex-row sm:items-center">
       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-cream text-2xl">
         {category?.icon ?? '💚'}
       </div>
@@ -82,7 +82,7 @@ export default function OpportunityCard({ opportunity, org }) {
 
       <Link
         to={`/opportunities/${opportunity.id}`}
-        className="shrink-0 rounded-pill bg-coral px-5 py-2 text-center text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+        className="shrink-0 rounded-pill bg-coral px-5 py-2 text-center text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
       >
         {isExternal ? 'See details' : 'Count me in'}
       </Link>

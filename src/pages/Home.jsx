@@ -94,7 +94,7 @@ export default function Home() {
             />
             <button
               type="submit"
-              className="rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105"
+              className="rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
             >
               Find it
             </button>
@@ -162,7 +162,7 @@ export default function Home() {
             </p>
             <Link
               to="/profile"
-              className="mt-6 inline-block rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-soft transition-transform hover:scale-105"
+              className="mt-6 inline-block rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
             >
               volunteervault.org/u/you
             </Link>
@@ -232,7 +232,7 @@ export default function Home() {
 
           <Link
             to="/leaderboards"
-            className="mt-6 inline-block rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+            className="mt-6 inline-block rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
           >
             See full leaderboards
           </Link>
@@ -252,7 +252,7 @@ export default function Home() {
           </div>
           <Link
             to="/signup"
-            className="shrink-0 rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+            className="shrink-0 rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
           >
             List an opportunity
           </Link>

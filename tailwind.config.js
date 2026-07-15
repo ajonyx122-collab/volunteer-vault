@@ -52,6 +52,12 @@ export default {
       boxShadow: {
         soft: '0 4px 16px rgba(27, 74, 48, 0.08)',
         card: '0 2px 10px rgba(27, 74, 48, 0.06)',
+        // Hard offset "pop" shadows — the 3D sticker-button feel, used on
+        // primary CTAs instead of the blurry `soft` shadow. Near-black
+        // (not brand-green) so it still reads against the green/gold
+        // section backgrounds, not just cream/white ones.
+        pop: '4px 4px 0 rgba(15, 26, 20, 0.9)',
+        'pop-lg': '6px 6px 0 rgba(15, 26, 20, 0.9)',
       },
     },
   },
