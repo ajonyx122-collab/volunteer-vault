@@ -13,10 +13,11 @@ import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
-import ComingSoon from './pages/ComingSoon'
 import AdminReview from './pages/AdminReview'
 import MapView from './pages/MapView'
 import Community from './pages/Community'
+import Leaderboards from './pages/Leaderboards'
+import FAQ from './pages/FAQ'
 
 export default function App() {
   return (
@@ -39,15 +40,8 @@ export default function App() {
           <Route path="/admin" element={<AdminReview />} />
           <Route path="/community" element={<Community />} />
           <Route path="/map" element={<MapView />} />
-          <Route
-            path="/leaderboards"
-            element={
-              <ComingSoon
-                title="School showdown — coming soon"
-                blurb="Full leaderboards, streaks, and badges unlock in Phase 4. Sneak peek is on the home page."
-              />
-            }
-          />
+          <Route path="/leaderboards" element={<Leaderboards />} />
+          <Route path="/faq" element={<FAQ />} />
         </Routes>
       </main>
       <Footer />

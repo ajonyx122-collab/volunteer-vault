@@ -6,6 +6,7 @@ const navLinks = [
   { to: '/browse', label: 'Browse' },
   { to: '/community', label: 'Community' },
   { to: '/leaderboards', label: 'Leaderboards' },
+  { to: '/faq', label: 'FAQ' },
 ]
 
 export default function NavBar() {

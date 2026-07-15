@@ -23,6 +23,32 @@ export function getCategoryMeta(categoryId) {
   return CATEGORIES.find((c) => c.id === categoryId)
 }
 
+// Curated badge copy per cause, earned once a volunteer logs 10+ hours in
+// that category (see buildVaultData in src/lib/api.js).
+export const CAUSE_BADGE_COPY = {
+  environment: { label: 'Environment ally', icon: '🌱' },
+  sports: { label: 'Team spirit', icon: '⚽' },
+  food: { label: 'Food security hero', icon: '🍲' },
+  art: { label: 'Arts booster', icon: '🎨' },
+  music: { label: 'Music maker', icon: '🎵' },
+  medicine: { label: 'Health helper', icon: '🩺' },
+  animals: { label: 'Animal advocate', icon: '🐾' },
+  education: { label: 'Education champion', icon: '📚' },
+  community: { label: 'Community builder', icon: '🤝' },
+  seniors: { label: 'Senior support star', icon: '👵' },
+  tech: { label: 'Tech mentor', icon: '💻' },
+  faith: { label: 'Faith in action', icon: '🙏' },
+  veterans: { label: 'Veterans ally', icon: '🎖️' },
+  disaster: { label: 'Disaster responder', icon: '⛑️' },
+  gardening: { label: 'Green thumb', icon: '🌻' },
+}
+
+export function getCauseBadgeCopy(categoryId) {
+  if (CAUSE_BADGE_COPY[categoryId]) return CAUSE_BADGE_COPY[categoryId]
+  const meta = getCategoryMeta(categoryId)
+  return { label: meta ? `${meta.label} regular` : 'Cause regular', icon: meta?.icon ?? '💚' }
+}
+
 // Tags orgs can put on a listing — the niche layer on top of categories.
 export const TAG_OPTIONS = [
   'good for crews',
@@ -46,12 +72,4 @@ export const US_STATES = [
   'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
   'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
   'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC',
-]
-
-// School showdown teaser on the home page. Real leaderboards are Phase 4.
-export const leaderboard = [
-  { school: 'Lincoln High School', hours: 1420 },
-  { school: 'Westview Academy', hours: 1310 },
-  { school: 'Riverside High', hours: 1185 },
-  { school: 'Franklin Prep', hours: 960 },
 ]

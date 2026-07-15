@@ -28,11 +28,33 @@ function Stars({ value, onChange }) {
   )
 }
 
-function ReviewCard({ review }) {
+const SAMPLE_REVIEW = {
+  id: 'sample',
+  reviewerName: 'A VolunteerVault volunteer',
+  date: new Date().toISOString(),
+  ratings: { organized: 5, welcoming: 5, impactful: 4 },
+  quote:
+    "Loved this one — the organizer had everything set up before we arrived and explained exactly what we'd be doing. It ran about 30 minutes long, which caught a few of us off guard, so plan for that. Would definitely come back.",
+  tip: 'Bring closed-toe shoes and a water bottle — it gets warm.',
+  photos: [],
+}
+
+function ReviewCard({ review, isSample }) {
   return (
-    <div className="rounded-card border border-card-border bg-card p-4 shadow-card">
+    <div
+      className={`rounded-card border p-4 shadow-card ${
+        isSample ? 'border-dashed border-card-border bg-cream' : 'border-card-border bg-card'
+      }`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="font-bold text-brand-green">{review.reviewerName}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-bold text-brand-green">{review.reviewerName}</p>
+          {isSample && (
+            <span className="rounded-pill bg-card-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-green/50">
+              Example
+            </span>
+          )}
+        </div>
         <p className="text-xs text-brand-green/50">
           {new Date(review.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
         </p>
@@ -60,10 +82,12 @@ function ReviewCard({ review }) {
   )
 }
 
-export default function ReviewsSection({ opportunityId }) {
+export default function ReviewsSection({ opportunityId, servedPast = false }) {
   const { user, profile } = useAuth()
   const [reviews, setReviews] = useState([])
   const [showForm, setShowForm] = useState(false)
+  const alreadyReviewed = user ? reviews.some((r) => r.userId === user.id) : false
+  const showNudge = servedPast && user && !alreadyReviewed && !showForm
   const [ratings, setRatings] = useState({ organized: 0, welcoming: 0, impactful: 0 })
   const [quote, setQuote] = useState('')
   const [tip, setTip] = useState('')
@@ -141,11 +165,29 @@ export default function ReviewsSection({ opportunityId }) {
         )}
       </div>
 
+      {showNudge && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-gold bg-category-food-bg p-4">
+          <p className="text-sm font-semibold text-gold-text">
+            You logged hours here — got a sec to help the next volunteer?
+          </p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="shrink-0 rounded-pill bg-gold px-4 py-1.5 text-xs font-bold text-gold-text shadow-soft"
+          >
+            Leave a review
+          </button>
+        </div>
+      )}
+
       {showForm && (
         <form
           onSubmit={handleSubmit}
           className="mt-4 flex flex-col gap-3 rounded-card border border-card-border bg-card p-5 shadow-card"
         >
+          <p className="text-xs text-brand-green/60">
+            Reviews here help the next volunteer know what to expect — keep it kind and
+            constructive, even if it wasn't a perfect fit for you.
+          </p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             {RATING_LABELS.map(({ key, label }) => (
               <label key={key} className="flex items-center gap-2 text-sm font-semibold text-brand-green">
@@ -184,9 +226,13 @@ export default function ReviewsSection({ opportunityId }) {
 
       <div className="mt-6 flex flex-col gap-4">
         {reviews.length === 0 && (
-          <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
-            No reviews yet — be the first to share how it went.
-          </p>
+          <>
+            <p className="text-center text-sm text-brand-green/60">
+              No reviews yet — be the first to share how it went. Here's what a helpful one looks
+              like:
+            </p>
+            <ReviewCard review={SAMPLE_REVIEW} isSample />
+          </>
         )}
         {reviews.map((review) => (
           <ReviewCard key={review.id} review={review} />

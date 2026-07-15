@@ -3,6 +3,14 @@ import { Link } from 'react-router-dom'
 import { getCategoryMeta } from '../data/mockData'
 import { downloadHoursCsv } from '../lib/csv'
 import { CATEGORY_STYLES } from './categoryStyles'
+import ChallengeBanner from './ChallengeBanner'
+import HoursHeatmap from './HoursHeatmap'
+import { parseLogDate } from '../lib/hourLogs'
+
+function formatShortDate(dateStr) {
+  if (!dateStr) return '—'
+  return parseLogDate(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
 
 const CAUSE_BAR_COLORS = {
   environment: 'bg-category-environment-text',
@@ -22,7 +30,7 @@ const CAUSE_BAR_COLORS = {
   gardening: 'bg-category-gardening-text',
 }
 
-export default function VaultView({ user, activity, isOwner, onEdit }) {
+export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpportunityIds }) {
   const [copied, setCopied] = useState(false)
   const totalCauseHours = user.causes.reduce((sum, c) => sum + c.hours, 0)
   const vaultUrl = `volunteervault.org/u/${user.username}`
@@ -88,10 +96,16 @@ export default function VaultView({ user, activity, isOwner, onEdit }) {
         {/* Stat cards */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard value={user.verifiedHours} label="Verified hours" />
-          <StatCard value={`${user.streakWeeks}wk`} label="Streak" />
+          <StreakCard weeks={user.streakWeeks} />
           <StatCard value={user.badges.filter((b) => b.earned).length} label="Badges" />
           <StatCard value={user.causes.length} label="Causes" />
         </div>
+
+        {user.activeChallenge && (
+          <div className="mt-6">
+            <ChallengeBanner challenge={user.activeChallenge} progress={user.challengeProgress} />
+          </div>
+        )}
 
         {/* Badge shelf */}
         <section className="mt-10">
@@ -156,6 +170,31 @@ export default function VaultView({ user, activity, isOwner, onEdit }) {
           </div>
         </section>
 
+        {/* Your hour breakdown */}
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-extrabold text-brand-green">Your hour breakdown</h2>
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatCard value={user.verifiedHours} label="Total hours" />
+            <StatCard value={user.datesServedCount} label="Dates served" />
+            <StatCard value={formatShortDate(user.firstShiftDate)} label="First shift" />
+            <StatCard value={formatShortDate(user.mostRecentDate)} label="Most recent" />
+          </div>
+          {user.scheduledHours > 0 && (
+            <p className="mt-3 text-xs font-semibold text-brand-green/50">
+              + {user.scheduledHours} hrs scheduled, not yet verified
+            </p>
+          )}
+          {user.servedDates.length > 0 ? (
+            <div className="mt-4 rounded-card border border-card-border bg-card p-4 shadow-card">
+              <HoursHeatmap servedDates={user.servedDates} />
+            </div>
+          ) : (
+            <p className="mt-4 rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">
+              Your served dates will show up here as a heatmap once you log some hours.
+            </p>
+          )}
+        </section>
+
         {/* Recent activity */}
         <section className="mt-10">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -183,9 +222,20 @@ export default function VaultView({ user, activity, isOwner, onEdit }) {
                 <div>
                   <p className="font-bold text-brand-green">{entry.title}</p>
                   <p className="text-sm text-brand-green/60">
-                    {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} ·{' '}
+                    {parseLogDate(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} ·{' '}
                     {entry.hours} hrs
                   </p>
+                  {isOwner &&
+                    entry.status === 'verified' &&
+                    entry.opportunityId &&
+                    !reviewedOpportunityIds?.has(entry.opportunityId) && (
+                      <Link
+                        to={`/opportunities/${entry.opportunityId}`}
+                        className="text-xs font-bold text-coral hover:underline"
+                      >
+                        Leave a review →
+                      </Link>
+                    )}
                 </div>
                 <span
                   className={`rounded-pill px-3 py-1 text-xs font-bold ${
@@ -194,7 +244,9 @@ export default function VaultView({ user, activity, isOwner, onEdit }) {
                       : 'bg-card-border text-brand-green/60'
                   }`}
                 >
-                  {entry.status === 'verified' ? '✓ Verified' : 'Pending'}
+                  {entry.status === 'verified'
+                    ? '✓ Verified'
+                    : `Verifies ${parseLogDate(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
                 </span>
               </div>
             ))}
@@ -210,6 +262,18 @@ function StatCard({ value, label }) {
     <div className="rounded-card border border-card-border bg-card p-4 text-center shadow-card">
       <p className="font-display text-2xl font-extrabold text-brand-green">{value}</p>
       <p className="text-xs font-semibold text-brand-green/60">{label}</p>
+    </div>
+  )
+}
+
+function StreakCard({ weeks }) {
+  if (weeks <= 0) return <StatCard value="0wk" label="Streak" />
+  return (
+    <div className="rounded-card border border-gold bg-category-food-bg p-4 text-center shadow-card">
+      <p className="font-display text-2xl font-extrabold text-gold-text">🔥 {weeks}</p>
+      <p className="text-xs font-semibold text-gold-text/80">
+        {weeks === 1 ? 'week streak' : 'weeks and counting'}
+      </p>
     </div>
   )
 }

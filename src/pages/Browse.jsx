@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { CATEGORIES, US_STATES } from '../data/mockData'
-import { fetchOpportunities } from '../lib/api'
+import { fetchOpportunities, fetchMyStreak, fetchHourLogs } from '../lib/api'
+import { getActiveChallenge } from '../data/challenges'
+import { computeChallengeProgress } from '../lib/challenges'
 import { useAuth } from '../lib/AuthContext'
 import OpportunityCard from '../components/OpportunityCard'
 import MapPreview from '../components/MapPreview'
 import SuggestOpportunity from '../components/SuggestOpportunity'
+import ChallengeBanner from '../components/ChallengeBanner'
 
 const TOGGLES = [
   { id: 'remote', label: '🌐 Remote only' },
@@ -39,6 +42,9 @@ export default function Browse() {
   const [stateFilter, setStateFilter] = useState('')
   const [commitment, setCommitment] = useState('')
   const [age, setAge] = useState('')
+  const [streakWeeks, setStreakWeeks] = useState(0)
+  const [challengeProgress, setChallengeProgress] = useState(null)
+  const activeChallenge = getActiveChallenge()
 
   useEffect(() => {
     fetchOpportunities()
@@ -46,6 +52,16 @@ export default function Browse() {
       .catch(() => setOpportunities([]))
       .finally(() => setLoadingOpps(false))
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    fetchMyStreak(user.id).then(setStreakWeeks).catch(() => setStreakWeeks(0))
+    if (activeChallenge) {
+      fetchHourLogs(user.id)
+        .then((logs) => setChallengeProgress(computeChallengeProgress(activeChallenge, logs)))
+        .catch(() => setChallengeProgress(null))
+    }
+  }, [user, activeChallenge])
 
   function toggle(id) {
     setToggles((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]))
@@ -236,12 +252,27 @@ export default function Browse() {
 
           {user && (
             <div className="rounded-card bg-brand-green p-5 shadow-card">
-              <p className="font-display font-bold text-cream-text">🔥 Keep your streak alive</p>
-              <p className="mt-1 text-sm text-cream-muted">
-                Volunteer by Sunday to keep it going — pick anything above to lock it in.
-              </p>
+              {streakWeeks > 0 ? (
+                <>
+                  <p className="font-display font-bold text-cream-text">
+                    🔥 {streakWeeks}-week streak — keep it alive
+                  </p>
+                  <p className="mt-1 text-sm text-cream-muted">
+                    Log hours again by Sunday to keep it going — pick anything above.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-display font-bold text-cream-text">🔥 Start a streak</p>
+                  <p className="mt-1 text-sm text-cream-muted">
+                    Log your first hours this week to get one going.
+                  </p>
+                </>
+              )}
             </div>
           )}
+
+          {activeChallenge && <ChallengeBanner challenge={activeChallenge} progress={challengeProgress} compact />}
         </div>
       </div>
     </div>

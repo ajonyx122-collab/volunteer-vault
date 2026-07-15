@@ -1,24 +1,47 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
-import { fetchHourLogs, buildVaultData, updateProfile } from '../lib/api'
+import { fetchHourLogs, buildVaultData, updateProfile, fetchMyReviewedOpportunityIds } from '../lib/api'
 import VaultView from '../components/VaultView'
 import MySignups from '../components/MySignups'
 
 export default function Profile() {
   const { user, profile, loading, refreshProfile } = useAuth()
   const [vault, setVault] = useState(null)
+  const [reviewedOpportunityIds, setReviewedOpportunityIds] = useState(new Set())
   const [editing, setEditing] = useState(false)
   const [draftName, setDraftName] = useState('')
   const [draftSchool, setDraftSchool] = useState('')
   const [draftGradYear, setDraftGradYear] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [streakToast, setStreakToast] = useState('')
 
   useEffect(() => {
     if (!user || !profile) return
-    fetchHourLogs(user.id).then((logs) => setVault(buildVaultData(profile, logs)))
+    fetchHourLogs(user.id).then((logs) => {
+      const built = buildVaultData(profile, logs)
+      setVault(built)
+
+      // Celebrate a streak going up since last visit — compared against a
+      // per-user localStorage cache, no server round trip needed.
+      const key = `vv_last_streak_${user.id}`
+      const prevStreak = Number(localStorage.getItem(key) ?? 0)
+      if (built.user.streakWeeks > prevStreak) {
+        setStreakToast(
+          `🔥 Streak now ${built.user.streakWeeks} week${built.user.streakWeeks === 1 ? '' : 's'} — keep it up!`,
+        )
+      }
+      localStorage.setItem(key, String(built.user.streakWeeks))
+    })
+    fetchMyReviewedOpportunityIds(user.id).then(setReviewedOpportunityIds).catch(() => {})
   }, [user, profile])
+
+  useEffect(() => {
+    if (!streakToast) return
+    const t = setTimeout(() => setStreakToast(''), 5000)
+    return () => clearTimeout(t)
+  }, [streakToast])
 
   function startEditing() {
     setDraftName(profile.display_name ?? '')
@@ -81,7 +104,18 @@ export default function Profile() {
 
   return (
     <div>
-      <VaultView user={vault.user} activity={vault.activity} isOwner onEdit={startEditing} />
+      {streakToast && (
+        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-pill bg-gold px-5 py-2.5 text-center text-sm font-bold text-gold-text shadow-soft">
+          {streakToast}
+        </div>
+      )}
+      <VaultView
+        user={vault.user}
+        activity={vault.activity}
+        isOwner
+        onEdit={startEditing}
+        reviewedOpportunityIds={reviewedOpportunityIds}
+      />
       <MySignups userId={user.id} />
 
       {editing && (

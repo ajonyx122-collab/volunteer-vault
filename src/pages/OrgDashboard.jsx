@@ -241,10 +241,10 @@ export default function OrgDashboard() {
                   onClick={() => setExpandedId(expandedId === opp.id ? null : opp.id)}
                   className="rounded-pill bg-gold px-4 py-1.5 text-xs font-bold text-gold-text shadow-soft"
                 >
-                  {expandedId === opp.id ? 'Close' : '✓ Check in volunteers'}
+                  {expandedId === opp.id ? 'Close' : '✓ See who signed up'}
                 </button>
               </div>
-              {expandedId === opp.id && <ListingVolunteers opportunity={opp} orgOwnerId={user.id} />}
+              {expandedId === opp.id && <ListingVolunteers opportunity={opp} />}
             </div>
           ))}
         </div>

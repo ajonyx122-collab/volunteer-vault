@@ -116,7 +116,8 @@ export default function Certificate() {
           <p className="mx-auto mt-8 max-w-lg text-sm leading-relaxed text-brand-green/80" style={serif}>
             has completed{' '}
             <span className="text-2xl font-semibold text-brand-green">{user.verifiedHours}</span>{' '}
-            hours of community service, each verified by the hosting organization
+            hours of community service, self-reported on the honor system and verified through
+            VolunteerVault once each service date passed
             {orgNames.length > 0 && (
               <>
                 {' '}
@@ -182,9 +183,9 @@ export default function Certificate() {
             <span>volunteervault.org/u/{user.username}</span>
           </div>
           <p className="mt-3 text-[9px] leading-relaxed text-brand-green/40">
-            Verified hours are confirmed by hosting organizations through VolunteerVault check-in. This
-            certificate accompanies a live, tamper-proof record at the address above — if the numbers
-            here and there disagree, trust the live record.
+            Hours are self-reported by the volunteer under an honesty pledge and marked verified once
+            the logged service date has passed. This certificate accompanies a live record at the
+            address above — if the numbers here and there disagree, trust the live record.
           </p>
         </div>
       </div>

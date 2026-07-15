@@ -1,25 +1,48 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CATEGORIES } from '../data/mockData'
-import { fetchOpportunities } from '../lib/api'
+import { fetchOpportunities, fetchLeaderboardData, buildLeaderboards, fetchHourLogs } from '../lib/api'
+import { getActiveChallenge } from '../data/challenges'
+import { computeChallengeProgress } from '../lib/challenges'
+import { useAuth } from '../lib/AuthContext'
 import CategoryChip from '../components/CategoryChip'
 import OpportunityCard from '../components/OpportunityCard'
 import StatPill from '../components/StatPill'
+import ChallengeBanner from '../components/ChallengeBanner'
+
+const MEDALS = ['🥇', '🥈', '🥉']
 
 const isRemote = (o) => o.remote || o.isOnline || o.org?.remote
 const minAgeOf = (o) => o.minAge ?? o.org?.minAge ?? 0
 
 export default function Home() {
+  const { user } = useAuth()
   const [interest, setInterest] = useState('')
   const [location, setLocation] = useState('')
   const [opps, setOpps] = useState([])
+  const [topVolunteers, setTopVolunteers] = useState([])
+  const [challengeProgress, setChallengeProgress] = useState(null)
   const navigate = useNavigate()
+  const activeChallenge = getActiveChallenge()
 
   useEffect(() => {
     fetchOpportunities()
       .then(setOpps)
       .catch(() => setOpps([]))
   }, [])
+
+  useEffect(() => {
+    fetchLeaderboardData()
+      .then(({ rows, profiles }) => setTopVolunteers(buildLeaderboards(rows, profiles).allTime.slice(0, 3)))
+      .catch(() => setTopVolunteers([]))
+  }, [])
+
+  useEffect(() => {
+    if (!user || !activeChallenge) return
+    fetchHourLogs(user.id)
+      .then((logs) => setChallengeProgress(computeChallengeProgress(activeChallenge, logs)))
+      .catch(() => setChallengeProgress(null))
+  }, [user, activeChallenge])
 
   const featured = opps.filter((o) => o.org?.featured).slice(0, 4)
   const highSchool = opps.filter((o) => minAgeOf(o) <= 14).slice(0, 4)
@@ -47,8 +70,8 @@ export default function Home() {
             <span className="squiggle">Unlock</span> your community.
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-cream-muted">
-            Your people are already out here. Come find them — find opportunities, check in
-            with a scan, and build a service record that colleges and employers can trust.
+            Your people are already out here. Come find them — find opportunities, log your
+            hours, and build a service record that colleges and employers can trust.
           </p>
 
           <form
@@ -86,6 +109,12 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {activeChallenge && (
+        <section className="mx-auto max-w-2xl px-4 pt-8 sm:px-6">
+          <ChallengeBanner challenge={activeChallenge} progress={user ? challengeProgress : null} />
+        </section>
+      )}
 
       {/* Category chips */}
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -139,7 +168,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="flex flex-1 flex-wrap justify-center gap-3">
-            <StatPill value="✓" label="org-verified hours" tone="dark" />
+            <StatPill value="✓" label="verified hours" tone="dark" />
             <StatPill value="🔥" label="weekly streaks" tone="dark" />
             <StatPill value="🏅" label="badges you earn" tone="dark" />
           </div>
@@ -154,8 +183,8 @@ export default function Home() {
         <div className="mt-8 grid gap-6 sm:grid-cols-3">
           {[
             { step: '1', title: 'Find it', body: 'Browse opportunities by interest and location — see who\'s already going.' },
-            { step: '2', title: 'Scan in', body: 'Show up, scan the org\'s QR code, and your hours start logging automatically.' },
-            { step: '3', title: 'Vault it', body: 'Org verifies your hours and they land straight in your shareable vault.' },
+            { step: '2', title: 'Log it', body: 'Show up, then log your own hours — honor system, no scanning or codes needed.' },
+            { step: '3', title: 'Vault it', body: 'Once the date passes, it\'s verified and lands straight in your shareable vault.' },
           ].map((s) => (
             <div key={s.step} className="rounded-card border border-card-border bg-card p-6 text-center shadow-card">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-pill bg-coral font-display font-extrabold text-cream-text">
@@ -168,20 +197,44 @@ export default function Home() {
         </div>
       </section>
 
-      {/* School showdown — honest pre-launch teaser (real leaderboards land in Phase 4) */}
+      {/* Leaderboards preview */}
       <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
         <div className="rounded-card border border-card-border bg-card p-8 text-center shadow-card sm:p-10">
           <p className="text-4xl">🏆</p>
-          <h2 className="mt-2 font-display text-2xl font-extrabold text-brand-green">School showdown</h2>
+          <h2 className="mt-2 font-display text-2xl font-extrabold text-brand-green">
+            Top volunteers this season
+          </h2>
           <p className="mx-auto mt-2 max-w-md text-brand-green/70">
-            Soon your school will rack up verified hours and climb a real leaderboard against
-            rival schools. No board yet — log the first hours and put your school on the map.
+            Real verified hours, ranked. Log yours and climb the board.
           </p>
+
+          {topVolunteers.length > 0 ? (
+            <div className="mx-auto mt-6 flex max-w-sm flex-col gap-2">
+              {topVolunteers.map((v) => (
+                <div
+                  key={v.userId}
+                  className="flex items-center gap-3 rounded-card border border-card-border bg-cream p-3 text-left"
+                >
+                  <span className="w-7 shrink-0 text-center text-xl">{MEDALS[v.rank - 1]}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-bold text-brand-green">{v.displayName}</p>
+                    {v.school && <p className="truncate text-xs text-brand-green/50">{v.school}</p>}
+                  </div>
+                  <p className="shrink-0 font-display font-extrabold text-brand-green">{v.value} hrs</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mx-auto mt-4 max-w-md text-sm text-brand-green/60">
+              No board yet — log the first hours and claim the top spot.
+            </p>
+          )}
+
           <Link
-            to="/browse"
-            className="mt-5 inline-block rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
+            to="/leaderboards"
+            className="mt-6 inline-block rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
           >
-            Start racking up hours
+            See full leaderboards
           </Link>
         </div>
       </section>

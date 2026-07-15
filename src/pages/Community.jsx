@@ -145,7 +145,7 @@ export default function Community() {
                     {expandedId === opp.id ? 'Close' : '✓ See who signed up'}
                   </button>
                 </div>
-                {expandedId === opp.id && <ListingVolunteers opportunity={opp} orgOwnerId={user.id} />}
+                {expandedId === opp.id && <ListingVolunteers opportunity={opp} />}
               </div>
             ))}
           </div>

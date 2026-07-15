@@ -8,14 +8,19 @@ import {
   rsvp,
   cancelRsvp,
   reportOpportunity,
-  fetchMyHourLog,
-  checkInWithCode,
-  requestHours,
+  fetchMyHourLogsForOpportunity,
+  deleteHourLog,
 } from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
 import VerifiedBadge from '../components/VerifiedBadge'
 import OrgAvatar from '../components/OrgAvatar'
 import ReviewsSection from '../components/ReviewsSection'
+import LogHoursModal from '../components/LogHoursModal'
+import { todayStr } from '../lib/hourLogs'
+
+function isVerified(servedOn) {
+  return !!servedOn && servedOn <= todayStr()
+}
 
 function formatWhen(startsAt) {
   const date = new Date(startsAt)
@@ -47,9 +52,9 @@ export default function OpportunityDetail() {
   const [joined, setJoined] = useState(false)
   const [busy, setBusy] = useState(false)
   const [reportState, setReportState] = useState('idle') // idle | asking | sent
-  const [hourLog, setHourLog] = useState(null)
-  const [code, setCode] = useState('')
-  const [codeState, setCodeState] = useState({ busy: false, error: '' })
+  const [myLogs, setMyLogs] = useState([])
+  const [logModal, setLogModal] = useState(null) // null | 'create' | a log object to edit
+  const [logError, setLogError] = useState('')
   const [rsvpError, setRsvpError] = useState('')
 
   useEffect(() => {
@@ -62,30 +67,25 @@ export default function OpportunityDetail() {
   useEffect(() => {
     if (!user || !id) return
     fetchMySignup(user.id, id).then((signup) => setJoined(!!signup))
-    fetchMyHourLog(user.id, id).then(setHourLog)
+    fetchMyHourLogsForOpportunity(user.id, id).then(setMyLogs)
   }, [user, id])
 
-  async function handleCode(e) {
-    e.preventDefault()
-    setCodeState({ busy: true, error: '' })
-    try {
-      await checkInWithCode(id, code)
-      setHourLog({ hours: opportunity.durationHours, status: 'verified' })
-      setCode('')
-      setCodeState({ busy: false, error: '' })
-    } catch (err) {
-      setCodeState({ busy: false, error: err.message ?? 'That code did not work.' })
-    }
+  function handleLogSaved(saved) {
+    setMyLogs((prev) => {
+      const exists = prev.some((l) => l.id === saved.id)
+      const next = exists ? prev.map((l) => (l.id === saved.id ? saved : l)) : [saved, ...prev]
+      return next.sort((a, b) => (a.servedOn < b.servedOn ? 1 : -1))
+    })
+    setLogModal(null)
   }
 
-  async function handleRequestHours() {
-    setCodeState({ busy: true, error: '' })
+  async function handleDeleteLog(logId) {
+    setLogError('')
     try {
-      await requestHours(user.id, id, opportunity.durationHours)
-      setHourLog({ hours: opportunity.durationHours, status: 'pending' })
-      setCodeState({ busy: false, error: '' })
+      await deleteHourLog(logId)
+      setMyLogs((prev) => prev.filter((l) => l.id !== logId))
     } catch {
-      setCodeState({ busy: false, error: "Couldn't send the request — try again." })
+      setLogError("Couldn't remove that entry — try again.")
     }
   }
 
@@ -274,8 +274,8 @@ export default function OpportunityDetail() {
                 Register on their site →
               </a>
               <p className="mt-3 rounded-card bg-cream px-3 py-2 text-xs text-brand-green/60">
-                Heads up: hours from external programs are tracked on that org's site, not verified
-                through VolunteerVault.
+                Heads up: sign-up happens on their site. Once you've served, come back and log your
+                hours below to add it to your VolunteerVault record.
               </p>
             </div>
           ) : (
@@ -305,50 +305,76 @@ export default function OpportunityDetail() {
             </div>
           )}
 
-          {user && joined && !isExternal && (
+          {user && (
             <div className="rounded-card border border-card-border bg-card p-5 shadow-card">
               <p className="font-bold text-brand-green">Your hours</p>
-              {hourLog?.status === 'verified' ? (
-                <p className="mt-2 rounded-pill bg-category-environment-bg px-3 py-2 text-center text-sm font-bold text-category-environment-text">
-                  ✓ {hourLog.hours} hrs verified — they're in your vault
-                </p>
-              ) : hourLog?.status === 'pending' ? (
-                <p className="mt-2 rounded-pill bg-card-border px-3 py-2 text-center text-sm font-bold text-brand-green/60">
-                  ⏳ {hourLog.hours} hrs requested — waiting on the org
-                </p>
-              ) : (
+              {myLogs.length === 0 ? (
                 <>
-                  <form onSubmit={handleCode} className="mt-2 flex gap-2">
-                    <input
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.toUpperCase())}
-                      placeholder="Event code"
-                      maxLength={6}
-                      className="w-full min-w-0 rounded-pill border border-card-border px-4 py-2 text-center text-sm font-bold tracking-widest outline-none"
-                    />
-                    <button
-                      type="submit"
-                      disabled={codeState.busy || code.length < 6}
-                      className="shrink-0 rounded-pill bg-brand-green px-4 py-2 text-sm font-bold text-cream-text shadow-soft disabled:opacity-50"
-                    >
-                      Verify
-                    </button>
-                  </form>
-                  <p className="mt-2 text-xs text-brand-green/50">
-                    Get the 6-character code from the organizer at the event — hours verify instantly.
+                  <p className="mt-1 text-xs text-brand-green/60">
+                    Served here (or about to)? Log it — honor system, no code needed.
                   </p>
                   <button
-                    onClick={handleRequestHours}
-                    disabled={codeState.busy}
-                    className="mt-2 w-full rounded-pill border border-card-border px-4 py-2 text-xs font-bold text-brand-green/70 hover:bg-cream disabled:opacity-50"
+                    onClick={() => setLogModal('create')}
+                    className="mt-3 w-full rounded-pill bg-brand-green px-4 py-2.5 text-sm font-bold text-cream-text shadow-soft transition-transform hover:scale-105"
                   >
-                    No code? Request hours from the org
+                    I'm participating
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="mt-3 flex flex-col gap-2">
+                    {myLogs.map((log) => (
+                      <div
+                        key={log.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-card bg-cream p-3"
+                      >
+                        <div>
+                          <p className="text-sm font-bold text-brand-green">
+                            {new Date(`${log.servedOn}T00:00:00`).toLocaleDateString(undefined, {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </p>
+                          <p className="text-xs text-brand-green/60">{log.hours} hrs</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`rounded-pill px-2.5 py-1 text-xs font-bold ${
+                              isVerified(log.servedOn)
+                                ? 'bg-category-environment-bg text-category-environment-text'
+                                : 'bg-card-border text-brand-green/60'
+                            }`}
+                          >
+                            {isVerified(log.servedOn)
+                              ? '✓ Verified'
+                              : `Verifies ${new Date(`${log.servedOn}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
+                          </span>
+                          <button
+                            onClick={() => setLogModal(log)}
+                            className="text-xs font-bold text-brand-green/50 hover:text-brand-green"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteLog(log.id)}
+                            className="text-xs font-bold text-brand-green/50 hover:text-coral"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setLogModal('create')}
+                    className="mt-3 w-full rounded-pill border border-card-border px-4 py-2 text-xs font-bold text-brand-green/70 hover:bg-cream"
+                  >
+                    + Log another date
                   </button>
                 </>
               )}
-              {codeState.error && (
-                <p className="mt-2 text-xs font-semibold text-coral">{codeState.error}</p>
-              )}
+              {logError && <p className="mt-2 text-xs font-semibold text-coral">{logError}</p>}
             </div>
           )}
 
@@ -410,7 +436,17 @@ export default function OpportunityDetail() {
         </aside>
       </div>
 
-      <ReviewsSection opportunityId={opportunity.id} />
+      <ReviewsSection opportunityId={opportunity.id} servedPast={myLogs.some((l) => isVerified(l.servedOn))} />
+
+      {logModal && (
+        <LogHoursModal
+          opportunity={opportunity}
+          userId={user.id}
+          existingLog={logModal === 'create' ? null : logModal}
+          onSaved={handleLogSaved}
+          onClose={() => setLogModal(null)}
+        />
+      )}
     </div>
   )
 }

@@ -1,4 +1,10 @@
 import { supabase } from './supabaseClient'
+import { getCauseBadgeCopy } from '../data/mockData'
+import { isLogVerified, logDate, computeStreakWeeks } from './hourLogs'
+import { getActiveChallenge } from '../data/challenges'
+import { computeChallengeProgress } from './challenges'
+
+export { computeStreakWeeks }
 
 // DB columns are snake_case; components use camelCase. All mapping happens
 // here so the pages never care where the data came from.
@@ -75,6 +81,7 @@ function mapReview(row) {
   return {
     id: row.id,
     opportunityId: row.opportunity_id,
+    userId: row.user_id,
     reviewerName: row.reviewer_name,
     date: row.created_at,
     ratings: {
@@ -121,6 +128,15 @@ export async function fetchReviews(opportunityId) {
     .order('created_at', { ascending: false })
   if (error) throw error
   return (data ?? []).map(mapReview)
+}
+
+// Owner-only helper: which opportunities has this user already reviewed —
+// used to offer a "leave a review" link on their own vault, never on a
+// public one (see fetchMyReviewedOpportunityIds callers).
+export async function fetchMyReviewedOpportunityIds(userId) {
+  const { data, error } = await supabase.from('reviews').select('opportunity_id').eq('user_id', userId)
+  if (error) throw error
+  return new Set((data ?? []).map((r) => r.opportunity_id))
 }
 
 export async function addReview({ opportunityId, userId, reviewerName, ratings, quote, tip }) {
@@ -254,11 +270,22 @@ export async function updateSuggestionStatus(id, status) {
 export async function fetchHourLogs(userId) {
   const { data, error } = await supabase
     .from('hour_logs')
-    .select('*, opportunities(title, category, organizations(name))')
+    .select('*, opportunities(title, category, organizations(id, name, submitted_by))')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
   if (error) throw error
   return data ?? []
+}
+
+// Lighter than fetchHourLogs — just enough columns to compute a streak, for
+// the Browse sidebar teaser.
+export async function fetchMyStreak(userId) {
+  const { data, error } = await supabase
+    .from('hour_logs')
+    .select('served_on, status, created_at')
+    .eq('user_id', userId)
+  if (error) throw error
+  return computeStreakWeeks(data ?? [])
 }
 
 // Everything the volunteer has RSVP'd to, upcoming first.
@@ -288,7 +315,9 @@ export async function fetchMySignups(userId) {
 }
 
 // Org side: who signed up for a listing. signups has no direct FK to
-// profiles, so names come from a second query.
+// profiles, so names come from a second query. A volunteer can have several
+// hour_logs rows for one opportunity now (one per dated session), so we sum
+// them for a read-only "hours logged so far" chip — no verify action here.
 export async function fetchListingSignups(opportunityId) {
   const { data, error } = await supabase
     .from('signups')
@@ -304,99 +333,111 @@ export async function fetchListingSignups(opportunityId) {
       .in('id', signups.map((s) => s.user_id)),
     supabase
       .from('hour_logs')
-      .select('id, user_id, hours, status')
+      .select('user_id, hours')
       .eq('opportunity_id', opportunityId),
   ])
   const byId = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
-  const logByUser = Object.fromEntries((logs ?? []).map((l) => [l.user_id, l]))
+  const totalsByUser = {}
+  const entriesByUser = {}
+  ;(logs ?? []).forEach((l) => {
+    totalsByUser[l.user_id] = (totalsByUser[l.user_id] ?? 0) + Number(l.hours)
+    entriesByUser[l.user_id] = (entriesByUser[l.user_id] ?? 0) + 1
+  })
   return signups.map((s) => ({
     id: s.id,
     userId: s.user_id,
     status: s.status,
     displayName: byId[s.user_id]?.display_name ?? 'Volunteer',
     username: byId[s.user_id]?.username ?? '',
-    hourLog: logByUser[s.user_id] ?? null,
+    hourLogTotal: totalsByUser[s.user_id] ?? 0,
+    entryCount: entriesByUser[s.user_id] ?? 0,
   }))
 }
 
-// Instant self-verification: the volunteer types the event code the org
-// announced. Validation and the verified hour log happen inside the database
-// function, so the client can't fake it.
-export async function checkInWithCode(opportunityId, code) {
-  const { error } = await supabase.rpc('check_in_with_code', {
-    p_opportunity: opportunityId,
-    p_code: code,
-  })
-  if (error) throw error
+function mapHourLog(row) {
+  return {
+    id: row.id,
+    hours: Number(row.hours),
+    servedOn: row.served_on,
+    createdAt: row.created_at,
+  }
 }
 
-// Backup path: volunteer requests hours (pending), org approves later.
-export async function requestHours(userId, opportunityId, hours) {
-  const { error } = await supabase.from('hour_logs').insert({
-    user_id: userId,
-    opportunity_id: opportunityId,
-    hours: Number(hours),
-    status: 'pending',
-  })
-  if (error && error.code !== '23505') throw error
-}
-
-export async function approveHours(logId) {
-  const { error } = await supabase.from('hour_logs').update({ status: 'verified' }).eq('id', logId)
-  if (error) throw error
-}
-
-export async function fetchMyHourLog(userId, opportunityId) {
-  const { data } = await supabase
+// Everything the signed-in user has self-logged for one opportunity, most
+// recently served first.
+export async function fetchMyHourLogsForOpportunity(userId, opportunityId) {
+  const { data, error } = await supabase
     .from('hour_logs')
-    .select('id, hours, status')
+    .select('id, hours, served_on, created_at')
     .eq('user_id', userId)
     .eq('opportunity_id', opportunityId)
-    .maybeSingle()
-  return data ?? null
+    .order('served_on', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map(mapHourLog)
 }
 
-// Only returns a value for the org that owns the listing (RLS).
-export async function fetchCheckInCode(opportunityId) {
-  const { data } = await supabase
-    .from('check_in_codes')
-    .select('code')
-    .eq('opportunity_id', opportunityId)
-    .maybeSingle()
-  return data?.code ?? null
+// Self-reported honor-system log: the volunteer picks a date served (past or
+// future) and how many hours, and pledges it's accurate. It shows as
+// verified once served_on has passed — computed at read time, nothing to
+// flip here. RLS requires pledge_ack = true.
+export async function logHours({ userId, opportunityId, hours, servedOn }) {
+  const { data, error } = await supabase
+    .from('hour_logs')
+    .insert({
+      user_id: userId,
+      opportunity_id: opportunityId,
+      hours: Number(hours),
+      served_on: servedOn,
+      pledge_ack: true,
+    })
+    .select('id, hours, served_on, created_at')
+    .single()
+  if (error) throw error
+  return mapHourLog(data)
 }
 
-// Marks a volunteer attended and writes a verified hour log in one go. The
-// unique index means a double-tap can't double anyone's hours.
-export async function verifyAttendance({ opportunityId, volunteerId, hours, orgOwnerId }) {
-  const { error: signupErr } = await supabase
-    .from('signups')
-    .update({ status: 'attended' })
-    .eq('opportunity_id', opportunityId)
-    .eq('user_id', volunteerId)
-  if (signupErr) throw signupErr
-  const { error: logErr } = await supabase.from('hour_logs').insert({
-    user_id: volunteerId,
-    opportunity_id: opportunityId,
-    hours: Number(hours),
-    status: 'verified',
-    verified_by: orgOwnerId,
-  })
-  // 23505 = already verified once — treat as success, not a failure
-  if (logErr && logErr.code !== '23505') throw logErr
+export async function updateHourLog(logId, { hours, servedOn }) {
+  const { data, error } = await supabase
+    .from('hour_logs')
+    .update({ hours: Number(hours), served_on: servedOn, pledge_ack: true })
+    .eq('id', logId)
+    .select('id, hours, served_on, created_at')
+    .single()
+  if (error) throw error
+  return mapHourLog(data)
 }
 
-// Turns a raw profile + hour logs into everything VaultView/Certificate render:
-// stats, badges (earned + next locked), cause breakdown, activity list.
+export async function deleteHourLog(logId) {
+  const { error } = await supabase.from('hour_logs').delete().eq('id', logId)
+  if (error) throw error
+}
+
+const HOUR_MILESTONES = [
+  { id: 'first-shift', label: 'First shift', targetHours: 0 },
+  { id: '5-hours', label: '5 hours', targetHours: 5 },
+  { id: '10-hours', label: '10 hours', targetHours: 10 },
+  { id: '25-hours', label: '25 hours', targetHours: 25 },
+  { id: '50-hours', label: '50 hours', targetHours: 50 },
+  { id: '100-hours', label: '100 hours', targetHours: 100 },
+  { id: '250-hours', label: '250 hours', targetHours: 250 },
+]
+const STREAK_MILESTONES = [3, 8, 12]
+
+// Turns a raw profile + hour logs into everything VaultView/Certificate/
+// leaderboards render: stats, badges, cause breakdown, hour-by-date
+// breakdown, and the activity list. Every stat here is derived only from
+// *verified* logs (served_on has passed) so nothing — badges, streaks,
+// causes — can be inflated by logging hours for a date that hasn't happened
+// yet; those still show up honestly as "scheduled" rather than being hidden.
 export function buildVaultData(profileRow, hourLogRows) {
   const logs = hourLogRows ?? []
-  const verifiedHours = logs
-    .filter((l) => l.status === 'verified')
-    .reduce((sum, l) => sum + Number(l.hours), 0)
+  const verifiedLogs = logs.filter(isLogVerified)
+  const verifiedHours = verifiedLogs.reduce((sum, l) => sum + Number(l.hours), 0)
   const totalHours = logs.reduce((sum, l) => sum + Number(l.hours), 0)
+  const scheduledHours = Math.max(0, totalHours - verifiedHours)
 
   const causeMap = {}
-  logs.forEach((l) => {
+  verifiedLogs.forEach((l) => {
     const cat = l.opportunities?.category
     if (!cat) return
     causeMap[cat] = (causeMap[cat] ?? 0) + Number(l.hours)
@@ -405,42 +446,75 @@ export function buildVaultData(profileRow, hourLogRows) {
     .map(([category, hours]) => ({ category, hours }))
     .sort((a, b) => b.hours - a.hours)
 
-  // Weekly streak: consecutive calendar weeks (ending this week) with a log.
-  const weeksWithLogs = new Set(
-    logs.map((l) => {
-      const d = new Date(l.created_at)
-      const firstJan = new Date(d.getFullYear(), 0, 1)
-      return `${d.getFullYear()}-${Math.floor((d - firstJan) / (7 * 24 * 3600 * 1000))}`
-    }),
-  )
-  let streakWeeks = 0
-  const now = new Date()
-  for (;;) {
-    const check = new Date(now - streakWeeks * 7 * 24 * 3600 * 1000)
-    const firstJan = new Date(check.getFullYear(), 0, 1)
-    const key = `${check.getFullYear()}-${Math.floor((check - firstJan) / (7 * 24 * 3600 * 1000))}`
-    if (!weeksWithLogs.has(key)) break
-    streakWeeks++
-  }
+  const streakWeeks = computeStreakWeeks(logs)
 
-  const badges = [
-    { id: 'first-shift', label: 'First shift', earned: logs.length > 0 },
-    { id: '10-hours', label: '10 hours', earned: totalHours >= 10, progressHours: totalHours, targetHours: 10 },
-    { id: '50-hours', label: '50 hours', earned: totalHours >= 50, progressHours: totalHours, targetHours: 50 },
-    { id: '100-hours', label: '100 hours', earned: totalHours >= 100, progressHours: totalHours, targetHours: 100 },
-  ]
-  // Show earned badges plus only the next locked one, like the wireframe.
-  const nextLocked = badges.find((b) => !b.earned)
-  const shelf = badges.filter((b) => b.earned).concat(nextLocked ? [nextLocked] : [])
+  // Hour milestones: earned + only the next locked one, like the wireframe.
+  const milestoneBadges = HOUR_MILESTONES.map((m) => ({
+    id: m.id,
+    label: m.label,
+    earned: m.targetHours === 0 ? verifiedLogs.length > 0 : verifiedHours >= m.targetHours,
+    // "First shift" has no hour target, so it never shows an "N hrs to go"
+    // subtext — only the numeric milestones do.
+    progressHours: m.targetHours === 0 ? null : verifiedHours,
+    targetHours: m.targetHours === 0 ? null : m.targetHours,
+  }))
+  const nextLockedMilestone = milestoneBadges.find((b) => !b.earned)
+  const milestoneShelf = milestoneBadges
+    .filter((b) => b.earned)
+    .concat(nextLockedMilestone ? [nextLockedMilestone] : [])
+
+  // Cause badges: earned-only, no locked placeholder (too many causes to
+  // tease them all) — 10+ verified hours in a category earns its badge.
+  const causeBadges = causes
+    .filter((c) => c.hours >= 10)
+    .map((c) => {
+      const copy = getCauseBadgeCopy(c.category)
+      return { id: `cause-${c.category}`, label: copy.label, earned: true }
+    })
+
+  const streakBadges = STREAK_MILESTONES.filter((w) => streakWeeks >= w).map((w) => ({
+    id: `streak-${w}`,
+    label: `${w}-week streak`,
+    earned: true,
+  }))
+
+  const distinctOrgs = new Set(
+    verifiedLogs.map((l) => l.opportunities?.organizations?.id).filter(Boolean),
+  )
+  const hasCommunityHours = verifiedLogs.some((l) => l.opportunities?.organizations?.submitted_by)
+  const communityBadges = [
+    distinctOrgs.size >= 3 ? { id: 'explorer', label: 'Explorer', earned: true } : null,
+    hasCommunityHours ? { id: 'community-champion', label: 'Community champion', earned: true } : null,
+  ].filter(Boolean)
+
+  const activeChallenge = getActiveChallenge()
+  const challengeProgress = activeChallenge ? computeChallengeProgress(activeChallenge, logs) : null
+  const challengeBadge =
+    activeChallenge && challengeProgress?.complete
+      ? [{ id: `challenge-${activeChallenge.id}`, label: activeChallenge.badgeLabel, earned: true }]
+      : []
+
+  const badges = [...milestoneShelf, ...causeBadges, ...streakBadges, ...communityBadges, ...challengeBadge]
 
   const activity = logs.map((l) => ({
     id: l.id,
+    opportunityId: l.opportunity_id,
     title: l.opportunities?.title ?? 'Logged hours',
     orgName: l.opportunities?.organizations?.name ?? '',
-    date: l.created_at,
+    date: logDate(l),
     hours: Number(l.hours),
-    status: l.status,
+    status: isLogVerified(l) ? 'verified' : 'pending',
   }))
+
+  // Hour breakdown by date served — verified hours only, one entry per day.
+  const dateTotals = {}
+  verifiedLogs.forEach((l) => {
+    const day = logDate(l).slice(0, 10)
+    dateTotals[day] = (dateTotals[day] ?? 0) + Number(l.hours)
+  })
+  const servedDates = Object.entries(dateTotals)
+    .map(([date, hours]) => ({ date, hours }))
+    .sort((a, b) => (a.date < b.date ? -1 : 1))
 
   return {
     user: {
@@ -451,11 +525,121 @@ export function buildVaultData(profileRow, hourLogRows) {
       gradYear: profileRow.grad_year,
       avatarUrl: profileRow.avatar_url,
       verifiedHours,
+      scheduledHours,
       streakWeeks,
       causes,
-      badges: shelf,
+      badges,
+      activeChallenge,
+      challengeProgress,
+      servedDates,
+      datesServedCount: servedDates.length,
+      firstShiftDate: servedDates[0]?.date ?? null,
+      mostRecentDate: servedDates[servedDates.length - 1]?.date ?? null,
     },
     activity,
+  }
+}
+
+// ---- leaderboards (individual competition, several topics) ----
+// hour_logs and profiles are both public-read, so — like buildVaultData —
+// this fetches raw rows and computes every ranking client-side. Two
+// queries because hour_logs has no direct FK to profiles (same reason
+// fetchListingSignups already does a two-step lookup).
+export async function fetchLeaderboardData() {
+  const { data: logs, error } = await supabase
+    .from('hour_logs')
+    .select('user_id, hours, served_on, status, created_at, opportunities(category)')
+  if (error) throw error
+  const rows = logs ?? []
+  const userIds = [...new Set(rows.map((r) => r.user_id))]
+  if (userIds.length === 0) return { rows: [], profiles: [] }
+  const { data: profiles, error: profErr } = await supabase
+    .from('profiles')
+    .select('id, username, display_name, school, avatar_url')
+    .in('id', userIds)
+  if (profErr) throw profErr
+  return { rows, profiles: profiles ?? [] }
+}
+
+function monthStartStr() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
+}
+
+function rankEntries(entries) {
+  return entries
+    .filter((e) => e.value > 0)
+    .sort((a, b) => b.value - a.value)
+    .map((e, i) => ({ ...e, rank: i + 1 }))
+}
+
+// Returns { allTime, thisMonth, streak, byCategory } — each a ranked array
+// except byCategory, which is { [categoryId]: rankedArray }. All rankings
+// are built from verified hours only, same rule as buildVaultData.
+export function buildLeaderboards(rows, profiles) {
+  const byProfile = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
+  const byUser = {}
+  ;(rows ?? []).forEach((r) => {
+    ;(byUser[r.user_id] ??= []).push(r)
+  })
+
+  const monthStart = monthStartStr()
+  const allTimeEntries = []
+  const monthEntries = []
+  const streakEntries = []
+  const categoryTotals = {} // categoryId -> { userId -> hours }
+
+  Object.entries(byUser).forEach(([userId, logs]) => {
+    const profile = byProfile[userId]
+    if (!profile) return
+    const verified = logs.filter(isLogVerified)
+    const allTimeHours = verified.reduce((s, l) => s + Number(l.hours), 0)
+    const monthHours = verified
+      .filter((l) => logDate(l).slice(0, 10) >= monthStart)
+      .reduce((s, l) => s + Number(l.hours), 0)
+    const streakWeeks = computeStreakWeeks(logs)
+
+    const base = {
+      userId,
+      username: profile.username,
+      displayName: profile.display_name,
+      school: profile.school,
+    }
+    if (allTimeHours > 0) allTimeEntries.push({ ...base, value: allTimeHours })
+    if (monthHours > 0) monthEntries.push({ ...base, value: monthHours })
+    if (streakWeeks > 0) streakEntries.push({ ...base, value: streakWeeks })
+
+    verified.forEach((l) => {
+      const cat = l.opportunities?.category
+      if (!cat) return
+      const totals = (categoryTotals[cat] ??= {})
+      totals[userId] = (totals[userId] ?? 0) + Number(l.hours)
+    })
+  })
+
+  const byCategory = Object.fromEntries(
+    Object.entries(categoryTotals).map(([cat, totals]) => [
+      cat,
+      rankEntries(
+        Object.entries(totals).map(([userId, value]) => {
+          const profile = byProfile[userId]
+          return {
+            userId,
+            username: profile?.username,
+            displayName: profile?.display_name,
+            school: profile?.school,
+            value,
+          }
+        }),
+      ),
+    ]),
+  )
+
+  return {
+    allTime: rankEntries(allTimeEntries),
+    thisMonth: rankEntries(monthEntries),
+    streak: rankEntries(streakEntries),
+    byCategory,
   }
 }
 

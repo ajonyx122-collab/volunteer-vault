@@ -112,9 +112,14 @@ create table public.hour_logs (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
   opportunity_id uuid not null references public.opportunities (id) on delete cascade,
-  hours numeric not null,
+  hours numeric not null check (hours > 0 and hours <= 500),
+  -- status/verified_by are legacy (org-verify flow, migration 003). New rows
+  -- are self-reported: served_on is the date served, and the app computes
+  -- "verified" as served_on <= today rather than storing a status.
   status text not null default 'pending' check (status in ('pending', 'verified')),
   verified_by uuid references auth.users (id),
+  served_on date,
+  pledge_ack boolean not null default false,
   created_at timestamptz not null default now()
 );
 
@@ -221,8 +226,10 @@ create policy "admins read suggestions" on public.suggestions
 create policy "admins update suggestions" on public.suggestions
   for update using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin));
 
--- One hour log per volunteer per opportunity.
-create unique index hour_logs_once_per_opportunity on public.hour_logs (user_id, opportunity_id);
+-- A volunteer may log several dated sessions for the same opportunity (e.g.
+-- a recurring cleanup), but not the same date twice. NULL served_on (legacy
+-- rows) never collides, since Postgres treats NULL as distinct.
+create unique index hour_logs_once_per_day on public.hour_logs (user_id, opportunity_id, served_on);
 
 -- Org owners AND community-post organizers (submitted_by) manage signups +
 -- verify hours on their own listings — this is how a community organizer
@@ -319,10 +326,25 @@ create trigger opportunities_gen_code
   after insert on public.opportunities
   for each row execute function public.gen_check_in_code();
 
--- Volunteers may only self-log PENDING hours; verified comes from the org.
-create policy "log own pending hours" on public.hour_logs
-  for insert with check (auth.uid() = user_id and status = 'pending' and verified_by is null);
+-- Self-reported honor system (migration 028): a volunteer logs their own
+-- hours once they've checked the honor pledge and picked a date served;
+-- "verified" is computed in the app as served_on <= today, not stored here.
+-- They can edit/delete their own entries, but never one verified another
+-- way (verified_by is not null) — that stays immutable.
+create policy "log own hours" on public.hour_logs
+  for insert with check (
+    auth.uid() = user_id and verified_by is null and pledge_ack = true and served_on is not null
+  );
 
+create policy "update own self-logged hours" on public.hour_logs
+  for update using (auth.uid() = user_id and verified_by is null)
+  with check (auth.uid() = user_id and verified_by is null and pledge_ack = true);
+
+create policy "delete own self-logged hours" on public.hour_logs
+  for delete using (auth.uid() = user_id and verified_by is null);
+
+-- Legacy org-verify flow (migration 003) — dormant, the app no longer calls
+-- these, but they're left in place rather than dropped.
 create policy "org owner approves hours" on public.hour_logs
   for update using (
     exists (
