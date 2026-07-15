@@ -13,7 +13,7 @@ export default {
         display: ['"Poppins"', '"Nunito"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
-        cream: '#FDF8EE',
+        cream: '#FAF9F5',
         'brand-green': {
           DEFAULT: '#1B4A30',
           light: '#1B5E38',
