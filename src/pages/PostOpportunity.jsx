@@ -10,6 +10,7 @@ const emptyDraft = {
   category: CATEGORIES[0].id,
   description: '',
   dates: [''],
+  isOngoing: false,
   durationHours: 2,
   address: '',
   city: '',
@@ -70,14 +71,17 @@ export default function PostOpportunity() {
   async function handleSubmit(e) {
     e.preventDefault()
     const dates = draft.dates.filter(Boolean)
-    if (dates.length === 0) {
+    if (!draft.isOngoing && dates.length === 0) {
       setError('Pick at least one date.')
       return
     }
     setBusy(true)
     setError('')
     try {
-      await createOpportunity(org.id, { ...draft, dates })
+      await createOpportunity(org.id, {
+        ...draft,
+        dates: draft.isOngoing ? [new Date().toISOString()] : dates,
+      })
       navigate('/dashboard')
     } catch (err) {
       setError(friendlyError(err))
@@ -109,7 +113,7 @@ export default function PostOpportunity() {
     )
   }
 
-  const sessionCount = draft.dates.filter(Boolean).length
+  const sessionCount = draft.isOngoing ? 1 : draft.dates.filter(Boolean).length
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
@@ -160,39 +164,53 @@ export default function PostOpportunity() {
         <Section
           number="2"
           title="When"
-          hint="Recurring or multi-day? Add every date — each one becomes its own session volunteers can join."
+          hint="Recurring or multi-day? Add every date — each one becomes its own session volunteers can join. Runs for weeks or months with no fixed schedule? Mark it ongoing instead."
         >
-          <div className="flex flex-col gap-2">
-            {draft.dates.map((date, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <input
-                  required
-                  type="datetime-local"
-                  value={date}
-                  onChange={(e) => updateDate(i, e.target.value)}
-                  className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
-                />
-                {draft.dates.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => updateDraft('dates', draft.dates.filter((_, di) => di !== i))}
-                    aria-label="Remove date"
-                    className="rounded-pill border border-card-border px-3 py-1.5 text-sm font-bold text-coral"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+          <label className="flex items-center gap-2 text-sm font-semibold text-brand-green">
+            <input
+              type="checkbox"
+              checked={draft.isOngoing}
+              onChange={(e) => updateDraft('isOngoing', e.target.checked)}
+              className="h-4 w-4 accent-brand-green"
+            />
+            🔁 This is ongoing — no need to pick exact dates
+          </label>
+
+          {!draft.isOngoing && (
+            <div className="flex flex-col gap-2">
+              {draft.dates.map((date, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    required
+                    type="datetime-local"
+                    value={date}
+                    onChange={(e) => updateDate(i, e.target.value)}
+                    className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
+                  />
+                  {draft.dates.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => updateDraft('dates', draft.dates.filter((_, di) => di !== i))}
+                      aria-label="Remove date"
+                      className="rounded-pill border border-card-border px-3 py-1.5 text-sm font-bold text-coral"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              onClick={() => updateDraft('dates', [...draft.dates, ''])}
-              className="self-start rounded-pill border border-card-border bg-card px-4 py-2 text-xs font-bold text-brand-green"
-            >
-              + Add another date
-            </button>
+            {!draft.isOngoing && (
+              <button
+                type="button"
+                onClick={() => updateDraft('dates', [...draft.dates, ''])}
+                className="self-start rounded-pill border border-card-border bg-card px-4 py-2 text-xs font-bold text-brand-green"
+              >
+                + Add another date
+              </button>
+            )}
             <label className="flex items-center gap-2 text-xs font-semibold text-brand-green/70">
               Duration (hours)
               <input

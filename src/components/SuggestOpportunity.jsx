@@ -15,6 +15,7 @@ const emptyQuickAdd = {
   state: '',
   isOnline: false,
   eventDates: [''],
+  isOngoing: false,
   headcount: 15,
   whatToBring: '',
 }
@@ -65,9 +66,10 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
   // date(s), headcount, and what to bring — the Phase 3 community post).
   async function handleQuickAddSubmit(e) {
     e.preventDefault()
-    const dates = mode === 'event' ? quickAdd.eventDates.filter(Boolean) : []
-    if (mode === 'event' && dates.length === 0) {
-      setError('Pick at least one date for your project.')
+    const eventIsOngoing = mode === 'event' && quickAdd.isOngoing
+    const dates = mode === 'event' && !eventIsOngoing ? quickAdd.eventDates.filter(Boolean) : []
+    if (mode === 'event' && !eventIsOngoing && dates.length === 0) {
+      setError('Pick at least one date for your project, or mark it ongoing.')
       return
     }
     setBusy(true)
@@ -85,14 +87,14 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
         title: mode === 'event' ? quickAdd.name : `Volunteer with ${quickAdd.name}`,
         category: quickAdd.category,
         description: quickAdd.description,
-        dates: mode === 'event' ? dates : [new Date().toISOString()],
+        dates: mode === 'event' && !eventIsOngoing ? dates : [new Date().toISOString()],
         durationHours: 2,
         address: '',
         city: quickAdd.city,
         state: quickAdd.state,
         zip: '',
         isOnline: quickAdd.isOnline,
-        isOngoing: mode === 'org',
+        isOngoing: mode === 'org' || eventIsOngoing,
         whatToBring: mode === 'event' ? quickAdd.whatToBring : '',
         tags: [],
         capacity: mode === 'event' ? Number(quickAdd.headcount) : 20,
@@ -230,44 +232,56 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
 
               {mode === 'event' && (
                 <>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-xs font-bold text-brand-green/60">
-                      When — recurring? Add every date, one listing per date.
-                    </p>
-                    {quickAdd.eventDates.map((date, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <input
-                          required
-                          type="datetime-local"
-                          value={date}
-                          onChange={(e) => updateEventDate(i, e.target.value)}
-                          className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
-                        />
-                        {quickAdd.eventDates.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              updateQuickAdd(
-                                'eventDates',
-                                quickAdd.eventDates.filter((_, di) => di !== i),
-                              )
-                            }
-                            aria-label="Remove date"
-                            className="rounded-pill border border-card-border px-3 py-1.5 text-sm font-bold text-coral"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => updateQuickAdd('eventDates', [...quickAdd.eventDates, ''])}
-                      className="self-start rounded-pill border border-card-border bg-cream px-4 py-2 text-xs font-bold text-brand-green"
-                    >
-                      + Add another date
-                    </button>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-brand-green">
+                    <input
+                      type="checkbox"
+                      checked={quickAdd.isOngoing}
+                      onChange={(e) => updateQuickAdd('isOngoing', e.target.checked)}
+                      className="h-4 w-4 accent-brand-green"
+                    />
+                    🔁 This is ongoing — runs for weeks/months, no fixed schedule
+                  </label>
+
+                  {!quickAdd.isOngoing && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-bold text-brand-green/60">
+                        When — recurring? Add every date, one listing per date.
+                      </p>
+                      {quickAdd.eventDates.map((date, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <input
+                            required
+                            type="datetime-local"
+                            value={date}
+                            onChange={(e) => updateEventDate(i, e.target.value)}
+                            className="rounded-pill border border-card-border px-4 py-2.5 text-sm outline-none"
+                          />
+                          {quickAdd.eventDates.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateQuickAdd(
+                                  'eventDates',
+                                  quickAdd.eventDates.filter((_, di) => di !== i),
+                                )
+                              }
+                              aria-label="Remove date"
+                              className="rounded-pill border border-card-border px-3 py-1.5 text-sm font-bold text-coral"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => updateQuickAdd('eventDates', [...quickAdd.eventDates, ''])}
+                        className="self-start rounded-pill border border-card-border bg-cream px-4 py-2 text-xs font-bold text-brand-green"
+                      >
+                        + Add another date
+                      </button>
+                    </div>
+                  )}
                   <label className="flex flex-col gap-1 text-xs font-bold text-brand-green/60 sm:w-56">
                     How many people can join
                     <input
@@ -341,7 +355,7 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
                 {busy
                   ? 'Adding...'
                   : mode === 'event'
-                    ? quickAdd.eventDates.filter(Boolean).length > 1
+                    ? !quickAdd.isOngoing && quickAdd.eventDates.filter(Boolean).length > 1
                       ? `Post ${quickAdd.eventDates.filter(Boolean).length} dates`
                       : 'Post project'
                     : 'Add opportunity'}

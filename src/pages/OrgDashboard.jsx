@@ -204,15 +204,15 @@ export default function OrgDashboard() {
 
       {!org.verified && (
         <p className="mt-4 rounded-card border border-card-border bg-card p-4 text-sm text-brand-green/70 shadow-card">
-          Your org shows as <span className="font-bold">Pending</span> until it's verified — verification
-          reviews open up in Phase 2. Your listings are still live and searchable.
+          Your org shows as <span className="font-bold">Pending</span> until an admin verifies it —
+          your listings are still live and searchable in the meantime.
         </p>
       )}
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatBlock value={myOpportunities.length} label="Active listings" />
         <StatBlock value={totalSignups} label="Total signups" />
-        <StatBlock value="Phase 2" label="QR check-in" />
+        <StatBlock value="✓" label="Honor-system hours" />
       </div>
 
 
@@ -232,7 +232,10 @@ export default function OrgDashboard() {
                     {opp.title}
                   </Link>
                   <p className="text-sm text-brand-green/60">
-                    {new Date(opp.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} ·{' '}
+                    {opp.isOngoing
+                      ? 'Ongoing'
+                      : new Date(opp.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    {' · '}
                     {opp.isOnline ? '🌐 Online · ' : ''}
                     {opp.spotsFilled}/{opp.capacity} signed up
                   </p>

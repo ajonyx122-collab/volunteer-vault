@@ -79,9 +79,9 @@ export default function Community() {
                 your feet for about two hours, with some bending, reaching, and occasionally wading
                 into shallow water, so wear shoes you don't mind getting muddy. We'll provide trash
                 bags, grabber tools, and disposable gloves, but your own reusable gloves are welcome
-                too. This counts toward NHS and general service hours, and I'll verify everyone's
-                time at the end using the app's check-in code, so make sure you're signed in before
-                you show up. We'll wrap up around 11am with a quick trash weigh-in, and there's
+                too. This counts toward NHS and general service hours — everyone can log their own
+                hours afterward right in the app, honor system, no codes needed. We'll wrap up
+                around 11am with a quick trash weigh-in, and there's
                 usually a taco truck near the lot afterward if anyone wants lunch. Rain or shine, but
                 if there's lightning in the forecast I'll post an update that morning, so check back
                 here if the weather looks rough."
@@ -107,7 +107,8 @@ export default function Community() {
           </dl>
           <p className="mt-4 text-xs text-brand-green/50">
             Recurring project, like a cleanup every month? Use "+ Add another date" in the form below
-            to post every date at once instead of making a separate listing each time.
+            to post every date at once. Running for weeks or months with no fixed schedule? Mark it
+            Ongoing instead — no dates needed.
           </p>
         </div>
       )}
