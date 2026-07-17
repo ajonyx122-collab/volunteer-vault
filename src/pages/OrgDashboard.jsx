@@ -1,26 +1,43 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
-import { fetchMyOrganization, createOrganization, updateOrganization, fetchOrgOpportunities } from '../lib/api'
+import {
+  fetchMyOrganization,
+  createOrganization,
+  updateOrganization,
+  fetchOrgOpportunities,
+  fetchOrgVolunteers,
+} from '../lib/api'
 import VerifiedBadge from '../components/VerifiedBadge'
 import OrgAvatar from '../components/OrgAvatar'
 import ListingVolunteers from '../components/ListingVolunteers'
+
+const TABS = [
+  { id: 'postings', label: 'Postings' },
+  { id: 'volunteers', label: 'Volunteers' },
+  { id: 'organization', label: 'Organization' },
+]
 
 export default function OrgDashboard() {
   const { user, loading } = useAuth()
   const [org, setOrg] = useState(null)
   const [orgLoading, setOrgLoading] = useState(true)
   const [myOpportunities, setMyOpportunities] = useState([])
+  const [volunteers, setVolunteers] = useState([])
+  const [tab, setTab] = useState('postings')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [newOrgName, setNewOrgName] = useState('')
   const [newOrgLocation, setNewOrgLocation] = useState('')
-  const [editingOrg, setEditingOrg] = useState(false)
+  const [expandedId, setExpandedId] = useState(null)
+
+  const [draftName, setDraftName] = useState('')
+  const [draftLogoUrl, setDraftLogoUrl] = useState('')
   const [draftWebsite, setDraftWebsite] = useState('')
   const [draftDescription, setDraftDescription] = useState('')
   const [draftContactEmail, setDraftContactEmail] = useState('')
   const [draftContactPhone, setDraftContactPhone] = useState('')
-  const [expandedId, setExpandedId] = useState(null)
+  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -30,10 +47,27 @@ export default function OrgDashboard() {
     fetchMyOrganization(user.id)
       .then(async (myOrg) => {
         setOrg(myOrg)
-        if (myOrg) setMyOpportunities(await fetchOrgOpportunities(myOrg.id))
+        if (myOrg) {
+          loadDraft(myOrg)
+          const [opps, vols] = await Promise.all([
+            fetchOrgOpportunities(myOrg.id),
+            fetchOrgVolunteers(myOrg.id).catch(() => []),
+          ])
+          setMyOpportunities(opps)
+          setVolunteers(vols)
+        }
       })
       .finally(() => setOrgLoading(false))
   }, [user])
+
+  function loadDraft(o) {
+    setDraftName(o.name ?? '')
+    setDraftLogoUrl(o.logoUrl ?? '')
+    setDraftWebsite(o.website ?? '')
+    setDraftDescription(o.description ?? '')
+    setDraftContactEmail(o.contactEmail ?? '')
+    setDraftContactPhone(o.contactPhone ?? '')
+  }
 
   async function handleCreateOrg(e) {
     e.preventDefault()
@@ -42,33 +76,30 @@ export default function OrgDashboard() {
     try {
       const created = await createOrganization(user.id, { name: newOrgName, location: newOrgLocation })
       setOrg(created)
+      loadDraft(created)
     } catch (err) {
       setError(err.message ?? 'Could not create the organization.')
     }
     setBusy(false)
   }
 
-  function startEditingOrg() {
-    setDraftWebsite(org.website ?? '')
-    setDraftDescription(org.description ?? '')
-    setDraftContactEmail(org.contactEmail ?? '')
-    setDraftContactPhone(org.contactPhone ?? '')
-    setEditingOrg(true)
-  }
-
   async function handleSaveOrg(e) {
     e.preventDefault()
     setBusy(true)
     setError('')
+    setSaved(false)
     try {
       const updated = await updateOrganization(org.id, {
+        name: draftName,
+        logoUrl: draftLogoUrl,
         description: draftDescription,
         website: draftWebsite,
         contactEmail: draftContactEmail,
         contactPhone: draftContactPhone,
       })
       setOrg(updated)
-      setEditingOrg(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
     } catch (err) {
       setError(err.message ?? 'Could not save.')
     }
@@ -145,23 +176,15 @@ export default function OrgDashboard() {
             <VerifiedBadge verified={org.verified} />
           </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={editingOrg ? () => setEditingOrg(false) : startEditingOrg}
-            className="rounded-pill border border-card-border bg-card px-5 py-2 text-sm font-bold text-brand-green shadow-card"
-          >
-            {editingOrg ? 'Cancel' : 'Org info'}
-          </button>
-          <Link
-            to="/post-opportunity"
-            className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
-          >
-            + New opportunity
-          </Link>
-        </div>
+        <Link
+          to="/post-opportunity"
+          className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
+        >
+          + New opportunity
+        </Link>
       </div>
 
-      {org.website && !editingOrg && (
+      {org.website && (
         <a
           href={org.website.startsWith('http') ? org.website : `https://${org.website}`}
           target="_blank"
@@ -172,12 +195,146 @@ export default function OrgDashboard() {
         </a>
       )}
 
-      {editingOrg && (
+      {org.adminNote && (
+        <div className="mt-4 rounded-card border border-gold bg-category-food-bg p-4 text-sm text-gold-text shadow-card">
+          <p className="font-bold">📝 Note from a VolunteerVault admin</p>
+          <p className="mt-1">{org.adminNote}</p>
+        </div>
+      )}
+
+      {!org.verified && (
+        <p className="mt-4 rounded-card border border-card-border bg-card p-4 text-sm text-brand-green/70 shadow-card">
+          Your org shows as <span className="font-bold">Pending</span> until an admin verifies it —
+          your listings are still live and searchable in the meantime.
+        </p>
+      )}
+
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <StatBlock value={myOpportunities.length} label="Active listings" />
+        <StatBlock value={totalSignups} label="Total signups" />
+        <StatBlock value={volunteers.length} label="Volunteers" />
+      </div>
+
+      <div className="mt-8 flex flex-wrap gap-2">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
+              tab === t.id
+                ? 'bg-brand-green text-cream-text'
+                : 'border border-card-border bg-card text-brand-green hover:bg-cream'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'postings' && (
+        <section className="mt-6">
+          <div className="flex flex-col gap-3">
+            {myOpportunities.length === 0 && (
+              <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
+                No listings yet — post your first opportunity and volunteers will find it on Browse.
+              </p>
+            )}
+            {myOpportunities.map((opp) => (
+              <div key={opp.id} className="rounded-card border border-card-border bg-card p-4 shadow-card">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <Link to={`/opportunities/${opp.id}`} className="font-bold text-brand-green hover:underline">
+                      {opp.title}
+                    </Link>
+                    <p className="text-sm text-brand-green/60">
+                      {opp.isOngoing
+                        ? 'Ongoing'
+                        : new Date(opp.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      {' · '}
+                      {opp.isOnline ? '🌐 Online · ' : ''}
+                      {opp.spotsFilled}/{opp.capacity} signed up
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setExpandedId(expandedId === opp.id ? null : opp.id)}
+                    className="rounded-pill bg-gold px-4 py-1.5 text-xs font-bold text-gold-text shadow-soft"
+                  >
+                    {expandedId === opp.id ? 'Close' : '✓ See who signed up'}
+                  </button>
+                </div>
+                {expandedId === opp.id && <ListingVolunteers opportunity={opp} />}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {tab === 'volunteers' && (
+        <section className="mt-6">
+          <p className="mb-3 text-sm text-brand-green/60">
+            Everyone who's RSVP'd or logged hours across any of your listings — self-reported, honor
+            system, no approval needed from you.
+          </p>
+          <div className="flex flex-col gap-2">
+            {volunteers.length === 0 && (
+              <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
+                No volunteers yet — once someone RSVPs or logs hours on a listing, they'll show up here.
+              </p>
+            )}
+            {volunteers.map((v) => (
+              <div
+                key={v.userId}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-card-border bg-card p-4 shadow-card"
+              >
+                <div className="min-w-0">
+                  <p className="font-bold text-brand-green">
+                    {v.displayName}
+                    {v.username && <span className="ml-1 font-normal text-brand-green/50">@{v.username}</span>}
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {v.listings.map((title) => (
+                      <span
+                        key={title}
+                        className="rounded-pill bg-cream px-2 py-0.5 text-[10px] font-bold text-brand-green/70"
+                      >
+                        {title}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <p className="shrink-0 font-display font-extrabold text-brand-green">{v.hours} hrs</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {tab === 'organization' && (
         <form
           onSubmit={handleSaveOrg}
-          className="mt-4 flex flex-col gap-3 rounded-card border border-card-border bg-card p-5 shadow-card"
+          className="mt-6 flex flex-col gap-3 rounded-card border border-card-border bg-card p-5 shadow-card"
         >
-          <h2 className="font-display text-lg font-bold text-brand-green">Organization info</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-xs font-bold text-brand-green/60">
+              Organization name
+              <input
+                required
+                value={draftName}
+                onChange={(e) => setDraftName(e.target.value)}
+                className="mt-1 w-full rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
+              />
+            </label>
+            <label className="text-xs font-bold text-brand-green/60">
+              Logo image URL — optional
+              <input
+                type="url"
+                placeholder="https://..."
+                value={draftLogoUrl}
+                onChange={(e) => setDraftLogoUrl(e.target.value)}
+                className="mt-1 w-full rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
+              />
+            </label>
+          </div>
           <label className="text-xs font-bold text-brand-green/60">
             Website — optional! Plenty of great projects don't have one
             <input
@@ -220,73 +377,18 @@ export default function OrgDashboard() {
             </label>
           </div>
           {error && <p className="text-sm font-semibold text-coral">{error}</p>}
-          <button
-            type="submit"
-            disabled={busy}
-            className="self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-soft disabled:opacity-60"
-          >
-            {busy ? 'Saving...' : 'Save org info'}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={busy}
+              className="self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-soft disabled:opacity-60"
+            >
+              {busy ? 'Saving...' : 'Save changes'}
+            </button>
+            {saved && <p className="text-xs font-semibold text-brand-green/60">✓ Saved</p>}
+          </div>
         </form>
       )}
-
-      {org.adminNote && (
-        <div className="mt-4 rounded-card border border-gold bg-category-food-bg p-4 text-sm text-gold-text shadow-card">
-          <p className="font-bold">📝 Note from a VolunteerVault admin</p>
-          <p className="mt-1">{org.adminNote}</p>
-        </div>
-      )}
-
-      {!org.verified && (
-        <p className="mt-4 rounded-card border border-card-border bg-card p-4 text-sm text-brand-green/70 shadow-card">
-          Your org shows as <span className="font-bold">Pending</span> until an admin verifies it —
-          your listings are still live and searchable in the meantime.
-        </p>
-      )}
-
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <StatBlock value={myOpportunities.length} label="Active listings" />
-        <StatBlock value={totalSignups} label="Total signups" />
-        <StatBlock value="✓" label="Honor-system hours" />
-      </div>
-
-
-      <section className="mt-10">
-        <h2 className="font-display text-xl font-extrabold text-brand-green">Your listings</h2>
-        <div className="mt-4 flex flex-col gap-3">
-          {myOpportunities.length === 0 && (
-            <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
-              No listings yet — post your first opportunity and volunteers will find it on Browse.
-            </p>
-          )}
-          {myOpportunities.map((opp) => (
-            <div key={opp.id} className="rounded-card border border-card-border bg-card p-4 shadow-card">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <Link to={`/opportunities/${opp.id}`} className="font-bold text-brand-green hover:underline">
-                    {opp.title}
-                  </Link>
-                  <p className="text-sm text-brand-green/60">
-                    {opp.isOngoing
-                      ? 'Ongoing'
-                      : new Date(opp.startsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    {' · '}
-                    {opp.isOnline ? '🌐 Online · ' : ''}
-                    {opp.spotsFilled}/{opp.capacity} signed up
-                  </p>
-                </div>
-                <button
-                  onClick={() => setExpandedId(expandedId === opp.id ? null : opp.id)}
-                  className="rounded-pill bg-gold px-4 py-1.5 text-xs font-bold text-gold-text shadow-soft"
-                >
-                  {expandedId === opp.id ? 'Close' : '✓ See who signed up'}
-                </button>
-              </div>
-              {expandedId === opp.id && <ListingVolunteers opportunity={opp} />}
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   )
 }

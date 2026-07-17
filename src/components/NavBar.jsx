@@ -1,6 +1,8 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
+import { fetchMyOrganization } from '../lib/api'
 
 const navLinks = [
   { to: '/browse', label: 'Browse' },
@@ -12,6 +14,21 @@ const navLinks = [
 export default function NavBar() {
   const { user, profile } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const [hasOrg, setHasOrg] = useState(false)
+
+  useEffect(() => {
+    if (!user) {
+      setHasOrg(false)
+      return
+    }
+    // Re-checked on every route change (not just login) so the nav flips to
+    // "My Organization" right after someone creates one on /dashboard,
+    // without needing a full page reload.
+    fetchMyOrganization(user.id)
+      .then((org) => setHasOrg(!!org))
+      .catch(() => setHasOrg(false))
+  }, [user, location.pathname])
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -56,10 +73,10 @@ export default function NavBar() {
                 </Link>
               )}
               <Link
-                to="/profile"
+                to={hasOrg ? '/dashboard' : '/profile'}
                 className="text-sm font-semibold text-cream-muted hover:text-cream-text"
               >
-                My vault
+                {hasOrg ? 'My Organization' : 'My vault'}
               </Link>
               <button
                 onClick={handleLogout}

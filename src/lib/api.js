@@ -796,20 +796,73 @@ export async function createCommunityOrg(userId, { name, location, website, cont
   return mapOrg(data)
 }
 
-export async function updateOrganization(orgId, { description, website, contactEmail, contactPhone }) {
-  const { data, error } = await supabase
-    .from('organizations')
-    .update({
-      description: description?.trim() || null,
-      website: website?.trim() || null,
-      contact_email: contactEmail?.trim() || null,
-      contact_phone: contactPhone?.trim() || null,
-    })
-    .eq('id', orgId)
-    .select()
-    .single()
+export async function updateOrganization(orgId, { name, description, website, contactEmail, contactPhone, logoUrl }) {
+  const patch = {
+    description: description?.trim() || null,
+    website: website?.trim() || null,
+    contact_email: contactEmail?.trim() || null,
+    contact_phone: contactPhone?.trim() || null,
+  }
+  // name/logoUrl are optional args so callers that don't manage them (e.g.
+  // the admin note editor never touches this function) can't blank them out.
+  if (name !== undefined) patch.name = name.trim()
+  if (logoUrl !== undefined) patch.logo_url = logoUrl?.trim() || null
+  const { data, error } = await supabase.from('organizations').update(patch).eq('id', orgId).select().single()
   if (error) throw error
   return mapOrg(data)
+}
+
+// Every volunteer who's touched any of this org's listings (RSVP'd and/or
+// logged hours), deduped by person, with their total hours and which
+// listings — powers the org dashboard's Volunteers tab. RLS: hour_logs is
+// public, and signups already lets an org owner read signups on their own
+// listings (see "org owner reads listing signups").
+export async function fetchOrgVolunteers(orgId) {
+  const { data: opps, error: oppErr } = await supabase
+    .from('opportunities')
+    .select('id, title')
+    .eq('org_id', orgId)
+  if (oppErr) throw oppErr
+  const oppIds = (opps ?? []).map((o) => o.id)
+  if (oppIds.length === 0) return []
+  const titleById = Object.fromEntries((opps ?? []).map((o) => [o.id, o.title]))
+
+  const [{ data: signups, error: signupErr }, { data: logs, error: logErr }] = await Promise.all([
+    supabase.from('signups').select('user_id, opportunity_id').in('opportunity_id', oppIds),
+    supabase.from('hour_logs').select('user_id, opportunity_id, hours').in('opportunity_id', oppIds),
+  ])
+  if (signupErr) throw signupErr
+  if (logErr) throw logErr
+
+  const byUser = {}
+  function touch(userId, opportunityId) {
+    byUser[userId] ??= { userId, listings: new Set(), hours: 0 }
+    byUser[userId].listings.add(titleById[opportunityId])
+  }
+  ;(signups ?? []).forEach((s) => touch(s.user_id, s.opportunity_id))
+  ;(logs ?? []).forEach((l) => {
+    touch(l.user_id, l.opportunity_id)
+    byUser[l.user_id].hours += Number(l.hours)
+  })
+
+  const userIds = Object.keys(byUser)
+  if (userIds.length === 0) return []
+  const { data: profiles, error: profileErr } = await supabase
+    .from('profiles')
+    .select('id, display_name, username')
+    .in('id', userIds)
+  if (profileErr) throw profileErr
+  const profileById = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
+
+  return Object.values(byUser)
+    .map((v) => ({
+      userId: v.userId,
+      displayName: profileById[v.userId]?.display_name ?? 'Volunteer',
+      username: profileById[v.userId]?.username ?? '',
+      listings: [...v.listings],
+      hours: Math.round(v.hours * 100) / 100,
+    }))
+    .sort((a, b) => b.hours - a.hours)
 }
 
 // Admin-only write (RLS: "admins manage any org"). Pass note: '' to clear it.
