@@ -26,6 +26,8 @@ const COMMITMENTS = [
 const isRemote = (o) => o.remote || o.isOnline || o.org?.remote
 const minAgeOf = (o) => o.minAge ?? o.org?.minAge ?? 0
 const stateOf = (o) => o.state || o.org?.state || ''
+const cityOf = (o) => o.city || o.org?.city || ''
+const zipOf = (o) => o.zip || o.org?.zip || ''
 const commitmentOf = (o) => o.org?.commitmentType ?? 'both'
 
 export default function Browse() {
@@ -40,6 +42,7 @@ export default function Browse() {
   const [query, setQuery] = useState(initialQuery)
   const [toggles, setToggles] = useState(searchParams.get('remote') ? ['remote'] : [])
   const [stateFilter, setStateFilter] = useState('')
+  const [cityZip, setCityZip] = useState('')
   const [commitment, setCommitment] = useState('')
   const [age, setAge] = useState('')
   const [streakWeeks, setStreakWeeks] = useState(0)
@@ -76,6 +79,7 @@ export default function Browse() {
   function clearAll() {
     setToggles([])
     setStateFilter('')
+    setCityZip('')
     setCommitment('')
     setAge('')
     if (activeCategory) {
@@ -105,11 +109,17 @@ export default function Browse() {
       if (commitment && commitmentOf(o) !== commitment && commitmentOf(o) !== 'both') return false
       // remote listings are joinable from any state, so they always pass
       if (stateFilter && !isRemote(o) && stateOf(o) !== stateFilter) return false
+      if (cityZip.trim() && !isRemote(o)) {
+        const needle = cityZip.trim().toLowerCase()
+        const cityMatch = cityOf(o).toLowerCase().includes(needle)
+        const zipMatch = zipOf(o).toLowerCase().startsWith(needle)
+        if (!cityMatch && !zipMatch) return false
+      }
       return true
     })
-  }, [opportunities, activeCategory, query, toggles, stateFilter, commitment, age])
+  }, [opportunities, activeCategory, query, toggles, stateFilter, cityZip, commitment, age])
 
-  const anyFilter = toggles.length || stateFilter || commitment || age || activeCategory
+  const anyFilter = toggles.length || stateFilter || cityZip || commitment || age || activeCategory
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -118,107 +128,16 @@ export default function Browse() {
       <h1 className="mt-6 font-display text-3xl font-extrabold text-brand-green">Browse opportunities</h1>
       <p className="mt-1 text-brand-green/60">Real organizations recruiting volunteers right now — filter down to your people.</p>
 
-      <div className="mt-6 flex flex-col gap-3">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search opportunities..."
-          className="w-full rounded-pill border border-card-border bg-card px-5 py-3 text-sm text-brand-green shadow-card outline-none placeholder:text-brand-green/40"
-        />
-
-        {/* Category / cause — wraps instead of scrolling so nothing gets cut off */}
-        <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => toggleCategory(c.id)}
-              className={`shrink-0 rounded-pill px-4 py-2 text-sm font-bold shadow-card transition-transform hover:scale-105 ${
-                activeCategory === c.id
-                  ? 'bg-brand-green text-cream-text'
-                  : 'bg-card text-brand-green border border-card-border'
-              }`}
-            >
-              {c.icon} {c.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Quick toggles */}
-        <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
-          {TOGGLES.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => toggle(f.id)}
-              className={`shrink-0 rounded-pill px-4 py-2 text-xs font-bold transition-colors ${
-                toggles.includes(f.id)
-                  ? 'bg-gold text-gold-text'
-                  : 'bg-cream text-brand-green/70 border border-card-border'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Structured filters */}
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
-            I'm this old
-            <input
-              type="number"
-              min="0"
-              max="120"
-              placeholder="age"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              className="w-20 rounded-pill border border-card-border bg-card px-3 py-1.5 text-xs text-brand-green outline-none"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
-            State
-            <select
-              value={stateFilter}
-              onChange={(e) => setStateFilter(e.target.value)}
-              className="rounded-pill border border-card-border bg-card px-3 py-1.5 text-xs text-brand-green outline-none"
-            >
-              <option value="">Any</option>
-              {US_STATES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
-            Commitment
-            <div className="flex rounded-pill border border-card-border bg-card p-0.5">
-              {COMMITMENTS.map((c) => (
-                <button
-                  key={c.id || 'any'}
-                  onClick={() => setCommitment(c.id)}
-                  className={`rounded-pill px-3 py-1 text-xs font-bold transition-colors ${
-                    commitment === c.id ? 'bg-brand-green text-cream-text' : 'text-brand-green/60'
-                  }`}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          {anyFilter && (
-            <button
-              onClick={clearAll}
-              className="rounded-pill border border-card-border px-3 py-1.5 text-xs font-bold text-coral"
-            >
-              Clear all
-            </button>
-          )}
-        </div>
-      </div>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search opportunities..."
+        className="mt-6 w-full rounded-pill border border-card-border bg-card px-5 py-3 text-sm text-brand-green shadow-card outline-none placeholder:text-brand-green/40"
+      />
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
-        <div className="flex flex-col gap-4">
+        <div className="order-2 flex flex-col gap-4 lg:order-1">
           {loadingOpps && (
             <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
               Loading opportunities...
@@ -239,7 +158,109 @@ export default function Browse() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-4">
+        {/* Filters + map travel down the page with you (sticky) so you never have to scroll back up to change something */}
+        <div className="order-1 flex flex-col gap-4 lg:sticky lg:top-24 lg:order-2 lg:max-h-[calc(100vh-6.5rem)] lg:self-start lg:overflow-y-auto lg:pr-1">
+          <div className="scrollbar-none flex flex-col gap-3 rounded-card border border-card-border bg-card p-4 shadow-card">
+            {/* Category / cause */}
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => toggleCategory(c.id)}
+                  className={`shrink-0 rounded-pill px-3 py-1.5 text-xs font-bold shadow-card transition-transform hover:scale-105 ${
+                    activeCategory === c.id
+                      ? 'bg-brand-green text-cream-text'
+                      : 'bg-cream text-brand-green border border-card-border'
+                  }`}
+                >
+                  {c.icon} {c.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Quick toggles */}
+            <div className="scrollbar-none flex flex-wrap gap-2">
+              {TOGGLES.map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => toggle(f.id)}
+                  className={`shrink-0 rounded-pill px-3 py-1.5 text-xs font-bold transition-colors ${
+                    toggles.includes(f.id)
+                      ? 'bg-gold text-gold-text'
+                      : 'bg-cream text-brand-green/70 border border-card-border'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Structured filters */}
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
+                I'm this old
+                <input
+                  type="number"
+                  min="0"
+                  max="120"
+                  placeholder="age"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="w-20 rounded-pill border border-card-border bg-cream px-3 py-1.5 text-xs text-brand-green outline-none"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
+                State
+                <select
+                  value={stateFilter}
+                  onChange={(e) => setStateFilter(e.target.value)}
+                  className="rounded-pill border border-card-border bg-cream px-3 py-1.5 text-xs text-brand-green outline-none"
+                >
+                  <option value="">Any</option>
+                  {US_STATES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
+                City or ZIP
+                <input
+                  type="text"
+                  placeholder="e.g. Atlanta"
+                  value={cityZip}
+                  onChange={(e) => setCityZip(e.target.value)}
+                  className="w-28 rounded-pill border border-card-border bg-cream px-3 py-1.5 text-xs text-brand-green outline-none"
+                />
+              </label>
+              <div className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
+                Commitment
+                <div className="flex rounded-pill border border-card-border bg-cream p-0.5">
+                  {COMMITMENTS.map((c) => (
+                    <button
+                      key={c.id || 'any'}
+                      onClick={() => setCommitment(c.id)}
+                      className={`rounded-pill px-3 py-1 text-xs font-bold transition-colors ${
+                        commitment === c.id ? 'bg-brand-green text-cream-text' : 'text-brand-green/60'
+                      }`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {anyFilter && (
+                <button
+                  onClick={clearAll}
+                  className="rounded-pill border border-card-border px-3 py-1.5 text-xs font-bold text-coral"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="rounded-card border border-card-border bg-card p-4 shadow-card">
             <MapPreview opportunities={filtered} />
             <Link

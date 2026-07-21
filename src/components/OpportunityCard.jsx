@@ -10,6 +10,14 @@ function formatWhen(startsAt) {
     date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
 }
 
+// A listing's own state wins; fall back to its org's directory field. Country
+// only lives on the org record (opportunities don't have their own column).
+function formatLocation(opportunity, org) {
+  const state = opportunity.state || org?.state
+  const country = org?.country
+  return [state, country].filter(Boolean).join(', ') || null
+}
+
 // bold=true swaps the thin border/soft shadow for the punchier green-
 // bordered, hard-shadow card style (Community page) without touching the
 // default look everywhere else this card is used (Home, Browse).
@@ -17,6 +25,7 @@ export default function OpportunityCard({ opportunity, org, bold = false }) {
   const category = getCategoryMeta(opportunity.category)
   const spotsLeft = opportunity.capacity - opportunity.spotsFilled
   const isExternal = !!opportunity.externalUrl
+  const location = formatLocation(opportunity, org)
 
   return (
     <div
@@ -52,6 +61,7 @@ export default function OpportunityCard({ opportunity, org, bold = false }) {
             {opportunity.isOnline
               ? ' · 🌐 Online'
               : opportunity.distanceMiles != null && <> · {opportunity.distanceMiles} mi</>}
+            {location && <> · {location}</>}
           </span>
         </div>
         {opportunity.reviewQuote && (
