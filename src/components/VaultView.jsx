@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { getCategoryMeta } from '../data/mockData'
 import { downloadHoursCsv } from '../lib/csv'
 import { CATEGORY_STYLES } from './categoryStyles'
@@ -69,7 +71,7 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
               {copied ? 'Link copied! ✓' : isOwner ? 'Share my vault' : 'Copy link'}
             </button>
             <Link
-              to={`/certificate/${user.username}`}
+              href={`/certificate/${user.username}`}
               className="rounded-pill border border-cream-muted px-5 py-2 text-sm font-bold text-cream-text transition-colors hover:bg-brand-green-light"
             >
               Certificate
@@ -142,7 +144,7 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
           {user.causes.length === 0 && (
             <p className="mt-4 rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">
               Nothing here yet — your first shift starts the story.{' '}
-              <Link to="/browse" className="font-bold text-coral hover:underline">Find one</Link>
+              <Link href="/browse" className="font-bold text-coral hover:underline">Find one</Link>
             </p>
           )}
           <div className="mt-4 flex h-4 w-full overflow-hidden rounded-pill">
@@ -230,7 +232,7 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
                     entry.opportunityId &&
                     !reviewedOpportunityIds?.has(entry.opportunityId) && (
                       <Link
-                        to={`/opportunities/${entry.opportunityId}`}
+                        href={`/opportunities/${entry.opportunityId}`}
                         className="text-xs font-bold text-coral hover:underline"
                       >
                         Leave a review →

@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import { fetchListingSignups } from '../lib/api'
 

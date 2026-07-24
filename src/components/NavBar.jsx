@@ -1,20 +1,23 @@
+'use client'
+
 import { useEffect, useState } from 'react'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import { fetchMyOrganization } from '../lib/api'
 
 const navLinks = [
-  { to: '/browse', label: 'Browse' },
-  { to: '/community', label: 'Community' },
-  { to: '/leaderboards', label: 'Leaderboards' },
-  { to: '/faq', label: 'FAQ' },
+  { href: '/browse', label: 'Browse' },
+  { href: '/community', label: 'Community' },
+  { href: '/leaderboards', label: 'Leaderboards' },
+  { href: '/faq', label: 'FAQ' },
 ]
 
 export default function NavBar() {
   const { user, profile } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const router = useRouter()
+  const pathname = usePathname()
   const [hasOrg, setHasOrg] = useState(false)
 
   useEffect(() => {
@@ -28,17 +31,17 @@ export default function NavBar() {
     fetchMyOrganization(user.id)
       .then((org) => setHasOrg(!!org))
       .catch(() => setHasOrg(false))
-  }, [user, location.pathname])
+  }, [user, pathname])
 
   async function handleLogout() {
     await supabase.auth.signOut()
-    navigate('/')
+    router.push('/')
   }
 
   return (
     <header className="sticky top-0 z-50 bg-brand-green shadow-soft">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
-        <Link to="/" className="flex shrink-0 items-center gap-2">
+        <Link href="/" className="flex shrink-0 items-center gap-2">
           <img src="/brand/logo-white.png" alt="" className="h-9 w-9" />
           <span className="font-display text-lg font-extrabold text-cream-text">
             Volunteer<span className="text-gold">VAULT</span>
@@ -47,17 +50,15 @@ export default function NavBar() {
 
         <nav className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `text-sm font-semibold transition-colors ${
-                  isActive ? 'text-cream-text' : 'text-cream-muted hover:text-cream-text'
-                }`
-              }
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`text-sm font-semibold transition-colors ${
+                pathname === link.href ? 'text-cream-text' : 'text-cream-muted hover:text-cream-text'
+              }`}
             >
               {link.label}
-            </NavLink>
+            </Link>
           ))}
         </nav>
 
@@ -66,14 +67,14 @@ export default function NavBar() {
             <>
               {profile?.is_admin && (
                 <Link
-                  to="/admin"
+                  href="/admin"
                   className="text-sm font-semibold text-cream-muted hover:text-cream-text"
                 >
                   Admin
                 </Link>
               )}
               <Link
-                to={hasOrg ? '/dashboard' : '/profile'}
+                href={hasOrg ? '/dashboard' : '/profile'}
                 className="text-sm font-semibold text-cream-muted hover:text-cream-text"
               >
                 {hasOrg ? 'My Organization' : 'My vault'}
@@ -88,13 +89,13 @@ export default function NavBar() {
           ) : (
             <>
               <Link
-                to="/login"
+                href="/login"
                 className="text-sm font-semibold text-cream-muted hover:text-cream-text"
               >
                 Log in
               </Link>
               <Link
-                to="/signup"
+                href="/signup"
                 className="rounded-pill bg-gold px-4 py-2 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
               >
                 Join free

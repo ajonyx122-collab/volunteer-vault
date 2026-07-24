@@ -1,5 +1,7 @@
+'use client'
+
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { fetchMySignups, cancelRsvp } from '../lib/api'
 
 function formatWhen(startsAt) {
@@ -44,7 +46,7 @@ export default function MySignups({ userId }) {
         {upcoming.length === 0 && (
           <p className="rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">
             Nothing on the calendar —{' '}
-            <Link to="/browse" className="font-bold text-coral hover:underline">
+            <Link href="/browse" className="font-bold text-coral hover:underline">
               find your next shift
             </Link>
             . Your streak will thank you.
@@ -57,7 +59,7 @@ export default function MySignups({ userId }) {
           >
             <div className="min-w-0">
               <Link
-                to={`/opportunities/${s.opportunityId}`}
+                href={`/opportunities/${s.opportunityId}`}
                 className="font-bold text-brand-green hover:underline"
               >
                 {s.title}

@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { logHours, updateHourLog } from '../lib/api'
 import { todayStr } from '../lib/hourLogs'

@@ -1,5 +1,7 @@
+'use client'
+
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { fetchReviews, addReview } from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
 
@@ -157,7 +159,7 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
           </button>
         ) : (
           <Link
-            to="/signup"
+            href="/signup"
             className="rounded-pill border border-card-border bg-card px-5 py-2 text-sm font-bold text-brand-green hover:bg-cream"
           >
             Join to leave a review

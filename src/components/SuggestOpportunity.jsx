@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { CATEGORIES, US_STATES, TAG_OPTIONS } from '../data/mockData'
 import { submitSuggestion, createCommunityOrg, createOpportunity } from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
@@ -421,7 +423,7 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
           {open && !user && (
             <form onSubmit={handleSuggestSubmit} className="mt-4 flex flex-col gap-3 border-t border-card-border pt-4">
               <p className="text-xs text-brand-green/50">
-                <Link to="/login" className="font-bold text-coral hover:underline">
+                <Link href="/login" className="font-bold text-coral hover:underline">
                   Log in
                 </Link>{' '}
                 to add it live right away — or send us a quick suggestion instead:

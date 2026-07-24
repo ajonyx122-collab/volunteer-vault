@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { getCategoryMeta } from '../data/mockData'
 import VerifiedBadge from './VerifiedBadge'
 import OrgAvatar from './OrgAvatar'
@@ -41,7 +41,7 @@ export default function OpportunityCard({ opportunity, org, bold = false }) {
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <Link to={`/opportunities/${opportunity.id}`} className="font-display font-bold text-brand-green hover:underline">
+          <Link href={`/opportunities/${opportunity.id}`} className="font-display font-bold text-brand-green hover:underline">
             {opportunity.title}
           </Link>
           {org?.verified && <VerifiedBadge verified />}
@@ -100,7 +100,7 @@ export default function OpportunityCard({ opportunity, org, bold = false }) {
       </div>
 
       <Link
-        to={`/opportunities/${opportunity.id}`}
+        href={`/opportunities/${opportunity.id}`}
         className={`shrink-0 rounded-pill bg-coral px-5 py-2 text-center text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none ${
           bold ? 'border-2 border-brand-green' : ''
         }`}
