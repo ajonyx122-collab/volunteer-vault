@@ -35,7 +35,7 @@ const CAUSE_BAR_COLORS = {
 export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpportunityIds }) {
   const [copied, setCopied] = useState(false)
   const totalCauseHours = user.causes.reduce((sum, c) => sum + c.hours, 0)
-  const vaultUrl = `volunteervault.org/u/${user.username}`
+  const vaultUrl = `www.volunteervault.org/u/${user.username}`
 
   async function handleCopyLink() {
     try {

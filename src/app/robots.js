@@ -1,4 +1,4 @@
-const SITE_URL = 'https://volunteervault.org'
+const SITE_URL = 'https://www.volunteervault.org'
 
 export default function robots() {
   return {

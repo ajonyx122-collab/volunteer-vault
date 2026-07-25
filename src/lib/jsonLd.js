@@ -13,7 +13,7 @@
 import { getCategoryMeta } from '../data/mockData'
 import { opportunityPath } from './opportunityUrls'
 
-const SITE_URL = 'https://volunteervault.org'
+const SITE_URL = 'https://www.volunteervault.org'
 
 // Absolute canonical URL for an opportunity (descriptive once it has a slug,
 // legacy /opportunities/<id> until the slug migration lands).

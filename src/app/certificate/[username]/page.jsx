@@ -182,7 +182,7 @@ export default function Certificate({ params }) {
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-[10px] text-brand-green/50">
             <span>Certificate No. {certId}</span>
             <span>Issued {issuedOn}</span>
-            <span>volunteervault.org/u/{user.username}</span>
+            <span>www.volunteervault.org/u/{user.username}</span>
           </div>
           <p className="mt-3 text-[9px] leading-relaxed text-brand-green/40">
             Hours are self-reported by the volunteer under an honesty pledge and marked verified once

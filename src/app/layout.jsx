@@ -5,7 +5,7 @@ import { AuthProvider } from '../lib/AuthContext'
 import './globals.css'
 
 export const metadata = {
-  metadataBase: new URL('https://volunteervault.org'),
+  metadataBase: new URL('https://www.volunteervault.org'),
   title: {
     default: 'VolunteerVault — Volunteer Opportunities for High School & College Students',
     template: '%s | VolunteerVault',

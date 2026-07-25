@@ -187,7 +187,7 @@ export default function HomeView({ opportunities, topVolunteers }) {
               href="/profile"
               className="mt-6 inline-block rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
             >
-              volunteervault.org/u/you
+              www.volunteervault.org/u/you
             </Link>
           </div>
           <div className="flex flex-1 flex-wrap justify-center gap-3">

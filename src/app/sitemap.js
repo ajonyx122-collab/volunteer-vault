@@ -2,7 +2,7 @@ import { fetchOpportunitiesServer } from '../lib/api.server'
 import { buildCauseDirectory, buildLocationDirectory } from '../lib/opportunityFilters'
 import { opportunityPath } from '../lib/opportunityUrls'
 
-const SITE_URL = 'https://volunteervault.org'
+const SITE_URL = 'https://www.volunteervault.org'
 
 export default async function sitemap() {
   const staticRoutes = ['', '/browse', '/volunteer', '/community', '/leaderboards', '/faq', '/map', '/signup', '/login'].map(

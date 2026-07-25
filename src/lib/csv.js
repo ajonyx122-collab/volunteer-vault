@@ -14,7 +14,7 @@ export function downloadHoursCsv(user, activity) {
     .reduce((sum, e) => sum + e.hours, 0)
   rows.push([])
   rows.push(['Total verified hours', '', '', totalVerified, ''])
-  rows.push([`Verified record: volunteervault.org/u/${user.username}`, '', '', '', ''])
+  rows.push([`Verified record: www.volunteervault.org/u/${user.username}`, '', '', '', ''])
 
   const csv = [header, ...rows]
     .map((row) => row.map((cell) => `"${String(cell ?? '').replaceAll('"', '""')}"`).join(','))
