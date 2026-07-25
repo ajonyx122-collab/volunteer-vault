@@ -31,6 +31,17 @@ export async function fetchOpportunityServer(id) {
   return data ? mapOpportunity(data, counts) : null
 }
 
+// Resolve the descriptive URL's opportunity by its (globally unique) slug.
+export async function fetchOpportunityBySlugServer(slug) {
+  const supabase = createServerSupabaseClient()
+  const [{ data, error }, counts] = await Promise.all([
+    supabase.from('opportunities').select(OPP_SELECT).eq('slug', slug).maybeSingle(),
+    fetchSignupCounts(supabase),
+  ])
+  if (error) throw error
+  return data ? mapOpportunity(data, counts) : null
+}
+
 // Minimal id list for the sitemap — no need for the full mapped shape.
 export async function fetchOpportunityIdsServer() {
   const supabase = createServerSupabaseClient()

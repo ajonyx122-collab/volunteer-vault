@@ -48,6 +48,7 @@ function vibeFromReviews(reviews) {
 export function mapOpportunity(row, counts = {}) {
   return {
     id: row.id,
+    slug: row.slug ?? null,
     orgId: row.org_id,
     title: row.title,
     category: row.category,

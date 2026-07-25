@@ -9,6 +9,7 @@ import { fetchMyStreak, fetchHourLogs } from '../lib/api'
 import { getActiveChallenge } from '../data/challenges'
 import { computeChallengeProgress } from '../lib/challenges'
 import { useAuth } from '../lib/AuthContext'
+import { isRemote, minAgeOf, stateOf, cityOf, zipOf, commitmentOf } from '../lib/opportunityFilters'
 import OpportunityCard from './OpportunityCard'
 import SuggestOpportunity from './SuggestOpportunity'
 import ChallengeBanner from './ChallengeBanner'
@@ -29,13 +30,8 @@ const COMMITMENTS = [
   { id: 'ongoing', label: 'Ongoing' },
 ]
 
-// A listing's own field wins; fall back to its org's directory field.
-const isRemote = (o) => o.remote || o.isOnline || o.org?.remote
-const minAgeOf = (o) => o.minAge ?? o.org?.minAge ?? 0
-const stateOf = (o) => o.state || o.org?.state || ''
-const cityOf = (o) => o.city || o.org?.city || ''
-const zipOf = (o) => o.zip || o.org?.zip || ''
-const commitmentOf = (o) => o.org?.commitmentType ?? 'both'
+// Location/eligibility field accessors live in ../lib/opportunityFilters so
+// the /volunteer landing pages group listings by exactly the same rules.
 
 // Seeded with opportunities fetched server-side (see app/browse/page.jsx) so
 // the full listing set is present in the initial HTML for SEO — all

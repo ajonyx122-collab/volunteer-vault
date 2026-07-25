@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../lib/AuthContext'
 import VerifiedBadge from './VerifiedBadge'
 import OrgAvatar from './OrgAvatar'
+import Breadcrumb from './Breadcrumb'
 import ReviewsSection from './ReviewsSection'
 import LogHoursModal from './LogHoursModal'
 import { todayStr } from '../lib/hourLogs'
@@ -49,7 +50,7 @@ function locationLabel(o) {
 // app/opportunities/[id]/page.jsx) so the listing content and per-page
 // metadata are present on first load — RSVP, hour logging, and reporting
 // stay client-side since they depend on the signed-in user.
-export default function OpportunityDetailView({ id, initialOpportunity }) {
+export default function OpportunityDetailView({ id, initialOpportunity, breadcrumb }) {
   const { user } = useAuth()
   const router = useRouter()
 
@@ -150,9 +151,13 @@ export default function OpportunityDetailView({ id, initialOpportunity }) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <Link href="/browse" className="text-sm font-semibold text-brand-green/60 hover:text-brand-green">
-        ← Back to browse
-      </Link>
+      {breadcrumb ? (
+        <Breadcrumb items={breadcrumb} />
+      ) : (
+        <Link href="/browse" className="text-sm font-semibold text-brand-green/60 hover:text-brand-green">
+          ← Back to browse
+        </Link>
+      )}
 
       {/* Hero banner: real photo once an org uploads one, warm category art meanwhile */}
       <div

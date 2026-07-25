@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CATEGORIES } from '../data/mockData'
+import { buildLocationDirectory } from '../lib/opportunityFilters'
 import { fetchHourLogs } from '../lib/api'
 import { getActiveChallenge } from '../data/challenges'
 import { computeChallengeProgress } from '../lib/challenges'
@@ -45,6 +46,10 @@ export default function HomeView({ opportunities, topVolunteers }) {
   const orgCount = new Set(opportunities.map((o) => o.orgId)).size
   const remoteCount = opportunities.filter(isRemote).length
   const causeCount = new Set(opportunities.map((o) => o.category)).size
+
+  // Popular cities for the "browse by city" strip — the homepage's entry into
+  // the /volunteer/[city] landing pages (SEO internal links + a real shortcut).
+  const topCities = buildLocationDirectory(opportunities).slice(0, 8)
 
   function handleSearch(e) {
     e.preventDefault()
@@ -109,13 +114,38 @@ export default function HomeView({ opportunities, topVolunteers }) {
         </section>
       )}
 
-      {/* Category chips */}
+      {/* Browse by cause — chips link into the /volunteer/[cause] landing pages */}
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="scrollbar-none flex gap-3 overflow-x-auto pb-2">
           {CATEGORIES.map((c) => (
-            <CategoryChip key={c.id} {...c} />
+            <CategoryChip key={c.id} {...c} href={`/volunteer/${c.id}`} />
           ))}
         </div>
+
+        {/* Browse by city */}
+        {topCities.length > 0 && (
+          <div className="mt-6">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="font-display text-lg font-extrabold text-brand-green">
+                Volunteer near you
+              </h2>
+              <Link href="/volunteer" className="shrink-0 text-sm font-bold text-coral hover:underline">
+                All cities &amp; causes →
+              </Link>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {topCities.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={`/volunteer/${c.slug}`}
+                  className="rounded-pill border border-card-border bg-card px-4 py-2 text-sm font-bold text-brand-green shadow-card transition-transform hover:scale-105"
+                >
+                  📍 {c.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Featured */}

@@ -18,6 +18,7 @@ export default function Footer() {
         </div>
         <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-cream-muted">
           <Link href="/browse" className="hover:text-cream-text">Browse</Link>
+          <Link href="/volunteer" className="hover:text-cream-text">By cause &amp; city</Link>
           <Link href="/signup" className="hover:text-cream-text">For organizations</Link>
           <Link href="/profile" className="hover:text-cream-text">My vault</Link>
           <span>© {new Date().getFullYear()} VolunteerVault</span>

@@ -1,23 +1,36 @@
-import { fetchOpportunityIdsServer } from '../lib/api.server'
+import { fetchOpportunitiesServer } from '../lib/api.server'
+import { buildCauseDirectory, buildLocationDirectory } from '../lib/opportunityFilters'
+import { opportunityPath } from '../lib/opportunityUrls'
 
 const SITE_URL = 'https://volunteervault.org'
 
 export default async function sitemap() {
-  const staticRoutes = ['', '/browse', '/community', '/leaderboards', '/faq', '/map', '/signup', '/login'].map(
+  const staticRoutes = ['', '/browse', '/volunteer', '/community', '/leaderboards', '/faq', '/map', '/signup', '/login'].map(
     (path) => ({
       url: `${SITE_URL}${path}`,
       changeFrequency: path === '' || path === '/browse' ? 'hourly' : 'weekly',
-      priority: path === '' ? 1 : path === '/browse' ? 0.9 : 0.5,
+      priority: path === '' ? 1 : path === '/browse' || path === '/volunteer' ? 0.9 : 0.5,
     }),
   )
 
-  const opportunities = await fetchOpportunityIdsServer().catch(() => [])
-  const opportunityRoutes = opportunities.map((o) => ({
-    url: `${SITE_URL}/opportunities/${o.id}`,
-    lastModified: o.starts_at ? new Date(o.starts_at) : undefined,
+  const opps = await fetchOpportunitiesServer().catch(() => [])
+
+  // One entry per listing at its canonical URL (descriptive once slugged,
+  // legacy /opportunities/<id> until the slug migration lands).
+  const opportunityRoutes = opps.map((o) => ({
+    url: `${SITE_URL}${opportunityPath(o)}`,
+    lastModified: o.startsAt ? new Date(o.startsAt) : undefined,
     changeFrequency: 'daily',
     priority: 0.8,
   }))
 
-  return [...staticRoutes, ...opportunityRoutes]
+  // City/cause landing pages — the organic-search surface, so include every
+  // one that currently has listings.
+  const landingRoutes = [...buildCauseDirectory(opps), ...buildLocationDirectory(opps)].map((entry) => ({
+    url: `${SITE_URL}/volunteer/${entry.slug}`,
+    changeFrequency: 'daily',
+    priority: 0.7,
+  }))
+
+  return [...staticRoutes, ...opportunityRoutes, ...landingRoutes]
 }

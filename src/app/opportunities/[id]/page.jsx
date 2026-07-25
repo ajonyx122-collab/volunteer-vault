@@ -1,41 +1,46 @@
+import { permanentRedirect } from 'next/navigation'
 import { fetchOpportunityServer } from '../../../lib/api.server'
-import { getCategoryMeta } from '../../../data/mockData'
+import { opportunityPath } from '../../../lib/opportunityUrls'
+import {
+  buildOpportunityMetadata,
+  buildOpportunityTrail,
+  buildOpportunityJsonLd,
+} from '../../../lib/opportunityMeta'
 import OpportunityDetailView from '../../../components/OpportunityDetailView'
 
+// Legacy id route. Once a listing has a slug (migration-034), this 308-redirects
+// to the descriptive /volunteer/<city>/<org>/<slug> URL — protecting every
+// already-indexed /opportunities/<id> link. Until the migration lands (slug
+// absent), it still renders the detail page directly, so nothing breaks.
 export const revalidate = 300
 
 export async function generateMetadata({ params }) {
   const { id } = await params
   const opportunity = await fetchOpportunityServer(id).catch(() => null)
-  if (!opportunity) {
-    return { title: 'Opportunity not found' }
-  }
-
-  const category = getCategoryMeta(opportunity.category)
-  const orgName = opportunity.org?.name
-  const location = opportunity.isOnline
-    ? 'Online'
-    : [opportunity.city, opportunity.state].filter(Boolean).join(', ')
-  const description = (
-    opportunity.description?.trim() ||
-    `${category?.label ?? 'Volunteer'} opportunity${orgName ? ` with ${orgName}` : ''}${location ? ` in ${location}` : ''} — RSVP free on VolunteerVault and log verified service hours.`
-  ).slice(0, 160)
-
-  return {
-    title: opportunity.title,
-    description,
-    alternates: { canonical: `/opportunities/${opportunity.id}` },
-    openGraph: {
-      title: opportunity.title,
-      description,
-      type: 'website',
-      images: opportunity.org?.imageUrl ? [opportunity.org.imageUrl] : undefined,
-    },
-  }
+  if (!opportunity) return { title: 'Opportunity not found' }
+  return buildOpportunityMetadata(opportunity)
 }
 
 export default async function OpportunityDetailPage({ params }) {
   const { id } = await params
   const opportunity = await fetchOpportunityServer(id).catch(() => null)
-  return <OpportunityDetailView id={id} initialOpportunity={opportunity} />
+
+  if (opportunity?.slug) permanentRedirect(opportunityPath(opportunity))
+
+  const trail = opportunity ? buildOpportunityTrail(opportunity) : null
+  const { eventLd, breadcrumbLd } = opportunity
+    ? buildOpportunityJsonLd(opportunity)
+    : { eventLd: null, breadcrumbLd: null }
+
+  return (
+    <>
+      {eventLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventLd) }} />
+      )}
+      {breadcrumbLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      )}
+      <OpportunityDetailView id={id} initialOpportunity={opportunity} breadcrumb={trail} />
+    </>
+  )
 }

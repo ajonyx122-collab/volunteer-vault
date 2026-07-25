@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { fetchOpportunities, fetchMyCommunityPosts } from '../../lib/api'
+import { opportunityPath } from '../../lib/opportunityUrls'
 import { useAuth } from '../../lib/AuthContext'
 import OpportunityCard from '../../components/OpportunityCard'
 import SuggestOpportunity from '../../components/SuggestOpportunity'
@@ -130,7 +131,7 @@ export default function Community() {
               <div key={opp.id} className="rounded-card border-2 border-brand-green bg-card p-4 shadow-pop-soft">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <Link href={`/opportunities/${opp.id}`} className="font-bold text-brand-green hover:underline">
+                    <Link href={opportunityPath(opp)} className="font-bold text-brand-green hover:underline">
                       {opp.title}
                     </Link>
                     <p className="text-sm text-brand-green/60">

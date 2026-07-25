@@ -6,6 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { CATEGORIES } from '../data/mockData'
+import { opportunityPath } from '../lib/opportunityUrls'
 import { groupOpportunitiesByCity } from '../lib/mapGrouping'
 import { PIN_COLORS } from '../lib/mapColors'
 import { fetchOpportunities } from '../lib/api'
@@ -122,7 +123,7 @@ export default function MapViewClient() {
                     <div className="mt-2 flex max-h-48 flex-col gap-2 overflow-y-auto pr-1">
                       {g.items.map((o) => (
                         <div key={o.id} className="border-t border-card-border pt-2 first:border-0 first:pt-0">
-                          <Link href={`/opportunities/${o.id}`} className="font-semibold text-brand-green hover:underline">
+                          <Link href={opportunityPath(o)} className="font-semibold text-brand-green hover:underline">
                             {o.title}
                           </Link>
                           <p className="text-xs text-brand-green/60">{o.org?.name}</p>
