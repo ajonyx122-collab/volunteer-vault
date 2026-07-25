@@ -5,6 +5,7 @@ import { getActiveChallenge } from '../data/challenges'
 import { computeChallengeProgress } from './challenges'
 import { mapOrg, mapOpportunity, mapReview, OPP_SELECT } from './opportunityMapping'
 import { opportunityPath } from './opportunityUrls'
+import { filterActiveOpportunities } from './opportunityFilters'
 
 export { computeStreakWeeks }
 
@@ -19,7 +20,7 @@ export async function fetchOpportunities() {
     fetchSignupCounts(),
   ])
   if (error) throw error
-  return (data ?? []).map((row) => mapOpportunity(row, counts))
+  return filterActiveOpportunities((data ?? []).map((row) => mapOpportunity(row, counts)))
 }
 
 export async function fetchOpportunity(id) {

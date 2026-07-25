@@ -6,6 +6,23 @@
 import { CATEGORIES, getCategoryMeta } from '../data/mockData'
 
 export const isRemote = (o) => o.remote || o.isOnline || o.org?.remote
+
+// A listing is "active" if it's ongoing or its start date hasn't passed yet.
+// Dated one-time events auto-expire from public lists the day after they run
+// (anti-rot). Ongoing/undated listings never expire. Detail pages still render
+// an expired listing directly — this only trims stale entries from lists.
+export function isActiveOpportunity(o, now = new Date()) {
+  if (o.isOngoing || !o.startsAt) return true
+  const start = new Date(o.startsAt)
+  if (Number.isNaN(start.getTime())) return true
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  return start >= startOfToday
+}
+
+export function filterActiveOpportunities(opps, now = new Date()) {
+  return opps.filter((o) => isActiveOpportunity(o, now))
+}
+
 export const minAgeOf = (o) => o.minAge ?? o.org?.minAge ?? 0
 export const stateOf = (o) => o.state || o.org?.state || ''
 export const cityOf = (o) => o.city || o.org?.city || ''

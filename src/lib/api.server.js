@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from './supabase/server'
 import { mapOpportunity, OPP_SELECT } from './opportunityMapping'
+import { filterActiveOpportunities } from './opportunityFilters'
 
 // Server-side reads for the SEO-critical pages (Home, Browse, opportunity
 // detail) — same tables/shape as fetchOpportunities/fetchOpportunity in
@@ -18,7 +19,7 @@ export async function fetchOpportunitiesServer() {
     fetchSignupCounts(supabase),
   ])
   if (error) throw error
-  return (data ?? []).map((row) => mapOpportunity(row, counts))
+  return filterActiveOpportunities((data ?? []).map((row) => mapOpportunity(row, counts)))
 }
 
 export async function fetchOpportunityServer(id) {

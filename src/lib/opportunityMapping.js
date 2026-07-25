@@ -49,6 +49,9 @@ export function mapOpportunity(row, counts = {}) {
   return {
     id: row.id,
     slug: row.slug ?? null,
+    source: row.source ?? 'curated',
+    externalId: row.external_id ?? null,
+    lastSyncedAt: row.last_synced_at ?? null,
     orgId: row.org_id,
     title: row.title,
     category: row.category,
