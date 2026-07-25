@@ -59,7 +59,7 @@ export default function MySignups({ userId }) {
           >
             <div className="min-w-0">
               <Link
-                href={`/opportunities/${s.opportunityId}`}
+                href={s.href}
                 className="font-bold text-brand-green hover:underline"
               >
                 {s.title}

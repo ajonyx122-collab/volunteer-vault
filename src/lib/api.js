@@ -4,6 +4,7 @@ import { isLogVerified, logDate, computeStreakWeeks } from './hourLogs'
 import { getActiveChallenge } from '../data/challenges'
 import { computeChallengeProgress } from './challenges'
 import { mapOrg, mapOpportunity, mapReview, OPP_SELECT } from './opportunityMapping'
+import { opportunityPath } from './opportunityUrls'
 
 export { computeStreakWeeks }
 
@@ -134,7 +135,7 @@ export async function submitSuggestion({ orgName, website, notes, city, state, s
 // ---- admin review (gated in the UI by profile.is_admin; RLS also enforces it) ----
 
 const ADMIN_OPP_PREVIEW =
-  'id, title, category, description, starts_at, duration_hours, is_ongoing, is_online, capacity, min_age, tags, city, state'
+  'id, slug, title, category, description, starts_at, duration_hours, is_ongoing, is_online, capacity, min_age, tags, city, state'
 
 export async function fetchPendingOrganizations() {
   const { data, error } = await supabase
@@ -219,6 +220,14 @@ export async function fetchOrgAdminDetail(orgId) {
     state: o.state,
     signupCount: signupCounts[o.id] ?? 0,
     hoursLogged: hourTotals[o.id] ?? 0,
+    href: opportunityPath({
+      id: o.id,
+      slug: o.slug,
+      city: o.city,
+      state: o.state,
+      isOnline: o.is_online,
+      org: { name: orgRow.name },
+    }),
   }))
 
   return { org: mapOrg(orgRow), listings }
@@ -282,7 +291,7 @@ export async function updateSuggestionStatus(id, status) {
 export async function fetchHourLogs(userId) {
   const { data, error } = await supabase
     .from('hour_logs')
-    .select('*, opportunities(title, category, organizations(id, name, submitted_by))')
+    .select('*, opportunities(title, category, slug, city, state, is_online, organizations(id, name, submitted_by))')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
   if (error) throw error
@@ -304,7 +313,7 @@ export async function fetchMyStreak(userId) {
 export async function fetchMySignups(userId) {
   const { data, error } = await supabase
     .from('signups')
-    .select('id, status, opportunity_id, opportunities(id, title, starts_at, is_online, address, city, state, organizations(name))')
+    .select('id, status, opportunity_id, opportunities(id, slug, title, starts_at, is_online, address, city, state, organizations(name))')
     .eq('user_id', userId)
   if (error) throw error
   return (data ?? [])
@@ -322,6 +331,14 @@ export async function fetchMySignups(userId) {
           s.opportunities.address ||
           '',
       orgName: s.opportunities.organizations?.name ?? '',
+      href: opportunityPath({
+        id: s.opportunities.id,
+        slug: s.opportunities.slug,
+        city: s.opportunities.city,
+        state: s.opportunities.state,
+        isOnline: s.opportunities.is_online,
+        org: { name: s.opportunities.organizations?.name },
+      }),
     }))
     .sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt))
 }
@@ -513,6 +530,14 @@ export function buildVaultData(profileRow, hourLogRows) {
     opportunityId: l.opportunity_id,
     title: l.opportunities?.title ?? 'Logged hours',
     orgName: l.opportunities?.organizations?.name ?? '',
+    href: opportunityPath({
+      id: l.opportunity_id,
+      slug: l.opportunities?.slug,
+      city: l.opportunities?.city,
+      state: l.opportunities?.state,
+      isOnline: l.opportunities?.is_online,
+      org: { name: l.opportunities?.organizations?.name },
+    }),
     date: logDate(l),
     hours: Number(l.hours),
     status: isLogVerified(l) ? 'verified' : 'pending',

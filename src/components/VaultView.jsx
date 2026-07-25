@@ -232,7 +232,7 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
                     entry.opportunityId &&
                     !reviewedOpportunityIds?.has(entry.opportunityId) && (
                       <Link
-                        href={`/opportunities/${entry.opportunityId}`}
+                        href={entry.href}
                         className="text-xs font-bold text-coral hover:underline"
                       >
                         Leave a review →

@@ -214,7 +214,7 @@ export default function AdminOrgDetail({ params }) {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <Link
-                      href={`/opportunities/${l.id}`}
+                      href={l.href}
                       className="font-bold text-brand-green hover:underline"
                     >
                       {meta?.icon} {l.title}
