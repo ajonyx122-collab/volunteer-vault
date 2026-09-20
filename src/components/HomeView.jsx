@@ -110,7 +110,13 @@ export default function HomeView({ opportunities, topVolunteers }) {
         <Mascot />
 
         <div className="relative mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-24">
-          <span className="inline-flex items-center gap-1.5 rounded-pill bg-cream-text/10 px-4 py-1.5 text-sm font-bold text-cream-text ring-1 ring-cream-text/20">
+          <div className="flex items-center justify-center gap-2">
+            <img src="/brand/logo-white.png" alt="" className="h-8 w-8" />
+            <span className="font-display text-2xl font-extrabold tracking-tight text-cream-text sm:text-3xl">
+              Volunteer<span className="text-gold">VAULT</span>
+            </span>
+          </div>
+          <span className="mt-4 inline-flex items-center gap-1.5 rounded-pill bg-cream-text/10 px-4 py-1.5 text-sm font-bold text-cream-text ring-1 ring-cream-text/20">
             ✨ Free for students earning service hours
           </span>
           <h1 className="mt-5 font-display text-4xl font-extrabold text-cream-text sm:text-6xl">
