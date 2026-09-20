@@ -7,7 +7,7 @@ export default function CategoryChip({ id, label, icon, active = false, href }) 
   return (
     <Link
       href={href ?? `/browse?category=${id}`}
-      className={`flex shrink-0 items-center gap-2 rounded-pill px-4 py-2 text-sm font-bold shadow-card transition-transform hover:scale-105 ${styles} ${
+      className={`hover-wiggle flex shrink-0 items-center gap-2 rounded-pill px-4 py-2 text-sm font-bold shadow-card transition-transform hover:scale-105 ${styles} ${
         active ? 'ring-2 ring-gold' : ''
       }`}
     >

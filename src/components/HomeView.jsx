@@ -12,6 +12,9 @@ import CategoryChip from './CategoryChip'
 import OpportunityCard from './OpportunityCard'
 import StatPill from './StatPill'
 import ChallengeBanner from './ChallengeBanner'
+import CountUp from './CountUp'
+import Reveal from './Reveal'
+import { opportunityPath } from '../lib/opportunityUrls'
 
 const MEDALS = ['🥇', '🥈', '🥉']
 
@@ -67,10 +70,23 @@ export default function HomeView({ opportunities, topVolunteers }) {
     router.push(`/browse?${params.toString()}`)
   }
 
+  function surpriseMe() {
+    if (!opportunities.length) return
+    const pick = opportunities[Math.floor(Math.random() * opportunities.length)]
+    router.push(opportunityPath(pick))
+  }
+
   return (
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden bg-brand-green">
+        {/* Slow-drifting colour blobs for depth */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+          <div className="animate-blob absolute -left-24 -top-24 h-72 w-72 rounded-full bg-gold/20 blur-3xl" />
+          <div className="animate-blob absolute -right-10 top-6 h-80 w-80 rounded-full bg-coral/20 blur-3xl" style={{ animationDelay: '3s' }} />
+          <div className="animate-blob absolute -bottom-16 left-1/3 h-72 w-72 rounded-full bg-brand-green-light/40 blur-3xl" style={{ animationDelay: '6s' }} />
+        </div>
+
         {/* Cute floating decorations — purely decorative, hidden on small screens */}
         <div className="pointer-events-none absolute inset-0 hidden select-none sm:block" aria-hidden>
           <span className="animate-floaty absolute left-[6%] top-[18%] text-4xl opacity-70" style={{ '--tilt': '-12deg', animationDelay: '0s' }}>🌱</span>
@@ -86,7 +102,26 @@ export default function HomeView({ opportunities, topVolunteers }) {
             ✨ Free for students earning service hours
           </span>
           <h1 className="mt-5 font-display text-4xl font-extrabold text-cream-text sm:text-6xl">
-            <span className="squiggle">Unlock</span> your community.
+            <span className="relative inline-block">
+              Unlock
+              <svg
+                className="squiggle-draw absolute -bottom-2 left-0 w-full sm:-bottom-3"
+                height="16"
+                viewBox="0 0 200 16"
+                preserveAspectRatio="none"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="M3 11 Q 27 3 52 9 T 100 9 T 148 9 T 197 8"
+                  stroke="#E8983E"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  pathLength="1"
+                />
+              </svg>
+            </span>{' '}
+            your community.
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-cream-muted">
             VolunteerVault helps you find real volunteer opportunities, log your hours, and build
@@ -121,9 +156,9 @@ export default function HomeView({ opportunities, topVolunteers }) {
 
           {orgCount > 0 && (
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <StatPill value={orgCount} label="organizations" tone="dark" />
-              <StatPill value={remoteCount} label="you can do remotely" tone="dark" />
-              <StatPill value={causeCount} label="causes to explore" tone="dark" />
+              <StatPill value={<CountUp end={orgCount} />} label="organizations" tone="dark" />
+              <StatPill value={<CountUp end={remoteCount} />} label="you can do remotely" tone="dark" />
+              <StatPill value={<CountUp end={causeCount} />} label="causes to explore" tone="dark" />
             </div>
           )}
         </div>
@@ -182,6 +217,16 @@ export default function HomeView({ opportunities, topVolunteers }) {
             </span>
           </Link>
         </div>
+
+        <div className="mt-4 text-center">
+          <button
+            onClick={surpriseMe}
+            className="hover-wiggle inline-flex items-center gap-2 rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
+          >
+            🎲 Surprise me
+          </button>
+          <p className="mt-1.5 text-xs text-brand-green/50">Feeling spontaneous? We'll pick one for you.</p>
+        </div>
       </section>
 
       {/* Featured */}
@@ -235,7 +280,7 @@ export default function HomeView({ opportunities, topVolunteers }) {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      <Reveal as="section" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <h2 className="text-center font-display text-2xl font-extrabold text-brand-green">
           How VolunteerVault works
         </h2>
@@ -263,10 +308,10 @@ export default function HomeView({ opportunities, topVolunteers }) {
             </div>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* Leaderboards preview */}
-      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+      <Reveal as="section" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
         <div className="rounded-card border border-card-border bg-card p-8 text-center shadow-card sm:p-10">
           <p className="text-4xl">🏆</p>
           <h2 className="mt-2 font-display text-2xl font-extrabold text-brand-green">
@@ -304,7 +349,7 @@ export default function HomeView({ opportunities, topVolunteers }) {
             See full leaderboards
           </Link>
         </div>
-      </section>
+      </Reveal>
 
       {/* Org CTA */}
       <section id="org-cta" className="bg-gold">
@@ -331,7 +376,7 @@ export default function HomeView({ opportunities, topVolunteers }) {
 
 function OppSection({ title, blurb, children }) {
   return (
-    <section className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
+    <Reveal as="section" className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <h2 className="font-display text-2xl font-extrabold text-brand-green">{title}</h2>
@@ -346,6 +391,6 @@ function OppSection({ title, blurb, children }) {
           <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />
         ))}
       </div>
-    </section>
+    </Reveal>
   )
 }
