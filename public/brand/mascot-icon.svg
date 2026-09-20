@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Sunny the mascot, sized to read as a favicon in the browser tab -->
+  <g stroke="#F5C542" stroke-width="4.5" stroke-linecap="round">
+    <line x1="52" y1="32" x2="61" y2="32"/>
+    <line x1="46.1" y1="46.1" x2="52.5" y2="52.5"/>
+    <line x1="32" y1="52" x2="32" y2="61"/>
+    <line x1="17.9" y1="46.1" x2="11.5" y2="52.5"/>
+    <line x1="12" y1="32" x2="3" y2="32"/>
+    <line x1="17.9" y1="17.9" x2="11.5" y2="11.5"/>
+    <line x1="32" y1="12" x2="32" y2="3"/>
+    <line x1="46.1" y1="17.9" x2="52.5" y2="11.5"/>
+  </g>
+  <circle cx="32" cy="32" r="19" fill="#F5C542" stroke="#E8983E" stroke-width="3"/>
+  <circle cx="25.5" cy="29" r="3.2" fill="#1B4A30"/>
+  <circle cx="38.5" cy="29" r="3.2" fill="#1B4A30"/>
+  <path d="M24 36 Q32 45 40 36" fill="none" stroke="#1B4A30" stroke-width="3.2" stroke-linecap="round"/>
+</svg>

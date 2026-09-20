@@ -28,7 +28,9 @@ export const metadata = {
     images: ['/brand/logo-full.png'],
   },
   icons: {
-    icon: '/brand/logo-icon.png',
+    icon: '/brand/mascot-icon.svg',
+    shortcut: '/brand/mascot-icon.svg',
+    apple: '/brand/logo-icon.png',
   },
 }
 
