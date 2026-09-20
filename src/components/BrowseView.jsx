@@ -44,12 +44,16 @@ export default function BrowseView({ initialOpportunities }) {
   const searchParams = useSearchParams()
   const activeCategory = searchParams.get('category')
   const initialQuery = searchParams.get('q') ?? ''
+  // The homepage search sends the "Near you" box through as ?loc= — seed the
+  // location filter with it so searching from the home hero actually filters
+  // by place instead of dumping you on the full, unfiltered list.
+  const initialLoc = searchParams.get('loc') ?? ''
 
   const [opportunities] = useState(initialOpportunities)
   const [query, setQuery] = useState(initialQuery)
   const [toggles, setToggles] = useState(searchParams.get('remote') ? ['remote'] : [])
   const [stateFilter, setStateFilter] = useState('')
-  const [cityZip, setCityZip] = useState('')
+  const [cityZip, setCityZip] = useState(initialLoc)
   const [commitment, setCommitment] = useState('')
   const [age, setAge] = useState('')
   const [streakWeeks, setStreakWeeks] = useState(0)

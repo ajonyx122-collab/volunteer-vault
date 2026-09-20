@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CATEGORIES } from '../data/mockData'
-import { buildLocationDirectory } from '../lib/opportunityFilters'
 import { fetchHourLogs } from '../lib/api'
 import { getActiveChallenge } from '../data/challenges'
 import { computeChallengeProgress } from '../lib/challenges'
@@ -60,10 +59,6 @@ export default function HomeView({ opportunities, topVolunteers }) {
   const remoteCount = opportunities.filter(isRemote).length
   const causeCount = new Set(opportunities.map((o) => o.category)).size
 
-  // Popular cities for the "browse by city" strip — the homepage's entry into
-  // the /volunteer/[city] landing pages (SEO internal links + a real shortcut).
-  const topCities = buildLocationDirectory(opportunities).slice(0, 8)
-
   function handleSearch(e) {
     e.preventDefault()
     const params = new URLSearchParams()
@@ -75,14 +70,27 @@ export default function HomeView({ opportunities, topVolunteers }) {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-brand-green">
-        <div className="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-24">
-          <h1 className="font-display text-4xl font-extrabold text-cream-text sm:text-6xl">
+      <section className="relative overflow-hidden bg-brand-green">
+        {/* Cute floating decorations — purely decorative, hidden on small screens */}
+        <div className="pointer-events-none absolute inset-0 hidden select-none sm:block" aria-hidden>
+          <span className="animate-floaty absolute left-[6%] top-[18%] text-4xl opacity-70" style={{ '--tilt': '-12deg', animationDelay: '0s' }}>🌱</span>
+          <span className="animate-floaty absolute right-[8%] top-[14%] text-4xl opacity-70" style={{ '--tilt': '10deg', animationDelay: '0.8s' }}>🐾</span>
+          <span className="animate-floaty absolute left-[12%] bottom-[16%] text-3xl opacity-60" style={{ '--tilt': '8deg', animationDelay: '1.6s' }}>🎨</span>
+          <span className="animate-floaty absolute right-[12%] bottom-[20%] text-4xl opacity-70" style={{ '--tilt': '-10deg', animationDelay: '2.4s' }}>🤝</span>
+          <span className="animate-floaty absolute left-[46%] top-[8%] text-2xl opacity-50" style={{ '--tilt': '6deg', animationDelay: '1.2s' }}>⭐</span>
+          <span className="animate-floaty absolute right-[30%] bottom-[10%] text-2xl opacity-50" style={{ '--tilt': '-6deg', animationDelay: '3s' }}>📚</span>
+        </div>
+
+        <div className="relative mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-24">
+          <span className="inline-flex items-center gap-1.5 rounded-pill bg-cream-text/10 px-4 py-1.5 text-sm font-bold text-cream-text ring-1 ring-cream-text/20">
+            ✨ Free for students earning service hours
+          </span>
+          <h1 className="mt-5 font-display text-4xl font-extrabold text-cream-text sm:text-6xl">
             <span className="squiggle">Unlock</span> your community.
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-cream-muted">
-            Your people are already out here. Come find them — find opportunities, log your
-            hours, and build a service record that colleges and employers can trust.
+            VolunteerVault helps you find real volunteer opportunities, log your hours, and build
+            a verified service record — one shareable link colleges and employers can trust.
           </p>
 
           <form
@@ -127,38 +135,53 @@ export default function HomeView({ opportunities, topVolunteers }) {
         </section>
       )}
 
-      {/* Browse by cause — chips link into the /volunteer/[cause] landing pages */}
+      {/* Explore — cause chips + universal ways in (work no matter where you live) */}
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <div className="scrollbar-none flex gap-3 overflow-x-auto pb-2">
+        <h2 className="font-display text-lg font-extrabold text-brand-green">What are you into?</h2>
+        <div className="scrollbar-none mt-3 flex gap-3 overflow-x-auto pb-2">
           {CATEGORIES.map((c) => (
             <CategoryChip key={c.id} {...c} href={`/volunteer/${c.id}`} />
           ))}
         </div>
 
-        {/* Browse by city */}
-        {topCities.length > 0 && (
-          <div className="mt-6">
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 className="font-display text-lg font-extrabold text-brand-green">
-                Volunteer near you
-              </h2>
-              <Link href="/volunteer" className="shrink-0 text-sm font-bold text-coral hover:underline">
-                All cities &amp; causes →
-              </Link>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {topCities.map((c) => (
-                <Link
-                  key={c.slug}
-                  href={`/volunteer/${c.slug}`}
-                  className="rounded-pill border border-card-border bg-card px-4 py-2 text-sm font-bold text-brand-green shadow-card transition-transform hover:scale-105"
-                >
-                  📍 {c.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Ways to explore — not tied to any one city, so it fits everyone */}
+        <h2 className="mt-8 font-display text-lg font-extrabold text-brand-green">
+          Not sure where to start?
+        </h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <Link
+            href="/browse?remote=1"
+            className="group flex items-center gap-3 rounded-card border-2 border-brand-green bg-brand-green p-4 shadow-card transition-transform hover:-translate-y-1"
+          >
+            <span className="text-3xl" aria-hidden>🌐</span>
+            <span className="min-w-0">
+              <span className="block font-display font-bold text-cream-text">From anywhere</span>
+              <span className="text-xs text-cream-muted">
+                {remoteCount} online role{remoteCount === 1 ? '' : 's'} — no car needed
+              </span>
+            </span>
+          </Link>
+          <Link
+            href="/volunteer"
+            className="group flex items-center gap-3 rounded-card border-2 border-card-border bg-card p-4 shadow-card transition-transform hover:-translate-y-1"
+          >
+            <span className="text-3xl" aria-hidden>📍</span>
+            <span className="min-w-0">
+              <span className="block font-display font-bold text-brand-green">Near you</span>
+              <span className="text-xs text-brand-green/60">Pick your state &amp; city</span>
+            </span>
+          </Link>
+          <Link
+            href="/browse"
+            className="group flex items-center gap-3 rounded-card border-2 border-card-border bg-card p-4 shadow-card transition-transform hover:-translate-y-1"
+          >
+            <span className="text-3xl" aria-hidden>🧭</span>
+            <span className="min-w-0">
+              <span className="block font-display font-bold text-brand-green">See everything</span>
+              <span className="text-xs text-brand-green/60">Browse &amp; filter all {orgCount}</span>
+            </span>
+          </Link>
+        </div>
       </section>
 
       {/* Featured */}
@@ -214,17 +237,26 @@ export default function HomeView({ opportunities, topVolunteers }) {
       {/* How it works */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <h2 className="text-center font-display text-2xl font-extrabold text-brand-green">
-          How it works
+          How VolunteerVault works
         </h2>
+        <p className="mx-auto mt-2 max-w-md text-center text-sm text-brand-green/60">
+          Three easy steps from "I need service hours" to a record you can actually show off.
+        </p>
         <div className="mt-8 grid gap-6 sm:grid-cols-3">
           {[
-            { step: '1', title: 'Find it', body: 'Browse opportunities by interest and location — see who\'s already going.' },
-            { step: '2', title: 'Log it', body: 'Show up, then log your own hours — honor system, no scanning or codes needed.' },
-            { step: '3', title: 'Vault it', body: 'Once the date passes, it\'s verified and lands straight in your shareable vault.' },
+            { step: '1', emoji: '🔎', title: 'Find it', body: 'Browse opportunities by interest and location — see who\'s already going.' },
+            { step: '2', emoji: '✍️', title: 'Log it', body: 'Show up, then log your own hours — honor system, no scanning or codes needed.' },
+            { step: '3', emoji: '🔓', title: 'Vault it', body: 'Once the date passes, it\'s verified and lands straight in your shareable vault.' },
           ].map((s) => (
-            <div key={s.step} className="rounded-card border border-card-border bg-card p-6 text-center shadow-card">
-              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-pill bg-coral font-display font-extrabold text-cream-text">
+            <div
+              key={s.step}
+              className="relative rounded-card border border-card-border bg-card p-6 pt-8 text-center shadow-card transition-transform hover:-translate-y-1"
+            >
+              <div className="absolute -top-4 left-1/2 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-pill bg-coral font-display text-sm font-extrabold text-cream-text shadow-pop">
                 {s.step}
+              </div>
+              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-cream text-3xl">
+                {s.emoji}
               </div>
               <h3 className="font-display font-bold text-brand-green">{s.title}</h3>
               <p className="mt-1 text-sm text-brand-green/70">{s.body}</p>
@@ -254,7 +286,6 @@ export default function HomeView({ opportunities, topVolunteers }) {
                   <span className="w-7 shrink-0 text-center text-xl">{MEDALS[v.rank - 1]}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold text-brand-green">{v.displayName}</p>
-                    {v.school && <p className="truncate text-xs text-brand-green/50">{v.school}</p>}
                   </div>
                   <p className="shrink-0 font-display font-extrabold text-brand-green">{v.value} hrs</p>
                 </div>

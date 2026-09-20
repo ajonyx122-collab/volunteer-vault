@@ -110,6 +110,7 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
   const [quote, setQuote] = useState('')
   const [tip, setTip] = useState('')
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
   const [editingId, setEditingId] = useState(null)
 
@@ -136,6 +137,7 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
       await deleteReview(review.id)
       setReviews((prev) => prev.filter((r) => r.id !== review.id))
       if (editingId === review.id) resetForm()
+      setNotice('Your review was deleted.')
     } catch (err) {
       setError(err.message ?? 'Could not delete — try again.')
     }
@@ -202,6 +204,7 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
           <button
             onClick={() => {
               if (showForm) resetForm()
+              setNotice('')
               setShowForm((v) => !v)
             }}
             className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
@@ -217,6 +220,12 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
           </Link>
         )}
       </div>
+
+      {notice && (
+        <div className="mt-4 flex items-center gap-2 rounded-card border border-category-environment-text/20 bg-category-environment-bg p-3 text-sm font-semibold text-category-environment-text">
+          ✓ {notice}
+        </div>
+      )}
 
       {showNudge && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-gold bg-category-food-bg p-4">
@@ -280,9 +289,15 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
       <div className="mt-6 flex flex-col gap-4">
         {reviews.length === 0 && (
           <>
-            <p className="text-center text-sm text-brand-green/60">
-              No reviews yet — be the first to share how it went. Here's what a helpful one looks
-              like:
+            <div className="rounded-card border border-dashed border-card-border bg-cream p-6 text-center">
+              <p className="text-2xl">📝</p>
+              <p className="mt-1 font-display font-bold text-brand-green">No reviews here yet</p>
+              <p className="mx-auto mt-1 max-w-md text-sm text-brand-green/60">
+                Be the first to share how it went — future volunteers are counting on you.
+              </p>
+            </div>
+            <p className="mt-2 text-center text-xs font-bold uppercase tracking-wide text-brand-green/40">
+              Example of a helpful review
             </p>
             <ReviewCard review={SAMPLE_REVIEW} isSample />
           </>

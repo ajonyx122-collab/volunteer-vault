@@ -37,6 +37,19 @@ h3,
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M2 14 Q 20 2, 38 12 T 74 12 T 110 12 T 146 12 T 182 12 T 198 12' stroke='%23E8983E' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
+/* Gentle bobbing for the little decorative emojis in the hero. Stagger the
+   delay per element with an inline animation-delay. Respects reduced motion. */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+  50% { transform: translateY(-12px) rotate(var(--tilt, 0deg)); }
+}
+.animate-floaty {
+  animation: floaty 6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-floaty { animation: none; }
+}
+
 /* Puffy "sticker" page-title treatment — cream fill so it reads as a
    die-cut shape against the cream page, thick green outline + offset
    shadow to give it depth. Used sparingly on a few page titles. */
