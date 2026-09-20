@@ -651,6 +651,7 @@ export function buildLeaderboards(rows, profiles) {
   const monthEntries = []
   const streakEntries = []
   const categoryTotals = {} // categoryId -> { userId -> hours }
+  const catMap = {} // userId -> { categoryId -> hours }, for the click-through popup
 
   Object.entries(byUser).forEach(([userId, logs]) => {
     const profile = byProfile[userId]
@@ -662,34 +663,45 @@ export function buildLeaderboards(rows, profiles) {
       .reduce((s, l) => s + Number(l.hours), 0)
     const streakWeeks = computeStreakWeeks(logs)
 
-    const base = {
-      userId,
-      username: profile.username,
-      displayName: profile.display_name,
-      school: profile.school,
-    }
-    if (allTimeHours > 0) allTimeEntries.push({ ...base, value: allTimeHours })
-    if (monthHours > 0) monthEntries.push({ ...base, value: monthHours })
-    if (streakWeeks > 0) streakEntries.push({ ...base, value: streakWeeks })
-
     verified.forEach((l) => {
       const cat = l.opportunities?.category
       if (!cat) return
       const totals = (categoryTotals[cat] ??= {})
       totals[userId] = (totals[userId] ?? 0) + Number(l.hours)
+      ;(catMap[userId] ??= {})[cat] = (catMap[userId][cat] ?? 0) + Number(l.hours)
     })
+
+    const base = {
+      userId,
+      username: profile.username,
+      displayName: profile.display_name,
+      school: profile.school,
+      categories: catMap[userId] ?? {},
+    }
+    if (allTimeHours > 0) allTimeEntries.push({ ...base, value: allTimeHours })
+    if (monthHours > 0) monthEntries.push({ ...base, value: monthHours })
+    if (streakWeeks > 0) streakEntries.push({ ...base, value: streakWeeks })
   })
 
   // TEMP: placeholder people so the board isn't empty pre-launch. Delete this
   // block and the import to go back to real users only (see leaderboardSeed.js).
   SEED_PEOPLE.forEach((p) => {
     byProfile[p.id] = { username: undefined, display_name: p.name, school: null }
-    const base = { userId: p.id, username: undefined, displayName: p.name, school: null }
+    catMap[p.id] = p.categories
+    const base = {
+      userId: p.id,
+      username: undefined,
+      displayName: p.name,
+      school: null,
+      categories: p.categories,
+    }
     if (p.allTime > 0) allTimeEntries.push({ ...base, value: p.allTime })
     if (p.month > 0) monthEntries.push({ ...base, value: p.month })
     if (p.streak > 0) streakEntries.push({ ...base, value: p.streak })
-    const totals = (categoryTotals[p.category] ??= {})
-    totals[p.id] = (totals[p.id] ?? 0) + p.allTime
+    Object.entries(p.categories).forEach(([cat, hrs]) => {
+      const totals = (categoryTotals[cat] ??= {})
+      totals[p.id] = (totals[p.id] ?? 0) + hrs
+    })
   })
 
   const byCategory = Object.fromEntries(
@@ -703,6 +715,7 @@ export function buildLeaderboards(rows, profiles) {
             username: profile?.username,
             displayName: profile?.display_name,
             school: profile?.school,
+            categories: catMap[userId] ?? {},
             value,
           }
         }),

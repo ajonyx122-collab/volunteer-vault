@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { fetchOpportunitiesServer } from '../../lib/api.server'
-import { buildCauseDirectory, buildLocationDirectory } from '../../lib/opportunityFilters'
+import { buildCauseDirectory, buildLocationDirectory, isRemote } from '../../lib/opportunityFilters'
 import { breadcrumbJsonLd } from '../../lib/jsonLd'
 import { CATEGORY_STYLES } from '../../components/categoryStyles'
 import Breadcrumb from '../../components/Breadcrumb'
+import StateExplorer from '../../components/StateExplorer'
 
 export const revalidate = 300
 
@@ -35,12 +36,13 @@ const STATE_NAMES = {
 function groupCitiesByState(cities) {
   const byState = new Map()
   for (const c of cities) {
-    if (!byState.has(c.state)) byState.set(c.state, { state: c.state, total: 0, cities: [] })
+    if (!byState.has(c.state))
+      byState.set(c.state, { state: c.state, label: STATE_NAMES[c.state] ?? c.state, total: 0, cities: [] })
     const g = byState.get(c.state)
     g.cities.push(c)
     g.total += c.count
   }
-  return [...byState.values()].sort((a, b) => b.total - a.total || a.state.localeCompare(b.state))
+  return [...byState.values()].sort((a, b) => b.total - a.total || a.label.localeCompare(b.label))
 }
 
 export default async function VolunteerHubPage() {
@@ -48,6 +50,7 @@ export default async function VolunteerHubPage() {
   const causes = buildCauseDirectory(opps)
   const cities = buildLocationDirectory(opps)
   const stateGroups = groupCitiesByState(cities)
+  const onlineCount = opps.filter(isRemote).length
 
   const trail = [
     { name: 'Home', href: '/' },
@@ -103,32 +106,14 @@ export default async function VolunteerHubPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="font-display text-xl font-extrabold text-brand-green">Browse by city</h2>
-        {cities.length === 0 ? (
+        <h2 className="font-display text-xl font-extrabold text-brand-green">Browse by state</h2>
+        <p className="mt-1 text-sm text-brand-green/60">
+          Pick your state to see its cities — or volunteer online from anywhere.
+        </p>
+        {stateGroups.length === 0 && onlineCount === 0 ? (
           <p className="mt-4 text-brand-green/60">No local listings yet — check back soon.</p>
         ) : (
-          <div className="mt-4 flex flex-col gap-6">
-            {stateGroups.map((g) => (
-              <div key={g.state}>
-                <h3 className="text-sm font-extrabold uppercase tracking-wide text-brand-green/50">
-                  {STATE_NAMES[g.state] ?? g.state}
-                  <span className="ml-2 font-bold text-brand-green/30">{g.total}</span>
-                </h3>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {g.cities.map((c) => (
-                    <Link
-                      key={c.slug}
-                      href={`/volunteer/${c.slug}`}
-                      className="rounded-pill border border-card-border bg-card px-4 py-2 text-sm font-bold text-brand-green shadow-card transition-transform hover:scale-105"
-                    >
-                      📍 {c.city}{' '}
-                      <span className="font-semibold text-brand-green/40">· {c.count}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <StateExplorer groups={stateGroups} onlineCount={onlineCount} />
         )}
       </section>
     </div>
