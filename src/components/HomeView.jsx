@@ -15,6 +15,7 @@ import ChallengeBanner from './ChallengeBanner'
 import CountUp from './CountUp'
 import Reveal from './Reveal'
 import SurpriseMe from './SurpriseMe'
+import Mascot from './Mascot'
 
 const MEDALS = ['🥇', '🥈', '🥉']
 
@@ -91,6 +92,8 @@ export default function HomeView({ opportunities, topVolunteers }) {
           <span className="animate-floaty absolute left-[46%] top-[8%] text-2xl opacity-50" style={{ '--tilt': '6deg', animationDelay: '1.2s' }}>⭐</span>
           <span className="animate-floaty absolute right-[30%] bottom-[10%] text-2xl opacity-50" style={{ '--tilt': '-6deg', animationDelay: '3s' }}>📚</span>
         </div>
+
+        <Mascot />
 
         <div className="relative mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-24">
           <span className="inline-flex items-center gap-1.5 rounded-pill bg-cream-text/10 px-4 py-1.5 text-sm font-bold text-cream-text ring-1 ring-cream-text/20">

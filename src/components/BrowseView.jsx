@@ -11,6 +11,7 @@ import { computeChallengeProgress } from '../lib/challenges'
 import { useAuth } from '../lib/AuthContext'
 import { isRemote, minAgeOf, stateOf, cityOf, commitmentOf } from '../lib/opportunityFilters'
 import { zipToPlace, looksLikeZip } from '../data/zipMetros'
+import { useSavedIds } from '../lib/saved'
 import OpportunityCard from './OpportunityCard'
 import SuggestOpportunity from './SuggestOpportunity'
 import ChallengeBanner from './ChallengeBanner'
@@ -20,6 +21,7 @@ import ChallengeBanner from './ChallengeBanner'
 const MapPreview = dynamic(() => import('./MapPreview'), { ssr: false })
 
 const TOGGLES = [
+  { id: 'saved', label: '❤️ Saved' },
   { id: 'remote', label: '🌐 Remote only' },
   { id: 'highSchool', label: '🎒 High-school friendly' },
   { id: 'serviceHours', label: '✓ Counts for service hours' },
@@ -59,6 +61,7 @@ export default function BrowseView({ initialOpportunities }) {
   const [streakWeeks, setStreakWeeks] = useState(0)
   const [challengeProgress, setChallengeProgress] = useState(null)
   const activeChallenge = getActiveChallenge()
+  const savedIds = useSavedIds()
 
   useEffect(() => {
     if (!user) return
@@ -107,7 +110,9 @@ export default function BrowseView({ initialOpportunities }) {
     const q = query.toLowerCase()
     const ageNum = age ? Number(age) : null
     const cityNeedle = !locIsZip ? trimmedLoc.toLowerCase() : ''
+    const savedSet = new Set(savedIds)
     return opportunities.filter((o) => {
+      if (toggles.includes('saved') && !savedSet.has(o.id)) return false
       if (activeCategory && o.category !== activeCategory) return false
       if (
         q &&
@@ -140,7 +145,7 @@ export default function BrowseView({ initialOpportunities }) {
       }
       return true
     })
-  }, [opportunities, activeCategory, query, toggles, stateFilter, trimmedLoc, locIsZip, zipPlace, commitment, age])
+  }, [opportunities, activeCategory, query, toggles, stateFilter, trimmedLoc, locIsZip, zipPlace, commitment, age, savedIds])
 
   const anyFilter = toggles.length || stateFilter || cityZip || commitment || age || activeCategory
 
@@ -166,7 +171,9 @@ export default function BrowseView({ initialOpportunities }) {
           </p>
           {filtered.length === 0 && (
             <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
-              Nothing matches yet — try clearing a filter.
+              {toggles.includes('saved') && savedIds.length === 0
+                ? 'No saved opportunities yet — tap the 🤍 on any card to save it for later.'
+                : 'Nothing matches yet — try clearing a filter.'}
             </p>
           )}
           {filtered.map((opp) => (
@@ -206,7 +213,7 @@ export default function BrowseView({ initialOpportunities }) {
                       : 'bg-cream text-brand-green/70 border border-card-border'
                   }`}
                 >
-                  {f.label}
+                  {f.id === 'saved' && savedIds.length ? `❤️ Saved (${savedIds.length})` : f.label}
                 </button>
               ))}
             </div>

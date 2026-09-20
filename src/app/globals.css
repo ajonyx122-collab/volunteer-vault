@@ -75,8 +75,21 @@ h3,
 }
 .hover-wiggle:hover { animation: wiggle 0.4s ease-in-out; }
 
+/* Mascot: a waving hand and an occasional blink. */
+@keyframes mascot-wave {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(22deg); }
+}
+.mascot-hand { transform-origin: 50% 90%; animation: mascot-wave 1.1s ease-in-out infinite; }
+@keyframes mascot-blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+.mascot-eyes { transform-origin: center; animation: mascot-blink 4.5s infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-floaty, .animate-blob, .hover-wiggle:hover { animation: none; }
+  .animate-floaty, .animate-blob, .hover-wiggle:hover,
+  .mascot-hand, .mascot-eyes { animation: none; }
   .squiggle-draw path { stroke-dashoffset: 0; animation: none; }
 }
 

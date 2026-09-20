@@ -20,8 +20,10 @@ import OrgAvatar from './OrgAvatar'
 import Breadcrumb from './Breadcrumb'
 import ReviewsSection from './ReviewsSection'
 import LogHoursModal from './LogHoursModal'
+import SaveButton from './SaveButton'
 import { todayStr } from '../lib/hourLogs'
 import { fireConfetti } from '../lib/confetti'
+import { playAchievement } from '../lib/sound'
 
 function isVerified(servedOn) {
   return !!servedOn && servedOn <= todayStr()
@@ -80,6 +82,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
     setLogModal(null)
     if (isNew) {
       fireConfetti()
+      playAchievement()
       setCelebrate(
         isVerified(saved.servedOn)
           ? `Boom! ${saved.hours} hrs added to your vault. 🎉`
@@ -115,7 +118,8 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
         await rsvp(user.id, id)
         setJoined(true)
         setOpportunity((o) => ({ ...o, spotsFilled: o.spotsFilled + 1 }))
-        fireConfetti({ count: 90 })
+        fireConfetti({ count: 160 })
+        playAchievement()
       }
     } catch (err) {
       // e.g. two people raced for the last spot, or a double-click raced the
@@ -191,6 +195,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-3xl">{category?.icon}</span>
             <h1 className="font-display text-3xl font-extrabold text-brand-green">{opportunity.title}</h1>
+            <SaveButton id={opportunity.id} className="ml-auto" />
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">

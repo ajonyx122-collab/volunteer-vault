@@ -3,6 +3,7 @@ import { getCategoryMeta } from '../data/mockData'
 import { opportunityPath } from '../lib/opportunityUrls'
 import VerifiedBadge from './VerifiedBadge'
 import OrgAvatar from './OrgAvatar'
+import SaveButton from './SaveButton'
 
 function formatWhen(startsAt) {
   const date = new Date(startsAt)
@@ -101,14 +102,17 @@ export default function OpportunityCard({ opportunity, org, bold = false }) {
         </div>
       </div>
 
-      <Link
-        href={href}
-        className={`shrink-0 rounded-pill bg-coral px-5 py-2 text-center text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none ${
-          bold ? 'border-2 border-brand-green' : ''
-        }`}
-      >
-        {isExternal ? 'See details' : 'Count me in'}
-      </Link>
+      <div className="flex shrink-0 items-center gap-2 self-start sm:self-center">
+        <SaveButton id={opportunity.id} />
+        <Link
+          href={href}
+          className={`rounded-pill bg-coral px-5 py-2 text-center text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none ${
+            bold ? 'border-2 border-brand-green' : ''
+          }`}
+        >
+          {isExternal ? 'See details' : 'Count me in'}
+        </Link>
+      </div>
     </div>
   )
 }
