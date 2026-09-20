@@ -42,7 +42,7 @@ function groupCitiesByState(cities) {
     g.cities.push(c)
     g.total += c.count
   }
-  return [...byState.values()].sort((a, b) => b.total - a.total || a.label.localeCompare(b.label))
+  return [...byState.values()].sort((a, b) => a.label.localeCompare(b.label))
 }
 
 export default async function VolunteerHubPage() {
