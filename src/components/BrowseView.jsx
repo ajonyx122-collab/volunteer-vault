@@ -9,7 +9,8 @@ import { fetchMyStreak, fetchHourLogs } from '../lib/api'
 import { getActiveChallenge } from '../data/challenges'
 import { computeChallengeProgress } from '../lib/challenges'
 import { useAuth } from '../lib/AuthContext'
-import { isRemote, minAgeOf, stateOf, cityOf, zipOf, commitmentOf } from '../lib/opportunityFilters'
+import { isRemote, minAgeOf, stateOf, cityOf, commitmentOf } from '../lib/opportunityFilters'
+import { zipToPlace, looksLikeZip } from '../data/zipMetros'
 import OpportunityCard from './OpportunityCard'
 import SuggestOpportunity from './SuggestOpportunity'
 import ChallengeBanner from './ChallengeBanner'
@@ -89,9 +90,19 @@ export default function BrowseView({ initialOpportunities }) {
     }
   }
 
+  // Resolve the location box once per render: a ZIP maps to a metro (see
+  // zipMetros), plain text stays a city-name search. An unrecognized ZIP
+  // resolves to nothing, and we surface a hint instead of silently emptying
+  // the list.
+  const trimmedLoc = cityZip.trim()
+  const locIsZip = looksLikeZip(trimmedLoc)
+  const zipPlace = locIsZip ? zipToPlace(trimmedLoc) : null
+  const zipUnresolved = locIsZip && !zipPlace
+
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
     const ageNum = age ? Number(age) : null
+    const cityNeedle = !locIsZip ? trimmedLoc.toLowerCase() : ''
     return opportunities.filter((o) => {
       if (activeCategory && o.category !== activeCategory) return false
       if (
@@ -110,15 +121,22 @@ export default function BrowseView({ initialOpportunities }) {
       if (commitment && commitmentOf(o) !== commitment && commitmentOf(o) !== 'both') return false
       // remote listings are joinable from any state, so they always pass
       if (stateFilter && !isRemote(o) && stateOf(o) !== stateFilter) return false
-      if (cityZip.trim() && !isRemote(o)) {
-        const needle = cityZip.trim().toLowerCase()
-        const cityMatch = cityOf(o).toLowerCase().includes(needle)
-        const zipMatch = zipOf(o).toLowerCase().startsWith(needle)
-        if (!cityMatch && !zipMatch) return false
+      // Location: remote listings are joinable anywhere, so they always pass.
+      if (trimmedLoc && !isRemote(o)) {
+        if (zipPlace) {
+          if (
+            cityOf(o).toLowerCase() !== zipPlace.city.toLowerCase() ||
+            stateOf(o).toLowerCase() !== zipPlace.state.toLowerCase()
+          )
+            return false
+        } else if (cityNeedle) {
+          if (!cityOf(o).toLowerCase().includes(cityNeedle)) return false
+        }
+        // An unrecognized ZIP applies no location filter (see the hint below).
       }
       return true
     })
-  }, [opportunities, activeCategory, query, toggles, stateFilter, cityZip, commitment, age])
+  }, [opportunities, activeCategory, query, toggles, stateFilter, trimmedLoc, locIsZip, zipPlace, commitment, age])
 
   const anyFilter = toggles.length || stateFilter || cityZip || commitment || age || activeCategory
 
@@ -222,11 +240,21 @@ export default function BrowseView({ initialOpportunities }) {
                 City or ZIP
                 <input
                   type="text"
-                  placeholder="e.g. Atlanta"
+                  placeholder="e.g. Atlanta or 30303"
                   value={cityZip}
                   onChange={(e) => setCityZip(e.target.value)}
-                  className="w-28 rounded-pill border border-card-border bg-cream px-3 py-1.5 text-xs text-brand-green outline-none"
+                  className="w-32 rounded-pill border border-card-border bg-cream px-3 py-1.5 text-xs text-brand-green outline-none"
                 />
+                {zipPlace && (
+                  <span className="font-semibold text-brand-green/50">
+                    📍 {zipPlace.city}, {zipPlace.state}
+                  </span>
+                )}
+                {zipUnresolved && (
+                  <span className="font-semibold text-coral">
+                    ZIP not recognized — try a city name
+                  </span>
+                )}
               </label>
               <div className="flex flex-col gap-1 text-xs font-semibold text-brand-green/60">
                 Commitment

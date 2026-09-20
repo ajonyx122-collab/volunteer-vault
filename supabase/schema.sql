@@ -212,6 +212,10 @@ create policy "hour logs are public" on public.hour_logs for select using (true)
 
 create policy "reviews are public" on public.reviews for select using (true);
 create policy "review as self" on public.reviews for insert with check (auth.uid() = user_id);
+-- Authors can edit and delete their own reviews (migration 045).
+create policy "update own review" on public.reviews
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "delete own review" on public.reviews for delete using (auth.uid() = user_id);
 
 alter table public.reports enable row level security;
 create policy "logged-in users can report" on public.reports

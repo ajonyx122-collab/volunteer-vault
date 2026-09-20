@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { fetchReviews, addReview } from '../lib/api'
+import { fetchReviews, addReview, updateReview, deleteReview } from '../lib/api'
 import { useAuth } from '../lib/AuthContext'
 
 const RATING_LABELS = [
@@ -41,7 +41,7 @@ const SAMPLE_REVIEW = {
   photos: [],
 }
 
-function ReviewCard({ review, isSample }) {
+function ReviewCard({ review, isSample, canManage, onEdit, onDelete }) {
   return (
     <div
       className={`rounded-card border p-4 shadow-card ${
@@ -54,6 +54,11 @@ function ReviewCard({ review, isSample }) {
           {isSample && (
             <span className="rounded-pill bg-card-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-green/50">
               Example
+            </span>
+          )}
+          {canManage && (
+            <span className="rounded-pill bg-category-environment-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-category-environment-text">
+              Your review
             </span>
           )}
         </div>
@@ -80,6 +85,17 @@ function ReviewCard({ review, isSample }) {
           ))}
         </div>
       )}
+
+      {canManage && (
+        <div className="mt-3 flex gap-4 border-t border-card-border pt-3 text-xs font-bold">
+          <button onClick={onEdit} className="text-brand-green hover:underline">
+            Edit
+          </button>
+          <button onClick={onDelete} className="text-coral hover:underline">
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -95,6 +111,35 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
   const [tip, setTip] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+
+  function resetForm() {
+    setRatings({ organized: 0, welcoming: 0, impactful: 0 })
+    setQuote('')
+    setTip('')
+    setEditingId(null)
+    setError('')
+  }
+
+  function startEdit(review) {
+    setEditingId(review.id)
+    setRatings({ ...review.ratings })
+    setQuote(review.quote)
+    setTip(review.tip ?? '')
+    setError('')
+    setShowForm(true)
+  }
+
+  async function handleDelete(review) {
+    if (!window.confirm('Delete your review? This cannot be undone.')) return
+    try {
+      await deleteReview(review.id)
+      setReviews((prev) => prev.filter((r) => r.id !== review.id))
+      if (editingId === review.id) resetForm()
+    } catch (err) {
+      setError(err.message ?? 'Could not delete — try again.')
+    }
+  }
 
   useEffect(() => {
     fetchReviews(opportunityId).then(setReviews).catch(() => setReviews([]))
@@ -119,18 +164,21 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
     setBusy(true)
     setError('')
     try {
-      const saved = await addReview({
-        opportunityId,
-        userId: user.id,
-        reviewerName: profile?.display_name ?? 'Volunteer',
-        ratings,
-        quote,
-        tip,
-      })
-      setReviews((prev) => [saved, ...prev])
-      setRatings({ organized: 0, welcoming: 0, impactful: 0 })
-      setQuote('')
-      setTip('')
+      if (editingId) {
+        const saved = await updateReview(editingId, { ratings, quote, tip })
+        setReviews((prev) => prev.map((r) => (r.id === editingId ? saved : r)))
+      } else {
+        const saved = await addReview({
+          opportunityId,
+          userId: user.id,
+          reviewerName: profile?.display_name ?? 'Volunteer',
+          ratings,
+          quote,
+          tip,
+        })
+        setReviews((prev) => [saved, ...prev])
+      }
+      resetForm()
       setShowForm(false)
     } catch (err) {
       setError(err.message ?? 'Something went wrong — try again.')
@@ -152,7 +200,10 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
         </div>
         {user ? (
           <button
-            onClick={() => setShowForm((v) => !v)}
+            onClick={() => {
+              if (showForm) resetForm()
+              setShowForm((v) => !v)
+            }}
             className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
           >
             {showForm ? 'Cancel' : 'Leave a review'}
@@ -218,7 +269,7 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
             disabled={busy}
             className="mt-1 self-start rounded-pill bg-brand-green px-6 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none disabled:opacity-60"
           >
-            {busy ? 'Posting...' : 'Post review'}
+            {busy ? 'Saving...' : editingId ? 'Save changes' : 'Post review'}
           </button>
           <p className="text-xs text-brand-green/50">
             Photo uploads are coming soon — reviews save for real starting today.
@@ -237,7 +288,13 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
           </>
         )}
         {reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
+          <ReviewCard
+            key={review.id}
+            review={review}
+            canManage={!!user && review.userId === user.id}
+            onEdit={() => startEdit(review)}
+            onDelete={() => handleDelete(review)}
+          />
         ))}
       </div>
     </section>

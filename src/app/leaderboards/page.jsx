@@ -29,7 +29,6 @@ export default function Leaderboards() {
   const [data, setData] = useState(null)
   const [tab, setTab] = useState('allTime')
   const [category, setCategory] = useState(CATEGORIES[0].id)
-  const [mySchoolOnly, setMySchoolOnly] = useState(false)
 
   useEffect(() => {
     fetchLeaderboardData()
@@ -37,15 +36,11 @@ export default function Leaderboards() {
       .catch(() => setData({ allTime: [], thisMonth: [], streak: [], byCategory: {} }))
   }, [])
 
-  const fullList = useMemo(() => {
+  const list = useMemo(() => {
     if (!data) return []
     return tab === 'byCause' ? (data.byCategory[category] ?? []) : data[tab]
   }, [data, tab, category])
-
-  const list = useMemo(() => {
-    if (!mySchoolOnly || !profile?.school) return fullList
-    return fullList.filter((e) => e.school === profile.school)
-  }, [fullList, mySchoolOnly, profile])
+  const fullList = list
 
   const activeTab = TABS.find((t) => t.id === tab)
   const myEntry = profile ? fullList.find((e) => e.userId === profile.id) : null
@@ -60,7 +55,7 @@ export default function Leaderboards() {
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       <h1 className="text-sticker font-display text-4xl font-extrabold">Leaderboards</h1>
       <p className="mt-2 text-brand-green/70">
-        Real people, real hours, real bragging rights. See who's crushing it.
+        See who's racking up the most service hours. Log yours to climb the board.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -97,17 +92,6 @@ export default function Leaderboards() {
         </div>
       )}
 
-      {profile?.school && (
-        <label className="mt-4 flex items-center gap-2 text-sm font-semibold text-brand-green/70">
-          <input
-            type="checkbox"
-            checked={mySchoolOnly}
-            onChange={(e) => setMySchoolOnly(e.target.checked)}
-          />
-          Show only {profile.school}
-        </label>
-      )}
-
       <div className="mt-6 flex flex-col gap-2">
         {visible.length === 0 && (
           <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
@@ -134,7 +118,6 @@ export default function Leaderboards() {
                 {e.displayName}
                 {e.username && <span className="ml-1 font-normal text-brand-green/50">@{e.username}</span>}
               </p>
-              {e.school && <p className="truncate text-xs text-brand-green/50">{e.school}</p>}
             </div>
             <p className="shrink-0 font-display font-extrabold text-brand-green">
               {e.value}

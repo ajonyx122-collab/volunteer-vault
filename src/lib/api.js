@@ -6,6 +6,7 @@ import { computeChallengeProgress } from './challenges'
 import { mapOrg, mapOpportunity, mapReview, OPP_SELECT } from './opportunityMapping'
 import { opportunityPath } from './opportunityUrls'
 import { filterActiveOpportunities } from './opportunityFilters'
+import { SEED_PEOPLE } from '../data/leaderboardSeed' // TEMP placeholder leaderboard people
 
 export { computeStreakWeeks }
 
@@ -68,6 +69,30 @@ export async function addReview({ opportunityId, userId, reviewerName, ratings, 
     .single()
   if (error) throw error
   return mapReview(data)
+}
+
+// Edit your own review. RLS ("update own review") restricts this to rows
+// where auth.uid() = user_id, so passing someone else's id changes nothing.
+export async function updateReview(reviewId, { ratings, quote, tip }) {
+  const { data, error } = await supabase
+    .from('reviews')
+    .update({
+      rating_organized: ratings.organized,
+      rating_welcoming: ratings.welcoming,
+      rating_impactful: ratings.impactful,
+      quote,
+      tip,
+    })
+    .eq('id', reviewId)
+    .select()
+    .single()
+  if (error) throw error
+  return mapReview(data)
+}
+
+export async function deleteReview(reviewId) {
+  const { error } = await supabase.from('reviews').delete().eq('id', reviewId)
+  if (error) throw error
 }
 
 export async function fetchMySignup(userId, opportunityId) {
@@ -653,6 +678,18 @@ export function buildLeaderboards(rows, profiles) {
       const totals = (categoryTotals[cat] ??= {})
       totals[userId] = (totals[userId] ?? 0) + Number(l.hours)
     })
+  })
+
+  // TEMP: placeholder people so the board isn't empty pre-launch. Delete this
+  // block and the import to go back to real users only (see leaderboardSeed.js).
+  SEED_PEOPLE.forEach((p) => {
+    byProfile[p.id] = { username: undefined, display_name: p.name, school: null }
+    const base = { userId: p.id, username: undefined, displayName: p.name, school: null }
+    if (p.allTime > 0) allTimeEntries.push({ ...base, value: p.allTime })
+    if (p.month > 0) monthEntries.push({ ...base, value: p.month })
+    if (p.streak > 0) streakEntries.push({ ...base, value: p.streak })
+    const totals = (categoryTotals[p.category] ??= {})
+    totals[p.id] = (totals[p.id] ?? 0) + p.allTime
   })
 
   const byCategory = Object.fromEntries(

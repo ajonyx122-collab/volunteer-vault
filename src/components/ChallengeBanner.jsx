@@ -4,6 +4,10 @@
 export default function ChallengeBanner({ challenge, progress, compact = false }) {
   if (!challenge) return null
 
+  const hoursSoFar = progress?.hoursSoFar ?? 0
+  const collectibles = challenge.collectibles ?? []
+  const collectedCount = collectibles.filter((c) => hoursSoFar >= c.at).length
+
   return (
     <div className={`rounded-card border border-card-border bg-card shadow-card ${compact ? 'p-4' : 'p-5'}`}>
       <div className="flex items-center gap-3">
@@ -35,8 +39,55 @@ export default function ChallengeBanner({ challenge, progress, compact = false }
         </>
       ) : (
         <p className="mt-3 text-xs font-semibold text-brand-green/60">
-          Join free and log hours to track your progress.
+          Join free and log hours to start your collection.
         </p>
+      )}
+
+      {collectibles.length > 0 && (
+        <div className="mt-3 border-t border-card-border pt-3">
+          {!compact && (
+            <p className="mb-2 text-xs font-bold text-brand-green/70">
+              Your collection{' '}
+              <span className="font-semibold text-brand-green/40">
+                · {collectedCount}/{collectibles.length}
+              </span>
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {collectibles.map((c) => {
+              const unlocked = hoursSoFar >= c.at
+              return (
+                <div
+                  key={c.at}
+                  title={unlocked ? `${c.name} — collected!` : `${c.name} — reach ${c.at} hrs to unlock`}
+                  className={`flex flex-col items-center rounded-card border px-2 py-1.5 transition-all ${
+                    unlocked
+                      ? 'border-gold bg-category-food-bg'
+                      : 'border-dashed border-card-border bg-cream'
+                  }`}
+                >
+                  <span
+                    className={`${compact ? 'text-lg' : 'text-2xl'} leading-none ${
+                      unlocked ? '' : 'opacity-30 grayscale'
+                    }`}
+                    aria-hidden
+                  >
+                    {c.emoji}
+                  </span>
+                  {!compact && (
+                    <span
+                      className={`mt-1 text-[10px] font-bold ${
+                        unlocked ? 'text-gold-text' : 'text-brand-green/40'
+                      }`}
+                    >
+                      {unlocked ? c.name : `${c.at} hr`}
+                    </span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
       )}
     </div>
   )

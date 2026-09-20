@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CATEGORIES } from '../data/mockData'
@@ -38,7 +38,20 @@ export default function HomeView({ opportunities, topVolunteers }) {
       .catch(() => setChallengeProgress(null))
   }, [user, activeChallenge])
 
-  const featured = opportunities.filter((o) => o.org?.featured).slice(0, 4)
+  // Featured rotates daily so the homepage doesn't show the same four orgs
+  // forever. The pool is every featured org (stable order by id); we advance a
+  // window of four through it based on the day number, wrapping around. The
+  // day number is derived from the date only, so the server HTML and the
+  // client hydration compute the same set (no mismatch).
+  const featured = useMemo(() => {
+    const pool = opportunities
+      .filter((o) => o.org?.featured)
+      .sort((a, b) => a.orgId.localeCompare(b.orgId))
+    if (pool.length <= 4) return pool
+    const day = Math.floor(Date.now() / (24 * 3600 * 1000))
+    const offset = day % pool.length
+    return [...pool.slice(offset), ...pool.slice(0, offset)].slice(0, 4)
+  }, [opportunities])
   const highSchool = opportunities.filter((o) => minAgeOf(o) <= 14).slice(0, 4)
   const remote = opportunities.filter(isRemote).slice(0, 4)
 
