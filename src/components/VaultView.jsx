@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getCategoryMeta } from '../data/mockData'
 import { downloadHoursCsv } from '../lib/csv'
+import { fireConfetti } from '../lib/confetti'
+import { playAchievement } from '../lib/sound'
 import { CATEGORY_STYLES } from './categoryStyles'
 import ChallengeBanner from './ChallengeBanner'
 import HoursHeatmap from './HoursHeatmap'
@@ -36,6 +38,42 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
   const [copied, setCopied] = useState(false)
   const totalCauseHours = user.causes.reduce((sum, c) => sum + c.hours, 0)
   const vaultUrl = `www.volunteervault.org/u/${user.username}`
+  const earnedBadges = user.badges.filter((b) => b.earned).length
+
+  // Celebrate a newly-earned badge/milestone (hours, streak, or cause) when the
+  // owner lands on their own vault. Same per-device baseline trick as the
+  // challenge collectibles: quietly set the baseline the first time, then pop
+  // confetti + a chime on any increase after that.
+  useEffect(() => {
+    if (!isOwner) return
+    const key = 'vv_celebrated_badges'
+    let prev = null
+    try {
+      const v = localStorage.getItem(key)
+      prev = v === null ? null : parseInt(v, 10) || 0
+    } catch {
+      prev = null
+    }
+    if (prev === null) {
+      try {
+        localStorage.setItem(key, String(earnedBadges))
+      } catch {
+        /* ignore */
+      }
+      return
+    }
+    if (earnedBadges > prev) {
+      fireConfetti()
+      playAchievement()
+    }
+    if (earnedBadges !== prev) {
+      try {
+        localStorage.setItem(key, String(earnedBadges))
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [isOwner, earnedBadges])
 
   async function handleCopyLink() {
     try {

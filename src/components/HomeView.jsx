@@ -84,21 +84,22 @@ export default function HomeView({ opportunities, topVolunteers }) {
           <div className="animate-blob absolute -bottom-10 right-1/4 h-64 w-64 rounded-full bg-category-animals-text/25 blur-3xl" style={{ animationDelay: '9s' }} />
         </div>
 
-        {/* Colourful, volunteering-themed floating badges (decorative) */}
-        <div className="pointer-events-none absolute inset-0 hidden select-none sm:block" aria-hidden>
+        {/* Volunteering-themed badges arranged as a tidy, symmetric frame down
+            each side — "scattered, but organized". Hidden on small screens. */}
+        <div className="pointer-events-none absolute inset-0 hidden select-none lg:block" aria-hidden>
           {[
-            { e: '🌳', bg: 'bg-category-environment-bg', pos: 'left-[4%] top-[16%]', d: '0s', t: '-10deg', s: 'text-2xl' },
-            { e: '🍲', bg: 'bg-category-food-bg', pos: 'right-[5%] top-[12%]', d: '0.7s', t: '9deg', s: 'text-2xl' },
-            { e: '🩺', bg: 'bg-category-medicine-bg', pos: 'left-[9%] top-[46%]', d: '1.4s', t: '7deg', s: 'text-xl' },
-            { e: '🐾', bg: 'bg-category-animals-bg', pos: 'right-[9%] top-[44%]', d: '2.1s', t: '-8deg', s: 'text-2xl' },
-            { e: '🎨', bg: 'bg-category-art-bg', pos: 'left-[7%] bottom-[14%]', d: '2.8s', t: '8deg', s: 'text-xl' },
-            { e: '♻️', bg: 'bg-category-environment-bg', pos: 'right-[13%] bottom-[24%]', d: '3.5s', t: '-6deg', s: 'text-xl' },
-            { e: '📚', bg: 'bg-category-community-bg', pos: 'left-[42%] top-[6%]', d: '1.1s', t: '6deg', s: 'text-lg' },
-            { e: '❤️', bg: 'bg-category-music-bg', pos: 'right-[34%] top-[9%]', d: '1.9s', t: '-6deg', s: 'text-lg' },
+            // left column, evenly spaced
+            { e: '🌳', bg: 'bg-category-environment-bg', pos: 'left-[5%] top-[20%]', d: '0s', t: '-8deg' },
+            { e: '🩺', bg: 'bg-category-medicine-bg', pos: 'left-[5%] top-[48%]', d: '1s', t: '6deg' },
+            { e: '🎨', bg: 'bg-category-art-bg', pos: 'left-[5%] top-[76%]', d: '2s', t: '8deg' },
+            // right column, mirrored
+            { e: '🍲', bg: 'bg-category-food-bg', pos: 'right-[5%] top-[20%]', d: '0.5s', t: '8deg' },
+            { e: '🐾', bg: 'bg-category-animals-bg', pos: 'right-[5%] top-[48%]', d: '1.5s', t: '-6deg' },
+            { e: '🤝', bg: 'bg-category-community-bg', pos: 'right-[5%] top-[76%]', d: '2.5s', t: '-8deg' },
           ].map((b, i) => (
             <span
               key={i}
-              className={`animate-floaty absolute flex h-12 w-12 items-center justify-center rounded-full shadow-pop ${b.bg} ${b.pos} ${b.s}`}
+              className={`animate-floaty absolute flex h-12 w-12 items-center justify-center rounded-full text-xl shadow-pop ${b.bg} ${b.pos}`}
               style={{ '--tilt': b.t, animationDelay: b.d }}
             >
               {b.e}
