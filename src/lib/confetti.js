@@ -1,10 +1,12 @@
-// Dependency-free confetti that fills the whole screen: a shower raining down
-// from across the top plus two "cannons" firing up from the bottom corners.
-// Draws a one-off full-screen canvas, animates with gravity, fades out, then
-// removes itself. Honors reduced-motion (no-op) and is a no-op on the server.
-export function fireConfetti({ count = 240 } = {}) {
+// Dependency-free confetti that fills the whole screen: a heavy shower raining
+// down from across the top plus two "cannons" firing up from the bottom
+// corners. Draws a one-off full-screen canvas, animates with gravity, fades
+// out, then removes itself. This fires only from an explicit celebration the
+// person triggered (logging hours, RSVP, a milestone), so it intentionally
+// shows even when "reduce motion" is on — it's a brief reward, not ambient
+// motion. No-op on the server.
+export function fireConfetti({ count = 320 } = {}) {
   if (typeof window === 'undefined' || typeof document === 'undefined') return
-  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
 
   const canvas = document.createElement('canvas')
   canvas.style.cssText =
@@ -19,7 +21,7 @@ export function fireConfetti({ count = 240 } = {}) {
   ctx.scale(dpr, dpr)
 
   const colors = ['#E8983E', '#D85A30', '#1B5E38', '#F5C542', '#7FB77E', '#FFF7E8', '#94305C']
-  const duration = 3400
+  const duration = 4200
   const parts = []
 
   const make = (x, y, vx, vy) => ({
@@ -35,20 +37,23 @@ export function fireConfetti({ count = 240 } = {}) {
     sway: Math.random() * Math.PI * 2,
   })
 
-  // Shower across the full width, starting above the top edge so it rains in.
-  const rain = Math.round(count * 0.6)
+  // Heavy shower across the full width, starting above the top edge so it
+  // rains down over the whole screen.
+  const rain = Math.round(count * 0.72)
   for (let i = 0; i < rain; i++) {
     parts.push(
       make(
         Math.random() * W,
-        -20 - Math.random() * H * 0.6,
+        // Spread from well above the top to ~35% down the screen, so a burst is
+        // visible the instant it fires and then rains down the whole screen.
+        Math.random() * (H * 1.45) - H * 1.1,
         (Math.random() - 0.5) * 2.5,
         2 + Math.random() * 4,
       ),
     )
   }
   // Two bottom-corner cannons firing up and inward to fill the sides.
-  const cannon = Math.round(count * 0.2)
+  const cannon = Math.round(count * 0.14)
   const fire = (originX, dir) => {
     for (let i = 0; i < cannon; i++) {
       const angle = -Math.PI / 2 + dir * (0.15 + Math.random() * 0.5)
