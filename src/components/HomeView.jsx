@@ -75,22 +75,35 @@ export default function HomeView({ opportunities, topVolunteers }) {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-brand-green">
-        {/* Slow-drifting colour blobs for depth */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#1B6E42] via-brand-green to-[#14432b]">
+        {/* Colourful drifting blobs for depth */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-          <div className="animate-blob absolute -left-24 -top-24 h-72 w-72 rounded-full bg-gold/20 blur-3xl" />
-          <div className="animate-blob absolute -right-10 top-6 h-80 w-80 rounded-full bg-coral/20 blur-3xl" style={{ animationDelay: '3s' }} />
-          <div className="animate-blob absolute -bottom-16 left-1/3 h-72 w-72 rounded-full bg-brand-green-light/40 blur-3xl" style={{ animationDelay: '6s' }} />
+          <div className="animate-blob absolute -left-24 -top-24 h-72 w-72 rounded-full bg-gold/30 blur-3xl" />
+          <div className="animate-blob absolute -right-10 top-6 h-80 w-80 rounded-full bg-coral/30 blur-3xl" style={{ animationDelay: '3s' }} />
+          <div className="animate-blob absolute -bottom-16 left-1/4 h-72 w-72 rounded-full bg-category-music-text/25 blur-3xl" style={{ animationDelay: '6s' }} />
+          <div className="animate-blob absolute -bottom-10 right-1/4 h-64 w-64 rounded-full bg-category-animals-text/25 blur-3xl" style={{ animationDelay: '9s' }} />
         </div>
 
-        {/* Cute floating decorations — purely decorative, hidden on small screens */}
+        {/* Colourful, volunteering-themed floating badges (decorative) */}
         <div className="pointer-events-none absolute inset-0 hidden select-none sm:block" aria-hidden>
-          <span className="animate-floaty absolute left-[6%] top-[18%] text-4xl opacity-70" style={{ '--tilt': '-12deg', animationDelay: '0s' }}>🌱</span>
-          <span className="animate-floaty absolute right-[8%] top-[14%] text-4xl opacity-70" style={{ '--tilt': '10deg', animationDelay: '0.8s' }}>🐾</span>
-          <span className="animate-floaty absolute left-[12%] bottom-[16%] text-3xl opacity-60" style={{ '--tilt': '8deg', animationDelay: '1.6s' }}>🎨</span>
-          <span className="animate-floaty absolute right-[12%] bottom-[20%] text-4xl opacity-70" style={{ '--tilt': '-10deg', animationDelay: '2.4s' }}>🤝</span>
-          <span className="animate-floaty absolute left-[46%] top-[8%] text-2xl opacity-50" style={{ '--tilt': '6deg', animationDelay: '1.2s' }}>⭐</span>
-          <span className="animate-floaty absolute right-[30%] bottom-[10%] text-2xl opacity-50" style={{ '--tilt': '-6deg', animationDelay: '3s' }}>📚</span>
+          {[
+            { e: '🌳', bg: 'bg-category-environment-bg', pos: 'left-[4%] top-[16%]', d: '0s', t: '-10deg', s: 'text-2xl' },
+            { e: '🍲', bg: 'bg-category-food-bg', pos: 'right-[5%] top-[12%]', d: '0.7s', t: '9deg', s: 'text-2xl' },
+            { e: '🩺', bg: 'bg-category-medicine-bg', pos: 'left-[9%] top-[46%]', d: '1.4s', t: '7deg', s: 'text-xl' },
+            { e: '🐾', bg: 'bg-category-animals-bg', pos: 'right-[9%] top-[44%]', d: '2.1s', t: '-8deg', s: 'text-2xl' },
+            { e: '🎨', bg: 'bg-category-art-bg', pos: 'left-[7%] bottom-[14%]', d: '2.8s', t: '8deg', s: 'text-xl' },
+            { e: '♻️', bg: 'bg-category-environment-bg', pos: 'right-[13%] bottom-[24%]', d: '3.5s', t: '-6deg', s: 'text-xl' },
+            { e: '📚', bg: 'bg-category-community-bg', pos: 'left-[42%] top-[6%]', d: '1.1s', t: '6deg', s: 'text-lg' },
+            { e: '❤️', bg: 'bg-category-music-bg', pos: 'right-[34%] top-[9%]', d: '1.9s', t: '-6deg', s: 'text-lg' },
+          ].map((b, i) => (
+            <span
+              key={i}
+              className={`animate-floaty absolute flex h-12 w-12 items-center justify-center rounded-full shadow-pop ${b.bg} ${b.pos} ${b.s}`}
+              style={{ '--tilt': b.t, animationDelay: b.d }}
+            >
+              {b.e}
+            </span>
+          ))}
         </div>
 
         <Mascot />

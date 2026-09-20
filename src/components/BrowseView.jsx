@@ -53,7 +53,12 @@ export default function BrowseView({ initialOpportunities }) {
 
   const [opportunities] = useState(initialOpportunities)
   const [query, setQuery] = useState(initialQuery)
-  const [toggles, setToggles] = useState(searchParams.get('remote') ? ['remote'] : [])
+  const [toggles, setToggles] = useState(() => {
+    const t = []
+    if (searchParams.get('remote')) t.push('remote')
+    if (searchParams.get('saved')) t.push('saved')
+    return t
+  })
   const [stateFilter, setStateFilter] = useState('')
   const [cityZip, setCityZip] = useState(initialLoc)
   const [commitment, setCommitment] = useState('')

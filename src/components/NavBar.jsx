@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import { fetchMyOrganization } from '../lib/api'
+import { useSavedIds } from '../lib/saved'
 
 const navLinks = [
   { href: '/browse', label: 'Browse' },
@@ -19,6 +20,7 @@ export default function NavBar() {
   const router = useRouter()
   const pathname = usePathname()
   const [hasOrg, setHasOrg] = useState(false)
+  const savedIds = useSavedIds()
 
   useEffect(() => {
     if (!user) {
@@ -63,6 +65,15 @@ export default function NavBar() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-3">
+          {savedIds.length > 0 && (
+            <Link
+              href="/browse?saved=1"
+              title="Your saved opportunities"
+              className="flex items-center gap-1 rounded-pill bg-brand-green-light/50 px-3 py-1.5 text-sm font-bold text-cream-text transition-colors hover:bg-brand-green-light"
+            >
+              ❤️ <span>{savedIds.length}</span>
+            </Link>
+          )}
           {user ? (
             <>
               {profile?.is_admin && (
