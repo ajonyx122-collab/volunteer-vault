@@ -14,7 +14,7 @@ import StatPill from './StatPill'
 import ChallengeBanner from './ChallengeBanner'
 import CountUp from './CountUp'
 import Reveal from './Reveal'
-import { opportunityPath } from '../lib/opportunityUrls'
+import SurpriseMe from './SurpriseMe'
 
 const MEDALS = ['🥇', '🥈', '🥉']
 
@@ -70,11 +70,6 @@ export default function HomeView({ opportunities, topVolunteers }) {
     router.push(`/browse?${params.toString()}`)
   }
 
-  function surpriseMe() {
-    if (!opportunities.length) return
-    const pick = opportunities[Math.floor(Math.random() * opportunities.length)]
-    router.push(opportunityPath(pick))
-  }
 
   return (
     <div>
@@ -218,15 +213,7 @@ export default function HomeView({ opportunities, topVolunteers }) {
           </Link>
         </div>
 
-        <div className="mt-4 text-center">
-          <button
-            onClick={surpriseMe}
-            className="hover-wiggle inline-flex items-center gap-2 rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
-          >
-            🎲 Surprise me
-          </button>
-          <p className="mt-1.5 text-xs text-brand-green/50">Feeling spontaneous? We'll pick one for you.</p>
-        </div>
+        <SurpriseMe opportunities={opportunities} />
       </section>
 
       {/* Featured */}

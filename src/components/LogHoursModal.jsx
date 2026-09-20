@@ -24,7 +24,7 @@ export default function LogHoursModal({ opportunity, userId, existingLog, onSave
       const saved = isEdit
         ? await updateHourLog(existingLog.id, { hours, servedOn })
         : await logHours({ userId, opportunityId: opportunity.id, hours, servedOn })
-      onSaved(saved)
+      onSaved(saved, !isEdit)
     } catch (err) {
       setError(
         err.code === '23505'

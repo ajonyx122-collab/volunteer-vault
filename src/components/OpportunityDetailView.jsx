@@ -21,6 +21,7 @@ import Breadcrumb from './Breadcrumb'
 import ReviewsSection from './ReviewsSection'
 import LogHoursModal from './LogHoursModal'
 import { todayStr } from '../lib/hourLogs'
+import { fireConfetti } from '../lib/confetti'
 
 function isVerified(servedOn) {
   return !!servedOn && servedOn <= todayStr()
@@ -62,6 +63,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
   const [logModal, setLogModal] = useState(null) // null | 'create' | a log object to edit
   const [logError, setLogError] = useState('')
   const [rsvpError, setRsvpError] = useState('')
+  const [celebrate, setCelebrate] = useState('') // brief celebratory message after logging
 
   useEffect(() => {
     if (!user || !id) return
@@ -69,13 +71,22 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
     fetchMyHourLogsForOpportunity(user.id, id).then(setMyLogs)
   }, [user, id])
 
-  function handleLogSaved(saved) {
+  function handleLogSaved(saved, isNew) {
     setMyLogs((prev) => {
       const exists = prev.some((l) => l.id === saved.id)
       const next = exists ? prev.map((l) => (l.id === saved.id ? saved : l)) : [saved, ...prev]
       return next.sort((a, b) => (a.servedOn < b.servedOn ? 1 : -1))
     })
     setLogModal(null)
+    if (isNew) {
+      fireConfetti()
+      setCelebrate(
+        isVerified(saved.servedOn)
+          ? `Boom! ${saved.hours} hrs added to your vault. 🎉`
+          : `Nice! ${saved.hours} hrs logged — it verifies once ${saved.servedOn} passes. 🎉`,
+      )
+      setTimeout(() => setCelebrate(''), 6000)
+    }
   }
 
   async function handleDeleteLog(logId) {
@@ -104,6 +115,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
         await rsvp(user.id, id)
         setJoined(true)
         setOpportunity((o) => ({ ...o, spotsFilled: o.spotsFilled + 1 }))
+        fireConfetti({ count: 90 })
       }
     } catch (err) {
       // e.g. two people raced for the last spot, or a double-click raced the
@@ -307,6 +319,11 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
           {user && (
             <div className="rounded-card border border-card-border bg-card p-5 shadow-card">
               <p className="font-bold text-brand-green">Your hours</p>
+              {celebrate && (
+                <div className="mt-2 rounded-card border border-gold bg-category-food-bg p-3 text-sm font-bold text-gold-text">
+                  {celebrate}
+                </div>
+              )}
               {myLogs.length === 0 ? (
                 <>
                   <p className="mt-1 text-xs text-brand-green/60">
