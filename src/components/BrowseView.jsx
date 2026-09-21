@@ -51,7 +51,21 @@ export default function BrowseView({ initialOpportunities }) {
   // by place instead of dumping you on the full, unfiltered list.
   const initialLoc = searchParams.get('loc') ?? ''
 
-  const [opportunities] = useState(initialOpportunities)
+  const [opportunities, setOpportunities] = useState(initialOpportunities)
+  // Shuffle once after mount so the top listing changes every visit (not the
+  // same one forever). Done in an effect — not in the initial state — so the
+  // server HTML and first client render still match (no hydration mismatch),
+  // then it reshuffles on the client. Stable during filtering afterward.
+  useEffect(() => {
+    setOpportunities((prev) => {
+      const a = [...prev]
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[a[i], a[j]] = [a[j], a[i]]
+      }
+      return a
+    })
+  }, [])
   const [query, setQuery] = useState(initialQuery)
   const [toggles, setToggles] = useState(() => {
     const t = []

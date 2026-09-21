@@ -22,6 +22,16 @@ const MEDALS = ['🥇', '🥈', '🥉']
 const isRemote = (o) => o.remote || o.isOnline || o.org?.remote
 const minAgeOf = (o) => o.minAge ?? o.org?.minAge ?? 0
 
+// Advance a window of `n` through a stable-ordered array by the current day
+// number (+ a per-section seed), wrapping around — so the picks change daily
+// but stay identical between server render and client hydration.
+function rotateDaily(arr, n = 4, seed = 0) {
+  if (arr.length <= n) return arr
+  const day = Math.floor(Date.now() / (24 * 3600 * 1000))
+  const offset = (((day + seed) % arr.length) + arr.length) % arr.length
+  return [...arr.slice(offset), ...arr.slice(0, offset)].slice(0, n)
+}
+
 // Seeded with opportunities/topVolunteers fetched server-side (see
 // app/page.jsx) so the listing content is present in the initial HTML for
 // SEO — only the challenge banner (needs the logged-in user) fetches
@@ -41,22 +51,20 @@ export default function HomeView({ opportunities, topVolunteers }) {
       .catch(() => setChallengeProgress(null))
   }, [user, activeChallenge])
 
-  // Featured rotates daily so the homepage doesn't show the same four orgs
-  // forever. The pool is every featured org (stable order by id); we advance a
-  // window of four through it based on the day number, wrapping around. The
-  // day number is derived from the date only, so the server HTML and the
-  // client hydration compute the same set (no mismatch).
-  const featured = useMemo(() => {
-    const pool = opportunities
-      .filter((o) => o.org?.featured)
-      .sort((a, b) => a.orgId.localeCompare(b.orgId))
-    if (pool.length <= 4) return pool
-    const day = Math.floor(Date.now() / (24 * 3600 * 1000))
-    const offset = day % pool.length
-    return [...pool.slice(offset), ...pool.slice(0, offset)].slice(0, 4)
-  }, [opportunities])
-  const highSchool = opportunities.filter((o) => minAgeOf(o) <= 14).slice(0, 4)
-  const remote = opportunities.filter(isRemote).slice(0, 4)
+  // Featured / high-school / remote each rotate daily so the homepage doesn't
+  // show the same four cards forever. rotateDaily advances a window through the
+  // (stable-ordered) pool by the day number — derived from the date only, so
+  // the server HTML and client hydration compute the same set (no mismatch). A
+  // per-section seed keeps them from rotating in lockstep.
+  const featured = useMemo(
+    () => rotateDaily(opportunities.filter((o) => o.org?.featured).sort((a, b) => a.orgId.localeCompare(b.orgId)), 4, 0),
+    [opportunities],
+  )
+  const highSchool = useMemo(
+    () => rotateDaily(opportunities.filter((o) => minAgeOf(o) <= 14), 4, 1),
+    [opportunities],
+  )
+  const remote = useMemo(() => rotateDaily(opportunities.filter(isRemote), 4, 2), [opportunities])
 
   // Real, honest counts derived from what's actually in the directory.
   const orgCount = new Set(opportunities.map((o) => o.orgId)).size
