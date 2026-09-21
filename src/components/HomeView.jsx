@@ -22,14 +22,29 @@ const MEDALS = ['🥇', '🥈', '🥉']
 const isRemote = (o) => o.remote || o.isOnline || o.org?.remote
 const minAgeOf = (o) => o.minAge ?? o.org?.minAge ?? 0
 
-// Advance a window of `n` through a stable-ordered array by the current day
-// number (+ a per-section seed), wrapping around — so the picks change daily
-// but stay identical between server render and client hydration.
-function rotateDaily(arr, n = 4, seed = 0) {
+// Pick `n` items that refresh every day. We give each item a deterministic
+// pseudo-random score derived from (today's day number + seed, item id), then
+// take the lowest-scoring `n`. Because the score rehashes every day, the whole
+// set turns over daily (not a slide-by-one) — and because it's computed from
+// the date + a stable id, the server render and client hydration agree (no
+// mismatch). A per-section seed keeps sections from matching each other.
+function dailyPick(arr, n = 4, seed = 0) {
   if (arr.length <= n) return arr
-  const day = Math.floor(Date.now() / (24 * 3600 * 1000))
-  const offset = (((day + seed) % arr.length) + arr.length) % arr.length
-  return [...arr.slice(offset), ...arr.slice(0, offset)].slice(0, n)
+  const day = Math.floor(Date.now() / (24 * 3600 * 1000)) + seed * 101
+  const score = (id) => {
+    let h = day >>> 0
+    const s = String(id)
+    for (let i = 0; i < s.length; i++) h = (Math.imul(h ^ s.charCodeAt(i), 0x5bd1e995) >>> 0)
+    h ^= h >>> 13
+    h = Math.imul(h, 0x5bd1e995) >>> 0
+    h ^= h >>> 15
+    return h >>> 0
+  }
+  return [...arr]
+    .map((v) => [v, score(v.id)])
+    .sort((a, b) => a[1] - b[1])
+    .slice(0, n)
+    .map((x) => x[0])
 }
 
 // Seeded with opportunities/topVolunteers fetched server-side (see
@@ -57,14 +72,14 @@ export default function HomeView({ opportunities, topVolunteers }) {
   // the server HTML and client hydration compute the same set (no mismatch). A
   // per-section seed keeps them from rotating in lockstep.
   const featured = useMemo(
-    () => rotateDaily(opportunities.filter((o) => o.org?.featured).sort((a, b) => a.orgId.localeCompare(b.orgId)), 4, 0),
+    () => dailyPick(opportunities.filter((o) => o.org?.featured), 4, 0),
     [opportunities],
   )
   const highSchool = useMemo(
-    () => rotateDaily(opportunities.filter((o) => minAgeOf(o) <= 14), 4, 1),
+    () => dailyPick(opportunities.filter((o) => minAgeOf(o) <= 14), 4, 1),
     [opportunities],
   )
-  const remote = useMemo(() => rotateDaily(opportunities.filter(isRemote), 4, 2), [opportunities])
+  const remote = useMemo(() => dailyPick(opportunities.filter(isRemote), 4, 2), [opportunities])
 
   // Real, honest counts derived from what's actually in the directory.
   const orgCount = new Set(opportunities.map((o) => o.orgId)).size
