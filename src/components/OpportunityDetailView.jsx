@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { getCategoryMeta } from '../data/mockData'
 import { CATEGORY_STYLES } from './categoryStyles'
 import {
@@ -49,6 +49,42 @@ function locationLabel(o) {
   return '📍 Multiple locations (nationwide)'
 }
 
+// Logged-out visitors see the first bit of the description, then a sign-up
+// prompt. Cut on a word boundary so it doesn't stop mid-word.
+function previewText(text, max = 160) {
+  if (!text || text.length <= max) return text
+  return text.slice(0, text.lastIndexOf(' ', max) > 80 ? text.lastIndexOf(' ', max) : max).trimEnd() + '…'
+}
+
+// Shown in place of the sign-up / RSVP box to logged-out visitors. Browsing
+// and search stay open (and indexable by Google); the full listing, the
+// organization's sign-up link, and saving need a free account.
+function LockedCard({ next }) {
+  const q = `next=${encodeURIComponent(next)}`
+  return (
+    <div className="rounded-card border border-card-border bg-card p-5 text-center shadow-card">
+      <p className="text-3xl" aria-hidden>🔒</p>
+      <p className="mt-1 font-display text-lg font-extrabold text-brand-green">See the full listing</p>
+      <p className="mt-1 text-xs text-brand-green/60">
+        Make a free account to see all the details, how to sign up, and to save it for later.
+      </p>
+      <Link
+        href={`/signup?${q}&why=details`}
+        className="mt-4 block w-full rounded-pill bg-coral px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
+      >
+        Join free
+      </Link>
+      <p className="mt-2 text-xs text-brand-green/50">Google, phone number, or email — takes 10 seconds.</p>
+      <p className="mt-3 text-sm text-brand-green/60">
+        Have an account?{' '}
+        <Link href={`/login?${q}`} className="font-bold text-coral hover:underline">
+          Log in
+        </Link>
+      </p>
+    </div>
+  )
+}
+
 // Seeded with the opportunity fetched server-side (see
 // app/opportunities/[id]/page.jsx) so the listing content and per-page
 // metadata are present on first load — RSVP, hour logging, and reporting
@@ -56,6 +92,10 @@ function locationLabel(o) {
 export default function OpportunityDetailView({ id, initialOpportunity, breadcrumb }) {
   const { user } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  // Also true during the first render / while the session loads, so the
+  // server-rendered HTML (what Google sees) is the logged-out view.
+  const locked = !user
 
   const [opportunity, setOpportunity] = useState(initialOpportunity)
   const [joined, setJoined] = useState(false)
@@ -223,16 +263,27 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
             ))}
           </div>
 
-          <p className="mt-6 text-brand-green/80">{opportunity.description}</p>
+          {locked ? (
+            <p className="mt-6 text-brand-green/80">
+              {previewText(opportunity.description)}{' '}
+              {previewText(opportunity.description) !== opportunity.description && (
+                <Link href={`/signup?next=${encodeURIComponent(pathname)}&why=details`} className="font-bold text-coral hover:underline">
+                  Join free to read more
+                </Link>
+              )}
+            </p>
+          ) : (
+            <p className="mt-6 text-brand-green/80">{opportunity.description}</p>
+          )}
 
-          {opportunity.whatToBring && (
+          {!locked && opportunity.whatToBring && (
             <div className="mt-4 rounded-card border border-card-border bg-cream p-4">
               <p className="text-sm font-bold text-brand-green">🎒 What to bring</p>
               <p className="mt-1 text-sm text-brand-green/70">{opportunity.whatToBring}</p>
             </div>
           )}
 
-          {opportunity.reviewQuote && (
+          {!locked && opportunity.reviewQuote && (
             <blockquote className="mt-6 rounded-card border border-card-border bg-card p-4 italic text-brand-green/70 shadow-card">
               “{opportunity.reviewQuote}”
             </blockquote>
@@ -275,7 +326,9 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
         </div>
 
         <aside className="flex w-full flex-col gap-4 md:w-72">
-          {isExternal ? (
+          {locked ? (
+            <LockedCard next={pathname} />
+          ) : isExternal ? (
             <div className="rounded-card border border-card-border bg-card p-5 text-center shadow-card">
               <p className="font-display text-lg font-extrabold text-brand-green">Register with {opportunity.org?.name}</p>
               <p className="mt-1 text-xs text-brand-green/60">
@@ -404,7 +457,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
             <div className="min-w-0">
               <p className="font-bold text-brand-green">{opportunity.org?.name}</p>
               <p className="mt-1 text-sm text-brand-green/70">{opportunity.org?.description}</p>
-              {opportunity.org?.website && (
+              {!locked && opportunity.org?.website && (
                 <a
                   href={
                     opportunity.org.website.startsWith('http')

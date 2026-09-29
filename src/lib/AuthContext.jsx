@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
+import { clearSaved, loadSaved } from './saved'
 
 const AuthContext = createContext({ user: null, profile: null, loading: true })
 
@@ -25,8 +26,10 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!user) {
       setProfile(null)
+      clearSaved()
       return
     }
+    loadSaved(user.id).catch(() => {})
     supabase
       .from('profiles')
       .select('*')

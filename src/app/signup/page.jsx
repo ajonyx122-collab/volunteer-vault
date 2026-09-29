@@ -1,12 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient'
 import { createOrganization } from '../../lib/api'
+import { safeNext } from '../../lib/authRedirect'
+import SocialAuth from '../../components/SocialAuth'
 
-export default function SignUp() {
+// Why they were sent here (?why=...), so the page can say what they're unlocking.
+const WHY_COPY = {
+  save: 'Make a free account to save opportunities — your list follows you to any device.',
+  details: 'Make a free account to see full details and how to sign up.',
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignUp />
+    </Suspense>
+  )
+}
+
+function SignUp() {
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next')
+  const why = WHY_COPY[searchParams.get('why')]
+  const [ageOk, setAgeOk] = useState(false)
   const [role, setRole] = useState('volunteer')
   const [fullName, setFullName] = useState('')
   const [school, setSchool] = useState('')
@@ -32,6 +52,8 @@ export default function SignUp() {
       options: {
         data: {
           display_name: displayName,
+          // Filled in the details on this form, so skip the /welcome step.
+          onboarded: true,
           school: role === 'volunteer' && school.trim() ? school.trim() : null,
           grad_year: role === 'volunteer' && gradYear ? gradYear : null,
         },
@@ -61,7 +83,7 @@ export default function SignUp() {
     }
 
     setBusy(false)
-    router.push(role === 'org' ? '/dashboard' : '/browse')
+    router.push(role === 'org' ? '/dashboard' : safeNext(next))
   }
 
   if (needsConfirm) {
@@ -89,6 +111,11 @@ export default function SignUp() {
         <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
         <h1 className="mt-3 font-display text-3xl font-extrabold text-brand-green">Join free</h1>
         <p className="mt-1 text-brand-green/70">Your people are already out here.</p>
+        {why && (
+          <p className="mt-4 rounded-card border border-gold bg-category-food-bg px-4 py-3 text-sm font-semibold text-gold-text">
+            🔒 {why}
+          </p>
+        )}
       </div>
 
       <div className="mt-6 flex rounded-pill border border-card-border bg-card p-1 shadow-card">
@@ -112,7 +139,16 @@ export default function SignUp() {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
+      {role === 'volunteer' && (
+        <div className="mt-6">
+          <SocialAuth next={next} />
+          <div className="my-5 flex items-center gap-3 text-xs font-bold uppercase tracking-wide text-brand-green/40">
+            <span className="h-px flex-1 bg-card-border" /> or use email <span className="h-px flex-1 bg-card-border" />
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className={`${role === 'volunteer' ? '' : 'mt-6 '}flex flex-col gap-3`}>
         {role === 'volunteer' ? (
           <>
             <input
@@ -174,6 +210,17 @@ export default function SignUp() {
           className="rounded-pill border border-card-border px-4 py-3 text-sm outline-none"
         />
 
+        <label className="flex items-start gap-2 px-2 text-sm text-brand-green/80">
+          <input type="checkbox" required checked={ageOk} onChange={(e) => setAgeOk(e.target.checked)} className="mt-1" />
+          <span>
+            {role === 'volunteer' ? "I'm 13 or older and I've read the " : "I've read the "}
+            <Link href="/privacy" target="_blank" className="font-bold text-coral hover:underline">
+              privacy policy
+            </Link>
+            .
+          </span>
+        </label>
+
         {error && <p className="text-sm font-semibold text-coral">{error}</p>}
 
         <button
@@ -187,7 +234,7 @@ export default function SignUp() {
 
       <p className="mt-4 text-center text-sm text-brand-green/60">
         Already have an account?{' '}
-        <Link href="/login" className="font-bold text-coral hover:underline">
+        <Link href={next ? `/login?next=${encodeURIComponent(next)}` : '/login'} className="font-bold text-coral hover:underline">
           Log in
         </Link>
       </p>

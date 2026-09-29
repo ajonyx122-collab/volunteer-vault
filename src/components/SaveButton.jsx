@@ -1,12 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { getSavedIds, toggleSaved } from '../lib/saved'
+import { useAuth } from '../lib/AuthContext'
 
-// Heart toggle to save an opportunity for later (localStorage-backed, no login
-// needed). Renders unsaved on the server / first paint, then syncs on mount so
-// there's no hydration mismatch.
+// Heart toggle to save an opportunity for later. Saving needs an account —
+// logged-out visitors are sent to sign up and brought back here afterwards.
+// Renders unsaved on the server / first paint, then syncs on mount so there's
+// no hydration mismatch.
 export default function SaveButton({ id, className = '' }) {
+  const { user } = useAuth()
+  const router = useRouter()
+  const pathname = usePathname()
   const [saved, setSaved] = useState(false)
   const [pop, setPop] = useState(false)
 
@@ -17,15 +23,18 @@ export default function SaveButton({ id, className = '' }) {
     return () => window.removeEventListener('vv-saved-change', sync)
   }, [id])
 
-  function onClick(e) {
+  async function onClick(e) {
     e.preventDefault()
     e.stopPropagation()
-    const now = toggleSaved(id)
-    setSaved(now)
-    if (now) {
+    if (!user) {
+      router.push(`/signup?next=${encodeURIComponent(pathname)}&why=save`)
+      return
+    }
+    if (!saved) {
       setPop(true)
       setTimeout(() => setPop(false), 350)
     }
+    await toggleSaved(id, user.id)
   }
 
   return (
@@ -33,7 +42,7 @@ export default function SaveButton({ id, className = '' }) {
       onClick={onClick}
       aria-pressed={saved}
       aria-label={saved ? 'Remove from saved' : 'Save for later'}
-      title={saved ? 'Saved — tap to remove' : 'Save for later'}
+      title={!user ? 'Sign up free to save' : saved ? 'Saved — tap to remove' : 'Save for later'}
       className={`grid h-9 w-9 place-items-center rounded-full border border-card-border bg-card text-lg shadow-card transition-transform hover:scale-110 ${
         pop ? 'scale-125' : ''
       } ${className}`}

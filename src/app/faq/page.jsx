@@ -20,7 +20,7 @@ const SECTIONS = [
       },
       {
         q: 'Do I need an account?',
-        a: "You can browse without one, but you'll need a free account to RSVP, log hours, build a vault, or post a project.",
+        a: "You can browse and search without one. To see a listing's full details and sign-up link, save favorites, RSVP, log hours, or post a project, you'll need a free account — sign up with Google, your phone number, or any email.",
       },
     ],
   },

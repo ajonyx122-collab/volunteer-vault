@@ -1,11 +1,23 @@
+import Script from 'next/script'
 import { Analytics } from '@vercel/analytics/react'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { AuthProvider } from '../lib/AuthContext'
 import './globals.css'
 
+// Google Search Console verification token, set as an env var in Vercel
+// (GOOGLE_SITE_VERIFICATION) so it's easy to rotate and never hardcoded. When
+// unset (local/dev) the meta tag is simply omitted.
+const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION
+
+// Google Analytics 4 "Measurement ID" (looks like G-XXXXXXXXXX), set in Vercel
+// as NEXT_PUBLIC_GA_ID. Unset = no Google Analytics at all (Vercel Analytics
+// below still runs).
+const gaId = process.env.NEXT_PUBLIC_GA_ID
+
 export const metadata = {
   metadataBase: new URL('https://www.volunteervault.org'),
+  ...(googleSiteVerification ? { verification: { google: googleSiteVerification } } : {}),
   title: {
     default: 'VolunteerVault — Volunteer Opportunities for High School & College Students',
     template: '%s | VolunteerVault',
@@ -52,6 +64,14 @@ export default function RootLayout({ children }) {
           <Footer />
         </AuthProvider>
         <Analytics />
+        {gaId && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
+            <Script id="ga-init" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   )

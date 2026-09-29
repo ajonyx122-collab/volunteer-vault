@@ -1,11 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient'
+import { safeNext } from '../../lib/authRedirect'
+import SocialAuth from '../../components/SocialAuth'
 
-export default function Login() {
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <Login />
+    </Suspense>
+  )
+}
+
+function Login() {
+  const next = useSearchParams().get('next')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -22,7 +33,7 @@ export default function Login() {
       setError(err.message)
       return
     }
-    router.push('/profile')
+    router.push(safeNext(next, '/profile'))
   }
 
   return (
@@ -33,7 +44,14 @@ export default function Login() {
         <p className="mt-1 text-brand-green/70">Your streak missed you.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
+      <div className="mt-6">
+        <SocialAuth next={next || '/profile'} />
+        <div className="my-5 flex items-center gap-3 text-xs font-bold uppercase tracking-wide text-brand-green/40">
+          <span className="h-px flex-1 bg-card-border" /> or use email <span className="h-px flex-1 bg-card-border" />
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
           required
           type="email"
@@ -62,7 +80,7 @@ export default function Login() {
 
       <p className="mt-4 text-center text-sm text-brand-green/60">
         New here?{' '}
-        <Link href="/signup" className="font-bold text-coral hover:underline">
+        <Link href={next ? `/signup?next=${encodeURIComponent(next)}` : '/signup'} className="font-bold text-coral hover:underline">
           Join free
         </Link>
       </p>

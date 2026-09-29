@@ -21,6 +21,7 @@ export default function Footer() {
           <Link href="/volunteer" className="hover:text-cream-text">By cause &amp; city</Link>
           <Link href="/signup" className="hover:text-cream-text">For organizations</Link>
           <Link href="/profile" className="hover:text-cream-text">My vault</Link>
+          <Link href="/privacy" className="hover:text-cream-text">Privacy</Link>
           <span>© {new Date().getFullYear()} VolunteerVault</span>
         </div>
       </div>

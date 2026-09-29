@@ -5,7 +5,7 @@ import { opportunityPath } from '../lib/opportunityUrls'
 const SITE_URL = 'https://www.volunteervault.org'
 
 export default async function sitemap() {
-  const staticRoutes = ['', '/browse', '/volunteer', '/community', '/leaderboards', '/faq', '/map', '/signup', '/login'].map(
+  const staticRoutes = ['', '/browse', '/volunteer', '/community', '/leaderboards', '/faq', '/privacy', '/map', '/signup', '/login'].map(
     (path) => ({
       url: `${SITE_URL}${path}`,
       changeFrequency: path === '' || path === '/browse' ? 'hourly' : 'weekly',
