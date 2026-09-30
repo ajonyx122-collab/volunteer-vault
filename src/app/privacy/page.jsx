@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 // Where privacy / delete-my-account requests go. Must be a real inbox someone
 // reads — change it here if this address isn't set up.
-const CONTACT_EMAIL = 'hello@volunteervault.org'
+const CONTACT_EMAIL = 'ajonyx122@gmail.com'
 const UPDATED = 'September 29, 2026'
 
 export const metadata = {
