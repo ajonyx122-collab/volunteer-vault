@@ -74,7 +74,7 @@ function LockedCard({ next }) {
       >
         Join free
       </Link>
-      <p className="mt-2 text-xs text-brand-green/50">Google, phone number, or email — takes 10 seconds.</p>
+      <p className="mt-2 text-xs text-brand-green/50">It's free and takes 10 seconds.</p>
       <p className="mt-3 text-sm text-brand-green/60">
         Have an account?{' '}
         <Link href={`/login?${q}`} className="font-bold text-coral hover:underline">

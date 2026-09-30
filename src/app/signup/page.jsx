@@ -142,9 +142,6 @@ function SignUp() {
       {role === 'volunteer' && (
         <div className="mt-6">
           <SocialAuth next={next} />
-          <div className="my-5 flex items-center gap-3 text-xs font-bold uppercase tracking-wide text-brand-green/40">
-            <span className="h-px flex-1 bg-card-border" /> or use email <span className="h-px flex-1 bg-card-border" />
-          </div>
         </div>
       )}
 
