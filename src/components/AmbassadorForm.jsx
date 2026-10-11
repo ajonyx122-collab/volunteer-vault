@@ -82,8 +82,9 @@ export default function AmbassadorForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-4 flex flex-col gap-4 rounded-card border border-card-border bg-card p-5 shadow-card sm:p-6"
+      className="mt-4 flex flex-col gap-4 rounded-card border-2 border-brand-green bg-card p-5 shadow-pop-soft sm:p-6"
     >
+      <BadgePreview name={form.fullName} school={form.school} gradYear={form.gradYear} />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Your name *">
           <input required value={form.fullName} onChange={(e) => update('fullName', e.target.value)} className={inputClass} />
@@ -184,6 +185,32 @@ export default function AmbassadorForm() {
         </button>
       </div>
     </form>
+  )
+}
+
+// A little "lanyard badge" that fills in live as they type — makes the form
+// feel like you're already on the team.
+function BadgePreview({ name, school, gradYear }) {
+  return (
+    <div className="mx-auto w-full max-w-xs -rotate-2 overflow-hidden rounded-card border-2 border-brand-green bg-cream shadow-pop transition-transform hover:rotate-0">
+      <div className="flex items-center justify-between bg-brand-green px-4 py-2">
+        <span className="font-display text-sm font-extrabold text-cream-text">
+          Volunteer<span className="text-gold">VAULT</span>
+        </span>
+        <span className="text-lg" aria-hidden>
+          📣
+        </span>
+      </div>
+      <div className="px-4 py-3 text-center">
+        <p className="text-[10px] font-extrabold uppercase tracking-widest text-coral">School Ambassador</p>
+        <p className="mt-1 truncate font-display text-xl font-extrabold text-brand-green">{name.trim() || 'Your Name'}</p>
+        <p className="truncate text-sm font-semibold text-brand-green/70">{school.trim() || 'Your School'}</p>
+        {gradYear && <p className="text-xs text-brand-green/50">Class of {gradYear}</p>}
+      </div>
+      <p className="border-t border-dashed border-card-border py-1.5 text-center text-[10px] font-bold text-brand-green/40">
+        preview · fills in as you type
+      </p>
+    </div>
   )
 }
 

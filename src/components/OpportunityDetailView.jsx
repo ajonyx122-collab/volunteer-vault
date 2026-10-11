@@ -25,6 +25,8 @@ import { todayStr } from '../lib/hourLogs'
 import { fireConfetti } from '../lib/confetti'
 import { playAchievement } from '../lib/sound'
 
+const TAG_PREVIEW = 6
+
 function isVerified(servedOn) {
   return !!servedOn && servedOn <= todayStr()
 }
@@ -99,6 +101,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
 
   const [opportunity, setOpportunity] = useState(initialOpportunity)
   const [joined, setJoined] = useState(false)
+  const [showAllTags, setShowAllTags] = useState(false) // some listings have 20+ tags
   const [busy, setBusy] = useState(false)
   const [reportState, setReportState] = useState('idle') // idle | asking | sent
   const [myLogs, setMyLogs] = useState([])
@@ -261,7 +264,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
             {opportunity.vibeRating != null && (
               <span className="text-sm font-bold text-gold-text">★ {opportunity.vibeRating} vibe rating</span>
             )}
-            {opportunity.tags.map((tag) => (
+            {(showAllTags ? opportunity.tags : opportunity.tags.slice(0, TAG_PREVIEW)).map((tag) => (
               <span
                 key={tag}
                 className="rounded-pill bg-category-animals-bg px-3 py-1 text-xs font-bold text-category-animals-text"
@@ -269,6 +272,15 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
                 {tag}
               </span>
             ))}
+            {opportunity.tags.length > TAG_PREVIEW && (
+              <button
+                type="button"
+                onClick={() => setShowAllTags((v) => !v)}
+                className="rounded-pill border border-card-border px-3 py-1 text-xs font-bold text-brand-green/70 hover:bg-cream"
+              >
+                {showAllTags ? 'Show less' : `+${opportunity.tags.length - TAG_PREVIEW} more`}
+              </button>
+            )}
           </div>
 
           {locked ? (

@@ -155,13 +155,13 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
               </p>
             </div>
             {user ? (
-              <div className="flex shrink-0 gap-2">
+              <div className="flex w-full flex-wrap gap-2 sm:w-auto">
                 <button
                   onClick={() => {
                     setMode('org')
                     setOpen(open && mode === 'org' ? false : true)
                   }}
-                  className="rounded-pill bg-brand-green px-4 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
+                  className="whitespace-nowrap rounded-pill bg-brand-green px-3 py-2 text-sm font-bold text-cream-text shadow-pop transition-all sm:px-4 hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
                 >
                   {open && mode === 'org' ? 'Cancel' : '📍 Add a place'}
                 </button>
@@ -174,7 +174,7 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
                     setMode('event')
                     setOpen(open && mode === 'event' ? false : true)
                   }}
-                  className="rounded-pill bg-coral px-4 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
+                  className="whitespace-nowrap rounded-pill bg-coral px-3 py-2 text-sm font-bold text-cream-text shadow-pop transition-all sm:px-4 hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
                 >
                   {open && mode === 'event' && !onOrganizeClick ? 'Cancel' : '📅 Organize a project'}
                 </button>
