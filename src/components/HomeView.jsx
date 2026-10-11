@@ -8,7 +8,9 @@ import { fetchHourLogs } from '../lib/api'
 import { getActiveChallenge } from '../data/challenges'
 import { computeChallengeProgress } from '../lib/challenges'
 import { useAuth } from '../lib/AuthContext'
-import CategoryChip from './CategoryChip'
+import SectionTitle from './SectionTitle'
+import WaveDivider from './WaveDivider'
+import { CATEGORY_STYLES } from './categoryStyles'
 import OpportunityCard from './OpportunityCard'
 import StatPill from './StatPill'
 import ChallengeBanner from './ChallengeBanner'
@@ -206,100 +208,124 @@ export default function HomeView({ opportunities, topVolunteers, spotlightOrgs =
         </div>
       </section>
 
+      {/* Cause ticker — a tilted gold tape scrolling across under the hero */}
+      <div className="marquee-pause relative z-10 -mt-3 overflow-hidden" aria-hidden>
+        <div className="-mx-4 -rotate-1 border-y-2 border-brand-green bg-gold py-2.5 shadow-pop">
+          <div className="animate-marquee flex w-max gap-8 whitespace-nowrap font-display text-sm font-extrabold uppercase tracking-wide text-gold-text">
+            {[...CATEGORIES, ...CATEGORIES].map((c, i) => (
+              <span key={i}>
+                {c.icon} {c.label} <span className="ml-6 text-brand-green">✦</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {activeChallenge && (
-        <section className="mx-auto max-w-2xl px-4 pt-8 sm:px-6">
+        <section className="mx-auto max-w-2xl px-4 pt-10 sm:px-6">
           <ChallengeBanner challenge={activeChallenge} progress={user ? challengeProgress : null} />
         </section>
       )}
 
-      {/* Explore — cause chips + universal ways in (work no matter where you live) */}
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <h2 className="font-display text-lg font-extrabold text-brand-green">What are you into?</h2>
-        <div className="scrollbar-none mt-3 flex gap-3 overflow-x-auto pb-2">
-          {CATEGORIES.map((c) => (
-            <CategoryChip key={c.id} {...c} href={`/volunteer/${c.id}`} />
+      {/* What are you into? — big colorful cause tiles */}
+      <Reveal as="section" className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
+        <SectionTitle kicker="Pick your thing" title="What are you into?" action={{ href: '/volunteer', label: 'All causes' }} />
+        <div className="mt-6 grid grid-cols-3 gap-2.5 sm:grid-cols-5 sm:gap-3">
+          {CATEGORIES.map((c, i) => (
+            <Link
+              key={c.id}
+              href={`/volunteer/${c.id}`}
+              className={`group flex flex-col items-center justify-center gap-1 rounded-card border-2 border-brand-green px-2 py-4 text-center shadow-pop-soft transition-all hover:-translate-y-1 hover:shadow-pop ${
+                CATEGORY_STYLES[c.id]?.chip ?? 'bg-card text-brand-green'
+              }`}
+              style={{ transform: `rotate(${[-1.5, 1, -0.5, 1.5, -1][i % 5]}deg)` }}
+            >
+              <span className="text-3xl transition-transform group-hover:scale-125 group-hover:rotate-12 sm:text-4xl" aria-hidden>
+                {c.icon}
+              </span>
+              <span className="text-xs font-extrabold sm:text-sm">{c.label}</span>
+            </Link>
           ))}
         </div>
+      </Reveal>
 
-        {/* Ways to explore — not tied to any one city, so it fits everyone */}
-        <h2 className="mt-8 font-display text-lg font-extrabold text-brand-green">
-          Not sure where to start?
-        </h2>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
-          <Link
-            href="/browse?remote=1"
-            className="group flex items-center gap-3 rounded-card border-2 border-brand-green bg-brand-green p-4 shadow-card transition-transform hover:-translate-y-1"
-          >
-            <span className="text-3xl" aria-hidden>🌐</span>
-            <span className="min-w-0">
-              <span className="block font-display font-bold text-cream-text">From anywhere</span>
-              <span className="text-xs text-cream-muted">
-                {remoteCount} online role{remoteCount === 1 ? '' : 's'} — no car needed
+      {/* Not sure where to start? */}
+      <Reveal as="section" className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
+        <SectionTitle kicker="No idea yet? That's fine" title="Start somewhere easy" />
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              href: '/browse?remote=1',
+              icon: '🌐',
+              title: 'From your couch',
+              body: `${remoteCount} online role${remoteCount === 1 ? '' : 's'} — no car needed`,
+              tone: 'bg-brand-green text-cream-text',
+              sub: 'text-cream-muted',
+            },
+            {
+              href: '/volunteer',
+              icon: '📍',
+              title: 'Near you',
+              body: 'Pick your state & city',
+              tone: 'bg-category-food-bg text-brand-green',
+              sub: 'text-brand-green/60',
+            },
+            {
+              href: '/browse',
+              icon: '🧭',
+              title: 'See everything',
+              body: `Browse & filter all ${orgCount} orgs`,
+              tone: 'bg-category-music-bg text-brand-green',
+              sub: 'text-brand-green/60',
+            },
+          ].map((w) => (
+            <Link
+              key={w.href}
+              href={w.href}
+              className={`group flex items-center gap-4 rounded-card border-2 border-brand-green p-5 shadow-pop-soft transition-all hover:-translate-y-1 hover:shadow-pop ${w.tone}`}
+            >
+              <span className="text-4xl transition-transform group-hover:-rotate-12 group-hover:scale-110" aria-hidden>
+                {w.icon}
               </span>
-            </span>
-          </Link>
-          <Link
-            href="/volunteer"
-            className="group flex items-center gap-3 rounded-card border-2 border-card-border bg-card p-4 shadow-card transition-transform hover:-translate-y-1"
-          >
-            <span className="text-3xl" aria-hidden>📍</span>
-            <span className="min-w-0">
-              <span className="block font-display font-bold text-brand-green">Near you</span>
-              <span className="text-xs text-brand-green/60">Pick your state &amp; city</span>
-            </span>
-          </Link>
-          <Link
-            href="/browse"
-            className="group flex items-center gap-3 rounded-card border-2 border-card-border bg-card p-4 shadow-card transition-transform hover:-translate-y-1"
-          >
-            <span className="text-3xl" aria-hidden>🧭</span>
-            <span className="min-w-0">
-              <span className="block font-display font-bold text-brand-green">See everything</span>
-              <span className="text-xs text-brand-green/60">Browse &amp; filter all {orgCount}</span>
-            </span>
-          </Link>
+              <span className="min-w-0">
+                <span className="block font-display text-lg font-extrabold">{w.title}</span>
+                <span className={`text-sm ${w.sub}`}>{w.body}</span>
+              </span>
+              <span className="ml-auto text-xl transition-transform group-hover:translate-x-1" aria-hidden>
+                →
+              </span>
+            </Link>
+          ))}
         </div>
-
         <SurpriseMe opportunities={opportunities} />
-      </section>
+      </Reveal>
 
-      {/* Featured */}
       {featured.length > 0 && (
-        <OppSection title="Featured" blurb="Hand-picked, well-known organizations recruiting right now.">
+        <OppSection kicker="⭐ Hand-picked" title="Featured" blurb="Well-known organizations recruiting right now.">
           {featured}
         </OppSection>
       )}
 
-      {/* Great for high school students */}
       {highSchool.length > 0 && (
-        <OppSection
-          title="Great for high school students"
-          blurb="Open to volunteers 14 and under — perfect for service hours."
-        >
+        <OppSection kicker="🎒 Service-hour friendly" title="Great for high schoolers" blurb="Open to volunteers 14 and under.">
           {highSchool}
         </OppSection>
       )}
 
-      {/* Remote opportunities */}
       {remote.length > 0 && (
-        <OppSection title="Remote opportunities" blurb="Make an impact from your couch — no car required.">
+        <OppSection kicker="🛋️ Zero commute" title="Do it from home" blurb="Make an impact from your couch." href="/browse?remote=1">
           {remote}
         </OppSection>
       )}
 
-      {/* Student founder spotlight (admin picks via /admin/orgs/[id]) */}
       {spotlightOrgs.length > 0 && (
-        <Reveal as="section" className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 className="font-display text-2xl font-extrabold text-brand-green">🎓 Student founder spotlight</h2>
-              <p className="text-sm text-brand-green/60">Started by students your age. Back them up.</p>
-            </div>
-            <Link href="/student-led" className="shrink-0 text-sm font-bold text-coral hover:underline">
-              See all
-            </Link>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+        <Reveal as="section" className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
+          <SectionTitle
+            kicker="🎓 Student founder spotlight"
+            title="Started by people your age"
+            action={{ href: '/student-led', label: 'See all' }}
+          />
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
             {spotlightOrgs.map((org) => (
               <StudentOrgCard key={org.id} org={org} />
             ))}
@@ -308,139 +334,197 @@ export default function HomeView({ opportunities, topVolunteers, spotlightOrgs =
       )}
 
       {/* Your vault = your proof */}
-      <section className="bg-brand-green">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-16 text-center sm:px-6 md:flex-row md:text-left">
-          <div className="flex-1">
-            <h2 className="font-display text-3xl font-extrabold text-cream-text">
-              Your vault = your proof.
-            </h2>
-            <p className="mt-3 max-w-md text-cream-muted">
-              Every verified hour lands in your public vault — a shareable link colleges,
-              scholarships, and employers can trust. No spreadsheets, no guessing.
-            </p>
-            <Link
-              href="/profile"
-              className="mt-6 inline-block rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
-            >
-              www.volunteervault.org/u/you
-            </Link>
+      <div className="mt-16">
+        <WaveDivider className="text-brand-green" />
+        <section className="bg-dots-light relative overflow-hidden bg-brand-green">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 md:grid-cols-2">
+            <div className="text-center md:text-left">
+              <SectionTitle kicker="Your proof" title="Your vault = your receipts." tone="dark" />
+              <p className="mx-auto mt-4 max-w-md text-cream-muted md:mx-0">
+                Every hour you log lands in your public vault — one link colleges, scholarships, and
+                employers can actually trust. No spreadsheets. No lost paper forms.
+              </p>
+              <Link
+                href="/profile"
+                className="mt-6 inline-block rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
+              >
+                Open my vault 🔐
+              </Link>
+            </div>
+
+            {/* A pretend vault card — shows what yours will look like */}
+            <div className="mx-auto w-full max-w-sm rotate-2 transition-transform hover:rotate-0">
+              <div className="overflow-hidden rounded-card border-2 border-brand-green bg-cream shadow-pop-lg">
+                <div className="flex items-center gap-3 bg-gradient-to-r from-[#1B6E42] to-brand-green px-5 py-4">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gold font-display text-lg font-extrabold text-gold-text">
+                    YOU
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-display font-extrabold text-cream-text">Your Name</p>
+                    <p className="truncate text-xs text-cream-muted">volunteervault.org/u/you</p>
+                  </div>
+                  <span className="ml-auto rounded-pill bg-cream-text/15 px-2 py-0.5 text-[10px] font-bold text-cream-text">
+                    ✓ Verified
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 p-4">
+                  {[
+                    { v: '42', l: 'hours' },
+                    { v: '🔥 6', l: 'wk streak' },
+                    { v: '5', l: 'causes' },
+                  ].map((s) => (
+                    <div key={s.l} className="rounded-card bg-card p-2 text-center shadow-card">
+                      <p className="font-display text-lg font-extrabold text-brand-green">{s.v}</p>
+                      <p className="text-[10px] font-bold uppercase text-brand-green/50">{s.l}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-center gap-2 px-4 pb-4">
+                  {['🌱', '🐾', '🍲', '📚', '🏅'].map((b, i) => (
+                    <span
+                      key={b}
+                      className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-brand-green bg-gold/30 text-lg"
+                      style={{ transform: `rotate(${(i - 2) * 6}deg)` }}
+                    >
+                      {b}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <p className="mt-3 text-center text-xs font-bold text-cream-muted">↑ what yours could look like</p>
+            </div>
           </div>
-          <div className="flex flex-1 flex-wrap justify-center gap-3">
-            <StatPill value="✓" label="verified hours" tone="dark" />
-            <StatPill value="🔥" label="weekly streaks" tone="dark" />
-            <StatPill value="🏅" label="badges you earn" tone="dark" />
-          </div>
-        </div>
-      </section>
+        </section>
+        <WaveDivider className="text-brand-green" flip />
+      </div>
 
       {/* How it works */}
-      <Reveal as="section" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h2 className="text-center font-display text-2xl font-extrabold text-brand-green">
-          How VolunteerVault works
-        </h2>
-        <p className="mx-auto mt-2 max-w-md text-center text-sm text-brand-green/60">
-          Three easy steps from "I need service hours" to a record you can actually show off.
-        </p>
-        <div className="mt-8 grid gap-6 sm:grid-cols-3">
+      <Reveal as="section" className="mx-auto max-w-5xl px-4 pt-14 sm:px-6">
+        <SectionTitle kicker="Easy as 1-2-3" title="How it works" center />
+        <ol className="relative mt-8 grid gap-6 sm:grid-cols-3">
+          <div className="absolute left-[16%] right-[16%] top-9 hidden border-t-4 border-dashed border-gold/60 sm:block" aria-hidden />
           {[
-            { step: '1', emoji: '🔎', title: 'Find it', body: 'Browse opportunities by interest and location — see who\'s already going.' },
-            { step: '2', emoji: '✍️', title: 'Log it', body: 'Show up, then log your own hours — honor system, no scanning or codes needed.' },
-            { step: '3', emoji: '🔓', title: 'Vault it', body: 'Once the date passes, it\'s verified and lands straight in your shareable vault.' },
-          ].map((s) => (
-            <div
-              key={s.step}
-              className="relative rounded-card border border-card-border bg-card p-6 pt-8 text-center shadow-card transition-transform hover:-translate-y-1"
-            >
-              <div className="absolute -top-4 left-1/2 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-pill bg-coral font-display text-sm font-extrabold text-cream-text shadow-pop">
-                {s.step}
-              </div>
-              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-cream text-3xl">
+            { emoji: '🔎', title: 'Find it', body: "Browse by cause and place — see who's already going." },
+            { emoji: '✍️', title: 'Log it', body: 'Show up, then log your hours. Honor system, no codes.' },
+            { emoji: '🔓', title: 'Vault it', body: 'Once the date passes it lands in your shareable vault.' },
+          ].map((s, i) => (
+            <li key={s.title} className="relative flex flex-col items-center text-center">
+              <span className="hover-wiggle relative flex h-[72px] w-[72px] items-center justify-center rounded-full border-4 border-cream bg-gold text-4xl shadow-pop">
                 {s.emoji}
-              </div>
-              <h3 className="font-display font-bold text-brand-green">{s.title}</h3>
-              <p className="mt-1 text-sm text-brand-green/70">{s.body}</p>
-            </div>
+                <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-coral text-sm font-extrabold text-cream-text">
+                  {i + 1}
+                </span>
+              </span>
+              <p className="mt-3 font-display text-xl font-extrabold text-brand-green">{s.title}</p>
+              <p className="mt-1 max-w-[15rem] text-sm text-brand-green/70">{s.body}</p>
+            </li>
           ))}
-        </div>
+        </ol>
       </Reveal>
 
-      {/* Leaderboards preview */}
-      <Reveal as="section" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-        <div className="rounded-card border border-card-border bg-card p-8 text-center shadow-card sm:p-10">
-          <p className="text-4xl">🏆</p>
-          <h2 className="mt-2 font-display text-2xl font-extrabold text-brand-green">
-            Top volunteers this season
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-brand-green/70">
-            Real verified hours, ranked. Log yours and climb the board.
-          </p>
-
+      {/* Leaderboard podium */}
+      <Reveal as="section" className="mx-auto max-w-4xl px-4 pt-16 sm:px-6">
+        <div className="bg-dots rounded-card border-2 border-brand-green bg-card p-6 shadow-pop-soft sm:p-10">
+          <SectionTitle kicker="🏆 Season standings" title="Who's on top?" center />
           {topVolunteers.length > 0 ? (
-            <div className="mx-auto mt-6 flex max-w-sm flex-col gap-2">
-              {topVolunteers.map((v) => (
-                <div
-                  key={v.userId}
-                  className="flex items-center gap-3 rounded-card border border-card-border bg-cream p-3 text-left"
-                >
-                  <span className="w-7 shrink-0 text-center text-xl">{MEDALS[v.rank - 1]}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold text-brand-green">{v.displayName}</p>
+            <div className="mx-auto mt-8 grid max-w-md grid-cols-3 items-end gap-2 sm:gap-4">
+              {[1, 0, 2].map((idx) => {
+                const v = topVolunteers[idx]
+                if (!v) return <div key={idx} />
+                const height = ['h-28', 'h-20', 'h-14'][idx]
+                return (
+                  <div key={v.userId} className="flex flex-col items-center">
+                    <span className="text-3xl">{MEDALS[idx]}</span>
+                    <p className="mt-1 w-full truncate text-center text-xs font-extrabold text-brand-green sm:text-sm">{v.displayName}</p>
+                    <p className="text-xs font-bold text-brand-green/60">{v.value} hrs</p>
+                    <div
+                      className={`mt-2 flex w-full items-start justify-center rounded-t-card border-2 border-b-0 border-brand-green pt-2 font-display text-2xl font-extrabold ${height} ${
+                        idx === 0 ? 'bg-gold text-gold-text' : 'bg-cream text-brand-green'
+                      }`}
+                    >
+                      {idx + 1}
+                    </div>
                   </div>
-                  <p className="shrink-0 font-display font-extrabold text-brand-green">{v.value} hrs</p>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
-            <p className="mx-auto mt-4 max-w-md text-sm text-brand-green/60">
+            <p className="mx-auto mt-4 max-w-md text-center text-sm text-brand-green/60">
               No board yet — log the first hours and claim the top spot.
             </p>
           )}
-
-          <Link
-            href="/leaderboards"
-            className="mt-6 inline-block rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
-          >
-            See full leaderboards
-          </Link>
+          <div className="mt-6 text-center">
+            <Link
+              href="/leaderboards"
+              className="inline-block rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
+            >
+              See full leaderboards
+            </Link>
+          </div>
         </div>
       </Reveal>
 
-      {/* Org CTA */}
-      <section id="org-cta" className="bg-gold">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-10 text-center sm:flex-row sm:px-6 sm:text-left">
-          <div>
-            <h2 className="font-display text-xl font-extrabold text-gold-text">
-              Running an org? Post your opportunities free.
-            </h2>
-            <p className="mt-1 text-sm text-gold-text/80">
-              Reach students actively looking for verified service hours.
-            </p>
-          </div>
-          <Link
-            href="/signup"
-            className="shrink-0 rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
-          >
-            List an opportunity
-          </Link>
+      {/* Ways to go further */}
+      <Reveal as="section" id="org-cta" className="mx-auto max-w-6xl px-4 pb-16 pt-16 sm:px-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            {
+              href: '/signup',
+              icon: '🏢',
+              kicker: 'Running an org?',
+              title: 'Post opportunities free',
+              body: 'Reach students actively looking for service hours.',
+              tone: 'bg-gold text-gold-text',
+              sub: 'text-gold-text/80',
+              tilt: '-1deg',
+            },
+            {
+              href: '/student-led',
+              icon: '🎓',
+              kicker: 'Started a nonprofit?',
+              title: 'Get your own page',
+              body: 'Mission, goal tracker, photos, and a donate button.',
+              tone: 'bg-brand-green text-cream-text',
+              sub: 'text-cream-muted',
+              tilt: '0.8deg',
+            },
+            {
+              href: '/ambassadors',
+              icon: '📣',
+              kicker: 'Know everyone at school?',
+              title: 'Become an ambassador',
+              body: 'Bring VolunteerVault to your school.',
+              tone: 'bg-category-art-bg text-brand-green',
+              sub: 'text-brand-green/70',
+              tilt: '-0.6deg',
+            },
+          ].map((c) => (
+            <Link
+              key={c.href}
+              href={c.href}
+              className={`group relative overflow-hidden rounded-card border-2 border-brand-green p-6 shadow-pop transition-all hover:-translate-y-1 hover:shadow-pop-lg ${c.tone}`}
+              style={{ transform: `rotate(${c.tilt})` }}
+            >
+              <span className="pointer-events-none absolute -right-3 -top-3 text-7xl opacity-20 transition-transform group-hover:rotate-12" aria-hidden>
+                {c.icon}
+              </span>
+              <p className={`text-xs font-extrabold uppercase tracking-wide ${c.sub}`}>{c.kicker}</p>
+              <p className="mt-1 font-display text-2xl font-extrabold">{c.title}</p>
+              <p className={`mt-1 text-sm ${c.sub}`}>{c.body}</p>
+              <p className="mt-4 text-sm font-extrabold">Let's go →</p>
+            </Link>
+          ))}
         </div>
-      </section>
+      </Reveal>
     </div>
   )
 }
 
-function OppSection({ title, blurb, children }) {
+function OppSection({ kicker, title, blurb, href = '/browse', children }) {
   return (
-    <Reveal as="section" className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
-      <div className="mb-4 flex items-end justify-between gap-3">
-        <div>
-          <h2 className="font-display text-2xl font-extrabold text-brand-green">{title}</h2>
-          <p className="text-sm text-brand-green/60">{blurb}</p>
-        </div>
-        <Link href="/browse" className="shrink-0 text-sm font-bold text-coral hover:underline">
-          See all
-        </Link>
-      </div>
-      <div className="flex flex-col gap-4">
+    <Reveal as="section" className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
+      <SectionTitle kicker={kicker} title={title} blurb={blurb} action={{ href, label: 'See all' }} />
+      <div className="mt-6 flex flex-col gap-4">
         {children.map((opp) => (
           <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />
         ))}

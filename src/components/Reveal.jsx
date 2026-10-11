@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 // Fades + slides its children in the first time they scroll into view. The
 // content is always in the DOM (just visually offset), so it stays
 // crawlable/accessible; if the observer never runs, it reveals on mount.
-export default function Reveal({ children, className = '', delay = 0, as: Tag = 'div' }) {
+export default function Reveal({ children, className = '', delay = 0, as: Tag = 'div', ...rest }) {
   const ref = useRef(null)
   const [shown, setShown] = useState(false)
 
@@ -40,6 +40,7 @@ export default function Reveal({ children, className = '', delay = 0, as: Tag = 
 
   return (
     <Tag
+      {...rest}
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
       className={`transition-all duration-700 ease-out ${

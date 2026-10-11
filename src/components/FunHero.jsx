@@ -3,7 +3,8 @@
 // hero, so the newer pages feel like part of the same family.
 //
 // `title` can include a <Squiggle>...</Squiggle> for the hand-drawn underline.
-export default function FunHero({ eyebrow, title, subtitle, badges = [], children }) {
+export default function FunHero({ eyebrow, title, subtitle, badges = [], children, size = 'lg' }) {
+  const sm = size === 'sm'
   // Split badges into a left and right column, mirrored like the home hero.
   const left = badges.filter((_, i) => i % 2 === 0)
   const right = badges.filter((_, i) => i % 2 === 1)
@@ -26,15 +27,27 @@ export default function FunHero({ eyebrow, title, subtitle, badges = [], childre
         ))}
       </div>
 
-      <div className="relative mx-auto max-w-4xl px-4 pb-14 pt-12 text-center sm:px-6 sm:pb-20 sm:pt-16">
+      <div
+        className={`relative mx-auto max-w-4xl px-4 text-center sm:px-6 ${
+          sm ? 'pb-12 pt-9 sm:pb-14 sm:pt-12' : 'pb-14 pt-12 sm:pb-20 sm:pt-16'
+        }`}
+      >
         {eyebrow && (
           <span className="inline-flex items-center gap-1.5 rounded-pill bg-cream-text/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-cream-text ring-1 ring-cream-text/20 sm:text-sm">
             {eyebrow}
           </span>
         )}
-        <h1 className="mt-5 font-display text-4xl font-extrabold leading-tight text-cream-text sm:text-6xl">{title}</h1>
-        {subtitle && <p className="mx-auto mt-4 max-w-2xl text-base text-cream-muted sm:text-lg">{subtitle}</p>}
-        {children && <div className="mt-8">{children}</div>}
+        <h1
+          className={`font-display font-extrabold leading-tight text-cream-text ${
+            sm ? 'mt-4 text-3xl sm:text-5xl' : 'mt-5 text-4xl sm:text-6xl'
+          }`}
+        >
+          {title}
+        </h1>
+        {subtitle && (
+          <p className={`mx-auto mt-3 max-w-2xl text-cream-muted ${sm ? 'text-sm sm:text-base' : 'text-base sm:text-lg'}`}>{subtitle}</p>
+        )}
+        {children && <div className={sm ? 'mt-6' : 'mt-8'}>{children}</div>}
       </div>
     </section>
   )
