@@ -15,6 +15,7 @@ import {
 import { getCategoryMeta } from '../../data/mockData'
 import OrgAvatar from '../../components/OrgAvatar'
 import VerifiedBadge from '../../components/VerifiedBadge'
+import AdminAmbassadors from '../../components/AdminAmbassadors'
 
 export default function AdminReview() {
   const { user, profile, loading } = useAuth()
@@ -236,6 +237,8 @@ export default function AdminReview() {
           ))}
         </div>
       </section>
+
+      <AdminAmbassadors />
 
       <section className="mt-10">
         <h2 className="font-display text-xl font-extrabold text-brand-green">

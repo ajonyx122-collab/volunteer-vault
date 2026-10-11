@@ -23,6 +23,7 @@ const SECTIONS = [
     list: [
       'Account info: your name, and the email address or phone number you sign up with. If you use "Continue with Google," Google shares your name, email, and profile photo with us — never your Google password.',
       'Optional profile info: your school and graduation year, if you add them.',
+      'If you apply to be a school ambassador: the name, email, school, and other details you put in that form (phone and social handle are optional). Only the VolunteerVault team sees it, and we use it only to contact you about the role.',
       'What you do on the site: opportunities you save or RSVP to, hours you log, reviews you write, and listings or community projects you post.',
       'Basic visit stats: pages viewed, device type, country, and where visitors came from (like Google or Instagram), through Vercel Analytics and Google Analytics. We use these to see how many people the site reaches.',
     ],

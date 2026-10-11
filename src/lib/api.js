@@ -314,6 +314,68 @@ export async function updateSuggestionStatus(id, status) {
   if (error) throw error
 }
 
+// ---- school ambassador applications (/ambassadors → /admin) ----
+
+export async function submitAmbassadorApplication(app) {
+  // No .select() after insert: applicants can't read the table back (admin-only RLS).
+  const { error } = await supabase.from('ambassador_applications').insert({
+    user_id: app.userId || null,
+    full_name: app.fullName.trim(),
+    email: app.email.trim(),
+    phone: app.phone?.trim() || null,
+    school: app.school.trim(),
+    school_city: app.schoolCity?.trim() || null,
+    school_state: app.schoolState || null,
+    grad_year: app.gradYear ? Number(app.gradYear) : null,
+    clubs: app.clubs?.trim() || null,
+    why: app.why.trim(),
+    hours_per_month: app.hoursPerMonth || null,
+    social_handle: app.socialHandle?.trim() || null,
+    heard_from: app.heardFrom?.trim() || null,
+  })
+  if (error) throw error
+}
+
+export async function fetchAmbassadorApplications() {
+  const { data, error } = await supabase
+    .from('ambassador_applications')
+    .select('*, profiles(username)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map((a) => ({
+    id: a.id,
+    username: a.profiles?.username ?? null,
+    fullName: a.full_name,
+    email: a.email,
+    phone: a.phone,
+    school: a.school,
+    schoolCity: a.school_city,
+    schoolState: a.school_state,
+    gradYear: a.grad_year,
+    clubs: a.clubs,
+    why: a.why,
+    hoursPerMonth: a.hours_per_month,
+    socialHandle: a.social_handle,
+    heardFrom: a.heard_from,
+    status: a.status,
+    adminNote: a.admin_note,
+    createdAt: a.created_at,
+  }))
+}
+
+export async function updateAmbassadorApplication(id, fields) {
+  const row = {}
+  if (fields.status !== undefined) row.status = fields.status
+  if (fields.adminNote !== undefined) row.admin_note = fields.adminNote || null
+  const { error } = await supabase.from('ambassador_applications').update(row).eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteAmbassadorApplication(id) {
+  const { error } = await supabase.from('ambassador_applications').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchHourLogs(userId) {
   const { data, error } = await supabase
     .from('hour_logs')

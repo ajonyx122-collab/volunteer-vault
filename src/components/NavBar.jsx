@@ -12,6 +12,7 @@ const navLinks = [
   { href: '/browse', label: 'Browse' },
   { href: '/community', label: 'Community' },
   { href: '/leaderboards', label: 'Leaderboards' },
+  { href: '/ambassadors', label: 'Ambassadors' },
   { href: '/faq', label: 'FAQ' },
 ]
 
