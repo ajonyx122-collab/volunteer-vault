@@ -113,6 +113,29 @@ export function opportunityEventJsonLd(opp) {
   return jsonLd
 }
 
+// ItemList for a /volunteer/[slug] landing page — the "summary page" pattern
+// where each entry points to an opportunity's own detail URL (which carries the
+// full Event markup). This tells Google the landing page is a curated list of
+// N real opportunities, not thin/duplicate content, and ties the list to the
+// detail pages. `name` is the human list title, `url` its canonical address.
+// Returns null for an empty list so callers can skip the <script> tag.
+export function opportunityListJsonLd(opps, { name, url } = {}) {
+  if (!opps?.length) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    ...(name ? { name } : {}),
+    ...(url ? { url: `${SITE_URL}${url}` } : {}),
+    numberOfItems: opps.length,
+    itemListElement: opps.map((opp, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: opportunityUrl(opp),
+      name: opp.title,
+    })),
+  }
+}
+
 // Generic BreadcrumbList from [{ name, href }] items — the SAME array that
 // feeds the visible <Breadcrumb> component, so the two never drift. `href` is
 // a site-root relative path (e.g. '/browse'); the last item is the current page.

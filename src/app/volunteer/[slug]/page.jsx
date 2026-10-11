@@ -8,7 +8,7 @@ import {
   opportunitiesForCause,
   opportunitiesForCity,
 } from '../../../lib/opportunityFilters'
-import { breadcrumbJsonLd } from '../../../lib/jsonLd'
+import { breadcrumbJsonLd, opportunityListJsonLd } from '../../../lib/jsonLd'
 import { CATEGORY_STYLES } from '../../../components/categoryStyles'
 import Breadcrumb from '../../../components/Breadcrumb'
 import OpportunityCard from '../../../components/OpportunityCard'
@@ -168,12 +168,23 @@ export default async function VolunteerLandingPage({ params }) {
     { name: copy.h1, href: `/volunteer/${slug}` },
   ]
 
+  const listJsonLd = opportunityListJsonLd(listings, {
+    name: copy.h1,
+    url: `/volunteer/${slug}`,
+  })
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(trail)) }}
       />
+      {listJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(listJsonLd) }}
+        />
+      )}
 
       <Breadcrumb items={trail} />
 
