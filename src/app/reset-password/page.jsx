@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient'
+import AuthShell from '../../components/AuthShell'
 
 // Users land here from the email link — supabase-js reads the recovery token
 // from the URL automatically and logs them in, so all we do is set the new
@@ -37,7 +38,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
+    <AuthShell headline="Fresh start, same vault.">
       <div className="text-center">
         <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
         <h1 className="mt-3 font-display text-3xl font-extrabold text-brand-green">Pick a new password</h1>
@@ -78,6 +79,6 @@ export default function ResetPassword() {
           Request a new one
         </Link>
       </p>
-    </div>
+    </AuthShell>
   )
 }

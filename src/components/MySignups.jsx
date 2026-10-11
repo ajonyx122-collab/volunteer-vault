@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import SectionTitle from './SectionTitle'
 import { fetchMySignups, cancelRsvp } from '../lib/api'
 
 function formatWhen(startsAt) {
@@ -41,10 +42,10 @@ export default function MySignups({ userId }) {
 
   return (
     <section className="mx-auto max-w-5xl px-4 pb-10 sm:px-6">
-      <h2 className="font-display text-xl font-extrabold text-brand-green">Coming up</h2>
-      <div className="mt-4 flex flex-col gap-3">
+      <SectionTitle kicker="📅 On your calendar" title="Coming up" />
+      <div className="mt-6 flex flex-col gap-3">
         {upcoming.length === 0 && (
-          <p className="rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">
+          <p className="rounded-card border-2 border-dashed border-brand-green/40 bg-card p-5 text-sm text-brand-green/60">
             Nothing on the calendar —{' '}
             <Link href="/browse" className="font-bold text-coral hover:underline">
               find your next shift
@@ -55,7 +56,7 @@ export default function MySignups({ userId }) {
         {upcoming.map((s) => (
           <div
             key={s.signupId}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-card-border bg-card p-4 shadow-card"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-card border-2 border-brand-green bg-card p-4 shadow-pop-soft"
           >
             <div className="min-w-0">
               <Link

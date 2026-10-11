@@ -9,6 +9,7 @@ import { playAchievement } from '../lib/sound'
 import { CATEGORY_STYLES } from './categoryStyles'
 import ChallengeBanner from './ChallengeBanner'
 import HoursHeatmap from './HoursHeatmap'
+import SectionTitle from './SectionTitle'
 import { parseLogDate } from '../lib/hourLogs'
 
 function formatShortDate(dateStr) {
@@ -88,13 +89,28 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
   return (
     <div>
       {/* Header */}
-      <section className="bg-brand-green">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 py-12 text-center sm:px-6">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-cream-muted/30 font-display text-3xl font-extrabold text-cream-text">
-            {user.displayName.split(' ').map((n) => n[0]).join('')}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#1B6E42] via-brand-green to-[#14432b]">
+        <div className="pointer-events-none absolute inset-0" aria-hidden>
+          <div className="animate-blob absolute -left-20 -top-24 h-72 w-72 rounded-full bg-gold/30 blur-3xl" />
+          <div className="animate-blob absolute -right-16 top-10 h-72 w-72 rounded-full bg-coral/25 blur-3xl" style={{ animationDelay: '4s' }} />
+          <span className="animate-floaty absolute left-4 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-category-food-bg text-lg shadow-pop sm:left-[12%] sm:h-14 sm:w-14 sm:text-2xl" style={{ '--tilt': '-8deg' }}>
+            🏅
+          </span>
+          <span className="animate-floaty absolute right-4 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-category-disaster-bg text-lg shadow-pop sm:right-[12%] sm:h-14 sm:w-14 sm:text-2xl" style={{ '--tilt': '8deg', animationDelay: '1s' }}>
+            🔥
+          </span>
+        </div>
+        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 pb-14 pt-12 text-center sm:px-6">
+          <div className="relative">
+            <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-cream bg-gold font-display text-4xl font-extrabold text-gold-text shadow-pop-lg">
+              {user.displayName.split(' ').map((n) => n[0]).join('').slice(0, 3)}
+            </div>
+            <span className="absolute -bottom-2 -right-3 rotate-6 rounded-pill bg-coral px-2.5 py-1 text-xs font-extrabold text-cream-text shadow-pop">
+              {user.verifiedHours} hrs
+            </span>
           </div>
           <div>
-            <h1 className="font-display text-2xl font-extrabold text-cream-text">{user.displayName}</h1>
+            <h1 className="font-display text-3xl font-extrabold text-cream-text sm:text-4xl">{user.displayName}</h1>
             {(user.school || user.gradYear) && (
               <p className="text-cream-muted">
                 {[user.school, user.gradYear ? `Class of ${user.gradYear}` : null].filter(Boolean).join(' · ')}
@@ -132,13 +148,13 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
         </div>
       </section>
 
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-        {/* Stat cards */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <StatCard value={user.verifiedHours} label="Verified hours" />
+      <div className="mx-auto max-w-5xl px-4 pb-16 sm:px-6">
+        {/* Stat cards — overlap the header edge */}
+        <div className="relative -mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          <StatCard value={user.verifiedHours} label="Verified hours" icon="⏱️" tone="bg-category-music-bg" />
           <StreakCard weeks={user.streakWeeks} />
-          <StatCard value={user.badges.filter((b) => b.earned).length} label="Badges" />
-          <StatCard value={user.causes.length} label="Causes" />
+          <StatCard value={earnedBadges} label="Badges" icon="🏅" tone="bg-category-animals-bg" />
+          <StatCard value={user.causes.length} label="Causes" icon="🌈" tone="bg-category-environment-bg" />
         </div>
 
         {user.activeChallenge && (
@@ -148,44 +164,58 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
         )}
 
         {/* Badge shelf */}
-        <section className="mt-10">
-          <h2 className="font-display text-xl font-extrabold text-brand-green">Badge shelf</h2>
-          <div className="mt-4 flex flex-wrap gap-4">
-            {user.badges.map((badge) => (
-              <div
-                key={badge.id}
-                className={`flex w-36 flex-col items-center gap-2 rounded-card border p-4 text-center shadow-card ${
-                  badge.earned ? 'border-card-border bg-card' : 'border-dashed border-card-border bg-cream'
-                }`}
-              >
+        <section className="mt-14">
+          <SectionTitle kicker="Your collection" title="Badge shelf" />
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {user.badges.map((badge, i) => {
+              const pct =
+                !badge.earned && badge.targetHours
+                  ? Math.min(100, Math.round((badge.progressHours / badge.targetHours) * 100))
+                  : null
+              return (
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-full text-xl ${
-                    badge.earned ? 'bg-gold text-gold-text' : 'bg-card-border text-brand-green/40'
+                  key={badge.id}
+                  className={`group flex flex-col items-center gap-2 rounded-card p-4 text-center transition-transform hover:-translate-y-1 ${
+                    badge.earned
+                      ? 'border-2 border-brand-green bg-card shadow-pop-soft'
+                      : 'border-2 border-dashed border-brand-green/30 bg-cream'
                   }`}
                 >
-                  {badge.earned ? '🏅' : '🔒'}
+                  <div
+                    className={`flex h-14 w-14 items-center justify-center rounded-full text-2xl transition-transform group-hover:rotate-12 ${
+                      badge.earned ? 'border-2 border-brand-green bg-gold shadow-pop' : 'bg-card-border grayscale'
+                    }`}
+                    style={{ transform: `rotate(${[-8, 6, -4, 8, -6][i % 5]}deg)` }}
+                  >
+                    {badge.earned ? '🏅' : '🔒'}
+                  </div>
+                  <p className={`text-sm font-extrabold ${badge.earned ? 'text-brand-green' : 'text-brand-green/50'}`}>{badge.label}</p>
+                  {pct != null && (
+                    <div className="w-full">
+                      <div className="h-1.5 overflow-hidden rounded-pill bg-card-border">
+                        <div className="h-full rounded-pill bg-gold" style={{ width: `${pct}%` }} />
+                      </div>
+                      <p className="mt-1 text-[11px] font-semibold text-brand-green/50">
+                        {Math.max(0, Math.round(badge.targetHours - badge.progressHours))} hrs to go
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <p className="text-sm font-bold text-brand-green">{badge.label}</p>
-                {!badge.earned && badge.targetHours != null && (
-                  <p className="text-xs text-brand-green/50">
-                    {Math.max(0, Math.round(badge.targetHours - badge.progressHours))} hrs to go
-                  </p>
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
 
         {/* Where the hours went */}
-        <section className="mt-10">
-          <h2 className="font-display text-xl font-extrabold text-brand-green">Where the hours went</h2>
+        <section className="mt-14">
+          <SectionTitle kicker="Your causes" title="Where the hours went" />
           {user.causes.length === 0 && (
-            <p className="mt-4 rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">
+            <p className="mt-4 rounded-card border-2 border-dashed border-brand-green/40 bg-card p-5 text-sm text-brand-green/60">
               Nothing here yet — your first shift starts the story.{' '}
               <Link href="/browse" className="font-bold text-coral hover:underline">Find one</Link>
             </p>
           )}
-          <div className="mt-4 flex h-4 w-full overflow-hidden rounded-pill">
+          <div className={`mt-6 h-6 w-full overflow-hidden rounded-pill border-2 border-brand-green bg-cream ${user.causes.length ? 'flex' : 'hidden'}`}>
             {user.causes.map((c) => (
               <div
                 key={c.category}
@@ -211,8 +241,8 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
         </section>
 
         {/* Your hour breakdown */}
-        <section className="mt-10">
-          <h2 className="font-display text-xl font-extrabold text-brand-green">Your hour breakdown</h2>
+        <section className="mt-14">
+          <SectionTitle kicker="By the numbers" title="Hour breakdown" />
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatCard value={user.verifiedHours} label="Total hours" />
             <StatCard value={user.datesServedCount} label="Dates served" />
@@ -225,20 +255,20 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
             </p>
           )}
           {user.servedDates.length > 0 ? (
-            <div className="mt-4 rounded-card border border-card-border bg-card p-4 shadow-card">
+            <div className="mt-4 rounded-card border-2 border-brand-green bg-card p-4 shadow-pop-soft">
               <HoursHeatmap servedDates={user.servedDates} />
             </div>
           ) : (
-            <p className="mt-4 rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">
+            <p className="mt-4 rounded-card border-2 border-dashed border-brand-green/40 bg-card p-5 text-sm text-brand-green/60">
               Your served dates will show up here as a heatmap once you log some hours.
             </p>
           )}
         </section>
 
         {/* Recent activity */}
-        <section className="mt-10">
+        <section className="mt-14">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-display text-xl font-extrabold text-brand-green">Recent activity</h2>
+            <SectionTitle kicker="Latest" title="Recent activity" />
             {isOwner && activity.length > 0 && (
               <button
                 onClick={() => downloadHoursCsv(user, activity)}
@@ -250,14 +280,14 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
           </div>
           <div className="mt-4 flex flex-col gap-3">
             {activity.length === 0 && (
-              <p className="rounded-card border border-card-border bg-card p-5 text-sm text-brand-green/60 shadow-card">
+              <p className="rounded-card border-2 border-dashed border-brand-green/40 bg-card p-5 text-sm text-brand-green/60">
                 No logged hours yet — RSVP to something and get out there.
               </p>
             )}
             {activity.map((entry) => (
               <div
                 key={entry.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-card border border-card-border bg-card p-4 shadow-card"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-card border-2 border-brand-green bg-card p-4 shadow-pop-soft"
               >
                 <div>
                   <p className="font-bold text-brand-green">{entry.title}</p>
@@ -297,9 +327,14 @@ export default function VaultView({ user, activity, isOwner, onEdit, reviewedOpp
   )
 }
 
-function StatCard({ value, label }) {
+function StatCard({ value, label, icon, tone = 'bg-card' }) {
   return (
-    <div className="rounded-card border border-card-border bg-card p-4 text-center shadow-card">
+    <div className={`rounded-card border-2 border-brand-green p-4 text-center shadow-pop-soft ${tone}`}>
+      {icon && (
+        <p className="text-xl" aria-hidden>
+          {icon}
+        </p>
+      )}
       <p className="font-display text-2xl font-extrabold text-brand-green">{value}</p>
       <p className="text-xs font-semibold text-brand-green/60">{label}</p>
     </div>
@@ -307,10 +342,13 @@ function StatCard({ value, label }) {
 }
 
 function StreakCard({ weeks }) {
-  if (weeks <= 0) return <StatCard value="0wk" label="Streak" />
+  if (weeks <= 0) return <StatCard value="0 wk" label="Streak" icon="🔥" tone="bg-category-disaster-bg" />
   return (
-    <div className="rounded-card border border-gold bg-category-food-bg p-4 text-center shadow-card">
-      <p className="font-display text-2xl font-extrabold text-gold-text">🔥 {weeks}</p>
+    <div className="rounded-card border-2 border-brand-green bg-gold p-4 text-center shadow-pop">
+      <p className="text-xl" aria-hidden>
+        🔥
+      </p>
+      <p className="font-display text-2xl font-extrabold text-gold-text">{weeks}</p>
       <p className="text-xs font-semibold text-gold-text/80">
         {weeks === 1 ? 'week streak' : 'weeks and counting'}
       </p>

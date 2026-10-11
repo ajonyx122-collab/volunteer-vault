@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../lib/supabaseClient'
+import AuthShell from '../../components/AuthShell'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -27,7 +28,8 @@ export default function ForgotPassword() {
 
   if (sent) {
     return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
+      <AuthShell headline="Happens to the best of us.">
+        <div className="flex flex-col items-center gap-4 text-center">
         <img src="/brand/logo-icon.png" alt="" className="h-14 w-14" />
         <h1 className="font-display text-2xl font-extrabold text-brand-green">Check your email 📬</h1>
         <p className="text-brand-green/70">
@@ -37,12 +39,13 @@ export default function ForgotPassword() {
         <Link href="/login" className="font-bold text-coral hover:underline">
           Back to log in
         </Link>
-      </div>
+        </div>
+      </AuthShell>
     )
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
+    <AuthShell headline="Happens to the best of us.">
       <div className="text-center">
         <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
         <h1 className="mt-3 font-display text-3xl font-extrabold text-brand-green">Reset password</h1>
@@ -74,6 +77,6 @@ export default function ForgotPassword() {
           Log in
         </Link>
       </p>
-    </div>
+    </AuthShell>
   )
 }

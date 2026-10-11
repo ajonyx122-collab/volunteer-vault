@@ -123,7 +123,7 @@ export default function OrgDashboard() {
 
   if (!user) {
     return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
+      <div className="mx-4 my-16 flex max-w-md flex-col items-center gap-4 rounded-card border-2 border-brand-green bg-card px-6 py-12 text-center shadow-pop-soft sm:mx-auto">
         <img src="/brand/logo-icon.png" alt="" className="h-14 w-14" />
         <h1 className="font-display text-2xl font-extrabold text-brand-green">Org dashboard</h1>
         <p className="text-brand-green/70">Log in with your organization account to manage listings.</p>
@@ -141,7 +141,7 @@ export default function OrgDashboard() {
 
   if (!org) {
     return (
-      <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
+      <div className="mx-4 my-12 max-w-md rounded-card border-2 border-brand-green bg-card px-5 py-8 shadow-pop-soft sm:mx-auto sm:px-8">
         <div className="text-center">
           <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
           <h1 className="mt-3 font-display text-2xl font-extrabold text-brand-green">
@@ -200,32 +200,41 @@ export default function OrgDashboard() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <OrgAvatar org={org} size="md" />
-          <div className="flex items-center gap-2">
-            <h1 className="font-display text-3xl font-extrabold text-brand-green">{org.name}</h1>
-            <VerifiedBadge verified={org.verified} />
+      <div className="bg-dots-light relative overflow-hidden rounded-card border-2 border-brand-green bg-gradient-to-br from-[#1B6E42] via-brand-green to-[#14432b] p-5 shadow-pop-soft sm:p-6">
+        <span className="pointer-events-none absolute -right-4 -top-6 rotate-12 text-8xl opacity-15" aria-hidden>
+          🏢
+        </span>
+        <p className="text-xs font-extrabold uppercase tracking-widest text-gold">Your organization</p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="rounded-full border-4 border-cream/80">
+              <OrgAvatar org={org} size="md" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="font-display text-2xl font-extrabold leading-tight text-cream-text sm:text-3xl">{org.name}</h1>
+                <VerifiedBadge verified={org.verified} />
+              </div>
+              {org.website && (
+                <a
+                  href={org.website.startsWith('http') ? org.website : `https://${org.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-0.5 inline-block text-sm font-semibold text-cream-muted hover:text-cream-text"
+                >
+                  🌐 {org.website}
+                </a>
+              )}
+            </div>
           </div>
+          <Link
+            href="/post-opportunity"
+            className="w-full rounded-pill bg-gold px-5 py-2.5 text-center text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none sm:w-auto"
+          >
+            + New opportunity
+          </Link>
         </div>
-        <Link
-          href="/post-opportunity"
-          className="rounded-pill bg-coral px-5 py-2 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg active:translate-y-0 active:shadow-none"
-        >
-          + New opportunity
-        </Link>
       </div>
-
-      {org.website && (
-        <a
-          href={org.website.startsWith('http') ? org.website : `https://${org.website}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 inline-block text-sm font-semibold text-coral hover:underline"
-        >
-          🌐 {org.website}
-        </a>
-      )}
 
       {org.adminNote && (
         <div className="mt-4 rounded-card border border-gold bg-category-food-bg p-4 text-sm text-gold-text shadow-card">
@@ -241,21 +250,19 @@ export default function OrgDashboard() {
         </p>
       )}
 
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <StatBlock value={myOpportunities.length} label="Active listings" />
-        <StatBlock value={totalSignups} label="Total signups" />
-        <StatBlock value={volunteers.length} label="Volunteers" />
+      <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4">
+        <StatBlock value={myOpportunities.length} label="Active listings" icon="📋" tone="bg-category-music-bg" />
+        <StatBlock value={totalSignups} label="Total signups" icon="✋" tone="bg-category-food-bg" />
+        <StatBlock value={volunteers.length} label="Volunteers" icon="🙋" tone="bg-category-environment-bg" />
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-2">
+      <div className="mt-8 grid grid-cols-3 gap-1.5 rounded-card border-2 border-brand-green bg-card p-1.5 shadow-pop-soft">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
-              tab === t.id
-                ? 'bg-brand-green text-cream-text'
-                : 'border border-card-border bg-card text-brand-green hover:bg-cream'
+            className={`rounded-[12px] px-2 py-2.5 text-sm font-extrabold transition-all ${
+              tab === t.id ? 'bg-brand-green text-cream-text shadow-pop' : 'text-brand-green hover:bg-cream'
             }`}
           >
             {t.label}
@@ -417,10 +424,13 @@ export default function OrgDashboard() {
   )
 }
 
-function StatBlock({ value, label }) {
+function StatBlock({ value, label, icon, tone = 'bg-card' }) {
   return (
-    <div className="rounded-card border border-card-border bg-card p-4 text-center shadow-card">
-      <p className="font-display text-xl font-extrabold text-brand-green">{value}</p>
+    <div className={`rounded-card border-2 border-brand-green p-4 text-center shadow-pop-soft ${tone}`}>
+      <p className="text-xl" aria-hidden>
+        {icon}
+      </p>
+      <p className="font-display text-2xl font-extrabold text-brand-green">{value}</p>
       <p className="text-xs font-semibold text-brand-green/60">{label}</p>
     </div>
   )

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
 import { safeNext } from '../../lib/authRedirect'
+import AuthShell from '../../components/AuthShell'
 
 const inputClass = 'rounded-pill border border-card-border px-4 py-3 text-sm outline-none'
 
@@ -59,7 +60,7 @@ function Welcome() {
   if (loading || !user) return <p className="py-24 text-center text-brand-green/70">Loading...</p>
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
+    <AuthShell headline="Almost there! 🎉">
       <div className="text-center">
         <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
         <h1 className="mt-3 font-display text-3xl font-extrabold text-brand-green">You're in! 🎉</h1>
@@ -102,7 +103,7 @@ function Welcome() {
           {busy ? 'Saving...' : "Let's go"}
         </button>
       </form>
-    </div>
+    </AuthShell>
   )
 }
 

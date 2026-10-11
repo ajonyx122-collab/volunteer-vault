@@ -78,9 +78,9 @@ export default function Profile() {
 
   if (!user) {
     return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
+      <div className="mx-auto my-16 flex max-w-md flex-col items-center gap-4 rounded-card border-2 border-brand-green bg-card px-6 py-12 text-center shadow-pop-soft sm:px-8">
         <img src="/brand/logo-icon.png" alt="" className="h-14 w-14" />
-        <h1 className="font-display text-2xl font-extrabold text-brand-green">Your vault is waiting</h1>
+        <h1 className="font-display text-3xl font-extrabold text-brand-green">Your vault is waiting 🔐</h1>
         <p className="text-brand-green/70">Log in to see your hours, badges, and streak.</p>
         <div className="flex gap-3">
           <Link
@@ -124,7 +124,7 @@ export default function Profile() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-green/40 p-4">
           <form
             onSubmit={handleSave}
-            className="flex w-full max-w-sm flex-col gap-3 rounded-card border border-card-border bg-card p-6 shadow-soft"
+            className="animate-pop-in flex w-full max-w-sm flex-col gap-3 rounded-card border-2 border-brand-green bg-card p-6 shadow-pop-lg"
           >
             <h2 className="font-display text-xl font-extrabold text-brand-green">Edit profile</h2>
             <label className="text-xs font-bold text-brand-green/60">

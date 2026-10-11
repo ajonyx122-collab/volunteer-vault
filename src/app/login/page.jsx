@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient'
 import { safeNext } from '../../lib/authRedirect'
 import SocialAuth from '../../components/SocialAuth'
+import AuthShell from '../../components/AuthShell'
 
 export default function LoginPage() {
   return (
@@ -37,7 +38,7 @@ function Login() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
+    <AuthShell headline="Good to see you again. 👋">
       <div className="text-center">
         <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
         <h1 className="mt-3 font-display text-3xl font-extrabold text-brand-green">Welcome back</h1>
@@ -86,6 +87,6 @@ function Login() {
           Forgot your password?
         </Link>
       </p>
-    </div>
+    </AuthShell>
   )
 }

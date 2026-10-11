@@ -192,7 +192,7 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
     <section className="mt-12">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl font-extrabold text-brand-green">Reviews</h2>
+          <h2 className="font-display text-2xl font-extrabold text-brand-green">⭐ Reviews</h2>
           {averages && (
             <p className="mt-1 text-sm text-brand-green/60">
               Based on {averages.count} review{averages.count > 1 ? 's' : ''} ·{' '}
@@ -244,7 +244,7 @@ export default function ReviewsSection({ opportunityId, servedPast = false }) {
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="mt-4 flex flex-col gap-3 rounded-card border border-card-border bg-card p-5 shadow-card"
+          className="mt-4 flex flex-col gap-3 rounded-card border-2 border-brand-green bg-card p-5 shadow-pop-soft"
         >
           <p className="text-xs text-brand-green/60">
             Reviews here help the next volunteer know what to expect — keep it kind and

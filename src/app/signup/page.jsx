@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { createOrganization } from '../../lib/api'
 import { safeNext } from '../../lib/authRedirect'
 import SocialAuth from '../../components/SocialAuth'
+import AuthShell from '../../components/AuthShell'
 
 // Why they were sent here (?why=...), so the page can say what they're unlocking.
 const WHY_COPY = {
@@ -88,7 +89,8 @@ function SignUp() {
 
   if (needsConfirm) {
     return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
+      <AuthShell headline="Start your service story.">
+        <div className="flex flex-col items-center gap-4 text-center">
         <img src="/brand/logo-icon.png" alt="" className="h-16 w-16" />
         <h1 className="font-display text-2xl font-extrabold text-brand-green">Check your email 📬</h1>
         <p className="text-brand-green/70">
@@ -101,12 +103,13 @@ function SignUp() {
         >
           Go to log in
         </Link>
-      </div>
+        </div>
+      </AuthShell>
     )
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
+    <AuthShell headline="Start your service story.">
       <div className="text-center">
         <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
         <h1 className="mt-3 font-display text-3xl font-extrabold text-brand-green">Join free</h1>
@@ -239,6 +242,6 @@ function SignUp() {
       <p className="mt-4 text-center text-xs text-brand-green/50">
         By joining you agree there are no DMs between users on VolunteerVault — ever.
       </p>
-    </div>
+    </AuthShell>
   )
 }

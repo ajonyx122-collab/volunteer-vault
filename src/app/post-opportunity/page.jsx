@@ -128,7 +128,7 @@ export default function PostOpportunity() {
       <div className="mt-4 flex items-center gap-3">
         <OrgAvatar org={org} size="md" />
         <div>
-          <h1 className="font-display text-3xl font-extrabold text-brand-green">Post an opportunity</h1>
+          <h1 className="text-sticker font-display text-3xl font-extrabold sm:text-4xl">Post an opportunity ✨</h1>
           <p className="text-sm text-brand-green/60">for {org.name}</p>
         </div>
       </div>
@@ -413,12 +413,12 @@ export default function PostOpportunity() {
 
 function Section({ number, title, hint, children }) {
   return (
-    <section className="rounded-card border border-card-border bg-card p-6 shadow-card">
+    <section className="rounded-card border-2 border-brand-green bg-card p-5 shadow-pop-soft sm:p-6">
       <div className="flex items-center gap-3">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-coral font-display text-sm font-extrabold text-cream-text">
+        <span className="flex h-10 w-10 -rotate-6 items-center justify-center rounded-full border-2 border-brand-green bg-gold font-display text-base font-extrabold text-gold-text shadow-pop">
           {number}
         </span>
-        <h2 className="font-display text-lg font-extrabold text-brand-green">{title}</h2>
+        <h2 className="font-display text-xl font-extrabold text-brand-green">{title}</h2>
       </div>
       {hint && <p className="mt-2 text-xs text-brand-green/60">{hint}</p>}
       <div className="mt-4 flex flex-col gap-3">{children}</div>

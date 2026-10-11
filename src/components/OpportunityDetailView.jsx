@@ -64,7 +64,7 @@ function previewText(text, max = 160) {
 function LockedCard({ next }) {
   const q = `next=${encodeURIComponent(next)}`
   return (
-    <div className="rounded-card border border-card-border bg-card p-5 text-center shadow-card">
+    <div className="rounded-card border-2 border-brand-green bg-card p-5 text-center shadow-pop-soft">
       <p className="text-3xl" aria-hidden>🔒</p>
       <p className="mt-1 font-display text-lg font-extrabold text-brand-green">See the full listing</p>
       <p className="mt-1 text-xs text-brand-green/60">
@@ -220,15 +220,28 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
 
       {/* Hero banner: real photo once an org uploads one, warm category art meanwhile */}
       <div
-        className={`mt-4 flex h-44 items-center justify-center overflow-hidden rounded-card ${
+        className={`bg-dots relative mt-4 flex h-44 items-center justify-center overflow-hidden rounded-card border-2 border-brand-green shadow-pop-soft sm:h-56 ${
           CATEGORY_STYLES[opportunity.category]?.chip ?? 'bg-cream'
         }`}
       >
         {opportunity.org?.imageUrl ? (
           <img src={opportunity.org.imageUrl} alt={opportunity.org.name} className="h-full w-full object-cover" />
         ) : (
-          <span className="text-7xl" aria-hidden>
-            {category?.icon ?? '💚'}
+          <>
+            <span className="animate-floaty text-8xl drop-shadow-sm" style={{ '--tilt': '-6deg' }} aria-hidden>
+              {category?.icon ?? '💚'}
+            </span>
+            <span className="animate-floaty absolute left-[12%] top-6 text-3xl opacity-50" style={{ '--tilt': '10deg', animationDelay: '1s' }} aria-hidden>
+              {category?.icon ?? '💚'}
+            </span>
+            <span className="animate-floaty absolute bottom-5 right-[14%] text-4xl opacity-40" style={{ '--tilt': '-12deg', animationDelay: '2s' }} aria-hidden>
+              {category?.icon ?? '💚'}
+            </span>
+          </>
+        )}
+        {category && (
+          <span className="absolute left-4 top-4 -rotate-3 rounded-pill border-2 border-brand-green bg-card px-3 py-1 text-xs font-extrabold text-brand-green shadow-pop">
+            {category.icon} {category.label}
           </span>
         )}
       </div>
@@ -237,7 +250,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-3xl">{category?.icon}</span>
-            <h1 className="font-display text-3xl font-extrabold text-brand-green">{opportunity.title}</h1>
+            <h1 className="font-display text-3xl font-extrabold leading-tight text-brand-green sm:text-4xl">{opportunity.title}</h1>
             <SaveButton id={opportunity.id} className="ml-auto" />
           </div>
 
@@ -304,7 +317,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
           )}
 
           {!locked && opportunity.reviewQuote && (
-            <blockquote className="mt-6 rounded-card border border-card-border bg-card p-4 italic text-brand-green/70 shadow-card">
+            <blockquote className="mt-6 rounded-card border-2 border-brand-green bg-category-food-bg p-4 italic text-brand-green/80 shadow-pop-soft">
               “{opportunity.reviewQuote}”
             </blockquote>
           )}
@@ -349,7 +362,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
           {locked ? (
             <LockedCard next={pathname} />
           ) : isExternal ? (
-            <div className="rounded-card border border-card-border bg-card p-5 text-center shadow-card">
+            <div className="rounded-card border-2 border-brand-green bg-card p-5 text-center shadow-pop-soft">
               <p className="font-display text-lg font-extrabold text-brand-green">Register with {opportunity.org?.name}</p>
               <p className="mt-1 text-xs text-brand-green/60">
                 This opportunity is hosted on the organization's own site. Sign up there to get started.
@@ -368,7 +381,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
               </p>
             </div>
           ) : (
-            <div className="rounded-card border border-card-border bg-card p-5 text-center shadow-card">
+            <div className="rounded-card border-2 border-brand-green bg-card p-5 text-center shadow-pop-soft">
               <p className="font-display text-2xl font-extrabold text-brand-green">
                 {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}
               </p>
@@ -395,7 +408,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
           )}
 
           {user && (
-            <div className="rounded-card border border-card-border bg-card p-5 shadow-card">
+            <div className="rounded-card border-2 border-brand-green bg-card p-5 shadow-pop-soft">
               <p className="font-bold text-brand-green">Your hours</p>
               {celebrate && (
                 <div className="mt-2 rounded-card border border-gold bg-category-food-bg p-3 text-sm font-bold text-gold-text">
@@ -472,7 +485,7 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
             </div>
           )}
 
-          <div className="flex gap-3 rounded-card border border-card-border bg-card p-5 shadow-card">
+          <div className="flex gap-3 rounded-card border-2 border-brand-green bg-card p-5 shadow-pop-soft">
             <OrgAvatar org={opportunity.org} size="md" />
             <div className="min-w-0">
               <p className="font-bold text-brand-green">{opportunity.org?.name}</p>
