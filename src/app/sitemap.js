@@ -1,11 +1,11 @@
-import { fetchOpportunitiesServer } from '../lib/api.server'
+import { fetchOpportunitiesServer, fetchStudentOrgsServer } from '../lib/api.server'
 import { buildCauseDirectory, buildLocationDirectory } from '../lib/opportunityFilters'
 import { opportunityPath } from '../lib/opportunityUrls'
 
 const SITE_URL = 'https://www.volunteervault.org'
 
 export default async function sitemap() {
-  const staticRoutes = ['', '/browse', '/volunteer', '/community', '/leaderboards', '/faq', '/ambassadors', '/privacy', '/map', '/signup', '/login'].map(
+  const staticRoutes = ['', '/browse', '/volunteer', '/student-led', '/leaderboards', '/faq', '/ambassadors', '/privacy', '/map', '/signup', '/login'].map(
     (path) => ({
       url: `${SITE_URL}${path}`,
       changeFrequency: path === '' || path === '/browse' ? 'hourly' : 'weekly',
@@ -32,5 +32,12 @@ export default async function sitemap() {
     priority: 0.7,
   }))
 
-  return [...staticRoutes, ...opportunityRoutes, ...landingRoutes]
+  const studentOrgs = await fetchStudentOrgsServer().catch(() => [])
+  const studentOrgRoutes = studentOrgs.map((org) => ({
+    url: `${SITE_URL}/student-led/${org.id}`,
+    changeFrequency: 'weekly',
+    priority: 0.6,
+  }))
+
+  return [...staticRoutes, ...opportunityRoutes, ...landingRoutes, ...studentOrgRoutes]
 }

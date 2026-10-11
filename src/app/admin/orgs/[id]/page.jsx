@@ -4,7 +4,14 @@ import { use, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../../../lib/AuthContext'
-import { fetchOrgAdminDetail, adminSetOrgNote, verifyOrganization, deleteOrganization } from '../../../../lib/api'
+import {
+  fetchOrgAdminDetail,
+  adminSetOrgNote,
+  verifyOrganization,
+  deleteOrganization,
+  setOrgSpotlight,
+} from '../../../../lib/api'
+import { FOUNDER_STATUS_LABELS } from '../../../../lib/opportunityMapping'
 import { getCategoryMeta } from '../../../../data/mockData'
 import OrgAvatar from '../../../../components/OrgAvatar'
 import VerifiedBadge from '../../../../components/VerifiedBadge'
@@ -51,6 +58,18 @@ export default function AdminOrgDetail({ params }) {
     setBusy(true)
     await verifyOrganization(id)
     setData((prev) => ({ ...prev, org: { ...prev.org, verified: true } }))
+    setBusy(false)
+  }
+
+  async function handleSpotlight() {
+    setBusy(true)
+    const next = !data.org.spotlight
+    try {
+      await setOrgSpotlight(id, next)
+      setData((prev) => ({ ...prev, org: { ...prev.org, spotlight: next } }))
+    } catch {
+      alert("Couldn't update the spotlight — try again.")
+    }
     setBusy(false)
   }
 
@@ -166,6 +185,46 @@ export default function AdminOrgDetail({ params }) {
         )}
       </div>
 
+      {org.isStudentLed && (
+        <div className="mt-6 rounded-card border-2 border-gold bg-card p-5 shadow-card">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-lg font-bold text-brand-green">🎓 Student founder profile</h2>
+            <Link href={`/student-led/${org.id}`} className="text-xs font-bold text-coral hover:underline">
+              Public page →
+            </Link>
+          </div>
+          <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+            <AdminField label="Founder" value={org.founderName} />
+            <AdminField label="School" value={org.founderSchool} />
+            <AdminField label="Status" value={FOUNDER_STATUS_LABELS[org.founderStatus]} />
+            <AdminField label="Started" value={org.foundedYear} />
+            <AdminField label="Mission" value={org.mission} wide />
+            <AdminField
+              label="Donate link (public only once verified — check it looks legit)"
+              value={org.donateUrl}
+              wide
+            />
+            <AdminField
+              label="Goal"
+              value={org.goalTitle && `${org.goalTitle} — ${org.goalCurrent ?? 0}/${org.goalTarget ?? '?'} ${org.goalUnit ?? ''}`}
+              wide
+            />
+          </dl>
+          <button
+            onClick={handleSpotlight}
+            disabled={busy}
+            className={`mt-4 rounded-pill px-4 py-1.5 text-xs font-bold disabled:opacity-50 ${
+              org.spotlight ? 'bg-gold text-gold-text shadow-soft' : 'border border-card-border text-brand-green'
+            }`}
+          >
+            {org.spotlight ? '⭐ In homepage spotlight — click to remove' : '☆ Spotlight on homepage'}
+          </button>
+          {!org.verified && (
+            <p className="mt-2 text-xs text-brand-green/50">Tip: verify the org first — only verified orgs show on the homepage spotlight.</p>
+          )}
+        </div>
+      )}
+
       <div className="mt-6 grid grid-cols-3 gap-3">
         <StatTile value={listings.length} label="Listings" />
         <StatTile value={totalSignups} label="RSVPs" />
@@ -267,6 +326,15 @@ function StatTile({ value, label }) {
     <div className="rounded-card border border-card-border bg-card p-3 text-center shadow-card">
       <p className="font-display text-xl font-extrabold text-brand-green">{value}</p>
       <p className="text-[10px] font-bold uppercase tracking-wide text-brand-green/50">{label}</p>
+    </div>
+  )
+}
+
+function AdminField({ label, value, wide }) {
+  return (
+    <div className={wide ? 'sm:col-span-2' : ''}>
+      <dt className="text-xs font-bold text-brand-green/50">{label}</dt>
+      <dd className="break-words text-brand-green">{value || '—'}</dd>
     </div>
   )
 }

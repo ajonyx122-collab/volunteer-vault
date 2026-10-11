@@ -10,7 +10,7 @@ import { useSavedIds } from '../lib/saved'
 
 const navLinks = [
   { href: '/browse', label: 'Browse' },
-  { href: '/community', label: 'Community' },
+  { href: '/student-led', label: 'Student-Led' },
   { href: '/leaderboards', label: 'Leaderboards' },
   { href: '/ambassadors', label: 'Ambassadors' },
   { href: '/faq', label: 'FAQ' },

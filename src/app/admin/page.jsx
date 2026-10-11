@@ -108,7 +108,14 @@ export default function AdminReview() {
                 <div className="flex gap-3">
                   <OrgAvatar org={org} size="md" />
                   <div>
-                    <p className="font-bold text-brand-green">{org.name}</p>
+                    <p className="font-bold text-brand-green">
+                      {org.name}
+                      {org.isStudentLed && (
+                        <span className="ml-2 rounded-pill bg-gold px-2 py-0.5 text-[10px] font-bold text-gold-text">
+                          🎓 Student-led
+                        </span>
+                      )}
+                    </p>
                     <p className="text-xs text-brand-green/50">
                       {[org.location, org.website, org.contactEmail, org.contactPhone]
                         .filter(Boolean)

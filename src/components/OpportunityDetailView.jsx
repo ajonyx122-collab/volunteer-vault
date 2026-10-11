@@ -245,6 +245,14 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
                 🙌 Community organized
               </span>
             )}
+            {opportunity.org?.isStudentLed && (
+              <Link
+                href={`/student-led/${opportunity.org.id}`}
+                className="rounded-pill bg-gold px-3 py-1 text-xs font-bold text-gold-text hover:underline"
+              >
+                🎓 Student-founded nonprofit
+              </Link>
+            )}
             {opportunity.isOnline && (
               <span className="rounded-pill bg-category-tech-bg px-3 py-1 text-xs font-bold text-category-tech-text">
                 🌐 Online
@@ -457,6 +465,14 @@ export default function OpportunityDetailView({ id, initialOpportunity, breadcru
             <div className="min-w-0">
               <p className="font-bold text-brand-green">{opportunity.org?.name}</p>
               <p className="mt-1 text-sm text-brand-green/70">{opportunity.org?.description}</p>
+              {opportunity.org?.isStudentLed && (
+                <Link
+                  href={`/student-led/${opportunity.org.id}`}
+                  className="mt-2 mr-4 inline-block text-sm font-bold text-coral hover:underline"
+                >
+                  🎓 Their mission, goals &amp; how to help →
+                </Link>
+              )}
               {!locked && opportunity.org?.website && (
                 <a
                   href={

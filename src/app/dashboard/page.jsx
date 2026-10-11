@@ -14,6 +14,7 @@ import {
 import VerifiedBadge from '../../components/VerifiedBadge'
 import OrgAvatar from '../../components/OrgAvatar'
 import ListingVolunteers from '../../components/ListingVolunteers'
+import FounderProfileForm from '../../components/FounderProfileForm'
 
 const TABS = [
   { id: 'postings', label: 'Postings' },
@@ -32,6 +33,7 @@ export default function OrgDashboard() {
   const [busy, setBusy] = useState(false)
   const [newOrgName, setNewOrgName] = useState('')
   const [newOrgLocation, setNewOrgLocation] = useState('')
+  const [isFounder, setIsFounder] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
 
   const [draftName, setDraftName] = useState('')
@@ -41,6 +43,14 @@ export default function OrgDashboard() {
   const [draftContactEmail, setDraftContactEmail] = useState('')
   const [draftContactPhone, setDraftContactPhone] = useState('')
   const [saved, setSaved] = useState(false)
+
+  // "List your nonprofit" on /student-led links here with ?founder=1.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('founder')) {
+      setIsFounder(true)
+      setTab('organization')
+    }
+  }, [])
 
   useEffect(() => {
     if (!user) {
@@ -77,7 +87,7 @@ export default function OrgDashboard() {
     setBusy(true)
     setError('')
     try {
-      const created = await createOrganization(user.id, { name: newOrgName, location: newOrgLocation })
+      const created = await createOrganization(user.id, { name: newOrgName, location: newOrgLocation, isStudentLed: isFounder })
       setOrg(created)
       loadDraft(created)
     } catch (err) {
@@ -136,8 +146,14 @@ export default function OrgDashboard() {
       <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
         <div className="text-center">
           <img src="/brand/logo-icon.png" alt="" className="mx-auto h-14 w-14" />
-          <h1 className="mt-3 font-display text-2xl font-extrabold text-brand-green">Set up your organization</h1>
-          <p className="mt-1 text-brand-green/70">One quick step and you can start posting opportunities.</p>
+          <h1 className="mt-3 font-display text-2xl font-extrabold text-brand-green">
+            {isFounder ? 'List your student nonprofit' : 'Set up your organization'}
+          </h1>
+          <p className="mt-1 text-brand-green/70">
+            {isFounder
+              ? "Start with the basics — next you'll add your mission, goal, and donate link."
+              : 'One quick step and you can start posting opportunities.'}
+          </p>
         </div>
         <form onSubmit={handleCreateOrg} className="mt-6 flex flex-col gap-3">
           <input
@@ -154,6 +170,21 @@ export default function OrgDashboard() {
             onChange={(e) => setNewOrgLocation(e.target.value)}
             className="rounded-pill border border-card-border px-4 py-3 text-sm outline-none"
           />
+          <label className="flex items-start gap-2 rounded-card border border-card-border bg-card p-3 text-sm text-brand-green">
+            <input
+              type="checkbox"
+              checked={isFounder}
+              onChange={(e) => setIsFounder(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-[#1B5E38]"
+            />
+            <span>
+              <span className="font-bold">🎓 I started this as a student</span>
+              <span className="block text-xs text-brand-green/60">
+                High school, college, or a recent grad who started it in school — you'll get a page
+                in the Student-Led section.
+              </span>
+            </span>
+          </label>
           {error && <p className="text-sm font-semibold text-coral">{error}</p>}
           <button
             type="submit"
@@ -313,6 +344,7 @@ export default function OrgDashboard() {
       )}
 
       {tab === 'organization' && (
+        <>
         <form
           onSubmit={handleSaveOrg}
           className="mt-6 flex flex-col gap-3 rounded-card border border-card-border bg-card p-5 shadow-card"
@@ -391,6 +423,8 @@ export default function OrgDashboard() {
             {saved && <p className="text-xs font-semibold text-brand-green/60">✓ Saved</p>}
           </div>
         </form>
+        <FounderProfileForm key={org.id} org={org} onSaved={setOrg} />
+        </>
       )}
     </div>
   )

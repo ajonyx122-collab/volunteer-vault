@@ -33,7 +33,28 @@ export function mapOrg(row) {
     countsForServiceHours: row.counts_for_service_hours ?? true,
     commitmentType: row.commitment_type ?? 'both',
     featured: row.featured ?? false,
+    // student-led nonprofits (migration 053)
+    isStudentLed: row.is_student_led ?? false,
+    founderName: row.founder_name ?? null,
+    founderSchool: row.founder_school ?? null,
+    founderStatus: row.founder_status ?? null,
+    foundedYear: row.founded_year ?? null,
+    mission: row.mission ?? null,
+    founderStory: row.founder_story ?? null,
+    donateUrl: row.donate_url ?? null,
+    goalTitle: row.goal_title ?? null,
+    goalUnit: row.goal_unit ?? null,
+    goalTarget: row.goal_target != null ? Number(row.goal_target) : null,
+    goalCurrent: row.goal_current != null ? Number(row.goal_current) : null,
+    spotlight: row.spotlight ?? false,
+    createdAt: row.created_at,
   }
+}
+
+export const FOUNDER_STATUS_LABELS = {
+  high_school: 'High school student',
+  college: 'College student',
+  recent_grad: 'Recent grad',
 }
 
 function vibeFromReviews(reviews) {
@@ -102,5 +123,9 @@ export function mapReview(row) {
 // Explicit org column list (not organizations(*)) so admin_note never rides
 // along on the public opportunities feed — see mapOrg's note on adminNote.
 export const ORG_COLUMNS =
-  'id, name, verified, description, location, logo_url, image_url, website, contact_email, contact_phone, owner_id, submitted_by, category, remote, international, min_age, country, state, city, counts_for_service_hours, commitment_type, featured'
+  'id, name, verified, description, location, logo_url, image_url, website, contact_email, contact_phone, owner_id, submitted_by, category, remote, international, min_age, country, state, city, counts_for_service_hours, commitment_type, featured, is_student_led'
+
+// Everything public about a student-led nonprofit (its /student-led/[id]
+// profile + hub card). Still excludes admin_note.
+export const STUDENT_ORG_COLUMNS = `${ORG_COLUMNS}, founder_name, founder_school, founder_status, founded_year, mission, founder_story, donate_url, goal_title, goal_unit, goal_target, goal_current, spotlight, created_at`
 export const OPP_SELECT = `*, organizations(${ORG_COLUMNS}), reviews(rating_organized, rating_welcoming, rating_impactful, quote)`

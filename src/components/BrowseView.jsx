@@ -170,7 +170,7 @@ export default function BrowseView({ initialOpportunities }) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <SuggestOpportunity onOrganizeClick={() => router.push('/community')} />
+      <SuggestOpportunity onOrganizeClick={() => router.push('/student-led?tab=projects')} />
 
       <h1 className="mt-6 font-display text-3xl font-extrabold text-brand-green">Browse opportunities</h1>
       <p className="mt-1 text-brand-green/60">Real organizations recruiting volunteers right now — filter down to your people.</p>

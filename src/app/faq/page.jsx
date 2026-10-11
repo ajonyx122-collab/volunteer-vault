@@ -84,11 +84,11 @@ const SECTIONS = [
     ],
   },
   {
-    title: 'Community projects',
+    title: 'Student-led nonprofits & projects',
     items: [
       {
         q: 'Can I organize my own project, like a beach cleanup?',
-        a: 'Absolutely — hit "Organize a project" on the Community page, fill in what/where/when/how many people, and it goes live right away. You manage your own signups from there, no email needed.',
+        a: 'Absolutely — hit "Organize a project" on the Projects tab of the Student-Led page, fill in what/where/when/how many people, and it goes live right away. You manage your own signups from there, no email needed.',
       },
       {
         q: "What's the difference between a real organization and a community-organized project?",
@@ -96,7 +96,15 @@ const SECTIONS = [
       },
       {
         q: 'I know a great place to volunteer that isn\'t listed — can I add it?',
-        a: 'Yes, use "Add a place" on the Community page or the suggestion form on Browse. It goes live as Pending until we take a quick look.',
+        a: 'Yes, use "Add a place" on the Student-Led page’s Projects tab or the suggestion form on Browse. It goes live as Pending until we take a quick look.',
+      },
+      {
+        q: 'I started a nonprofit as a student — can it get its own page?',
+        a: 'Yes! High school students, college students, and recent grads who started it in school all count. Hit "List your nonprofit" on the Student-Led page, then fill in your founder profile: mission, your story, a goal with a progress bar, and a donate link. Your page goes live right away as Pending; the Donate button shows up once we verify you.',
+      },
+      {
+        q: 'Does VolunteerVault handle donations?',
+        a: 'No — the Donate button just links to the nonprofit’s own donation page (like GoFundMe or their website). The money goes straight to them; we never touch it.',
       },
     ],
   },

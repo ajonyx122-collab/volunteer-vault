@@ -16,6 +16,7 @@ import CountUp from './CountUp'
 import Reveal from './Reveal'
 import SurpriseMe from './SurpriseMe'
 import Mascot from './Mascot'
+import StudentOrgCard from './StudentOrgCard'
 
 const MEDALS = ['🥇', '🥈', '🥉']
 
@@ -51,7 +52,7 @@ function dailyPick(arr, n = 4, seed = 0) {
 // app/page.jsx) so the listing content is present in the initial HTML for
 // SEO — only the challenge banner (needs the logged-in user) fetches
 // client-side, and the search form is interactive by nature.
-export default function HomeView({ opportunities, topVolunteers }) {
+export default function HomeView({ opportunities, topVolunteers, spotlightOrgs = [] }) {
   const { user } = useAuth()
   const [interest, setInterest] = useState('')
   const [location, setLocation] = useState('')
@@ -284,6 +285,26 @@ export default function HomeView({ opportunities, topVolunteers }) {
         <OppSection title="Remote opportunities" blurb="Make an impact from your couch — no car required.">
           {remote}
         </OppSection>
+      )}
+
+      {/* Student founder spotlight (admin picks via /admin/orgs/[id]) */}
+      {spotlightOrgs.length > 0 && (
+        <Reveal as="section" className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="font-display text-2xl font-extrabold text-brand-green">🎓 Student founder spotlight</h2>
+              <p className="text-sm text-brand-green/60">Started by students your age. Back them up.</p>
+            </div>
+            <Link href="/student-led" className="shrink-0 text-sm font-bold text-coral hover:underline">
+              See all
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {spotlightOrgs.map((org) => (
+              <StudentOrgCard key={org.id} org={org} />
+            ))}
+          </div>
+        </Reveal>
       )}
 
       {/* Your vault = your proof */}

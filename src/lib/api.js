@@ -798,13 +798,14 @@ export async function fetchMyOrganization(userId) {
   return mapOrg(data)
 }
 
-export async function createOrganization(userId, { name, location, contactEmail, contactPhone }) {
+export async function createOrganization(userId, { name, location, contactEmail, contactPhone, isStudentLed }) {
   const { data, error } = await supabase
     .from('organizations')
     .insert({
       owner_id: userId,
       name,
       location,
+      is_student_led: Boolean(isStudentLed),
       contact_email: contactEmail?.trim() || null,
       contact_phone: contactPhone?.trim() || null,
     })
@@ -848,6 +849,41 @@ export async function updateOrganization(orgId, { name, description, website, co
   const { data, error } = await supabase.from('organizations').update(patch).eq('id', orgId).select().single()
   if (error) throw error
   return mapOrg(data)
+}
+
+// The student-founder half of an org's profile (migration 053). Kept separate
+// from updateOrganization so the existing Organization form can't blank it.
+export async function updateFounderProfile(orgId, f) {
+  const num = (v) => (v === '' || v == null ? null : Number(v))
+  const text = (v) => v?.trim() || null
+  const { data, error } = await supabase
+    .from('organizations')
+    .update({
+      is_student_led: Boolean(f.isStudentLed),
+      founder_name: text(f.founderName),
+      founder_school: text(f.founderSchool),
+      founder_status: f.founderStatus || null,
+      founded_year: num(f.foundedYear),
+      mission: text(f.mission),
+      founder_story: text(f.founderStory),
+      donate_url: text(f.donateUrl),
+      goal_title: text(f.goalTitle),
+      goal_unit: text(f.goalUnit),
+      goal_target: num(f.goalTarget),
+      goal_current: num(f.goalCurrent),
+    })
+    .eq('id', orgId)
+    .select()
+    .single()
+  if (error) throw error
+  return mapOrg(data)
+}
+
+// Admin-only (enforced by the protect_org_admin_fields trigger): put a
+// student nonprofit in the homepage spotlight.
+export async function setOrgSpotlight(orgId, spotlight) {
+  const { error } = await supabase.from('organizations').update({ spotlight }).eq('id', orgId)
+  if (error) throw error
 }
 
 // Every volunteer who's touched any of this org's listings (RSVP'd and/or
@@ -923,7 +959,7 @@ export async function fetchOrgOpportunities(orgId) {
 
 // A community organizer's posts each get their own org row (see
 // createCommunityOrg), so this spans every org they've submitted_by, not
-// just one — that's the "manage what you posted" list on /community.
+// just one — that's the "manage what you posted" list on /student-led (Projects tab).
 export async function fetchMyCommunityPosts(userId) {
   const [{ data, error }, counts] = await Promise.all([
     supabase

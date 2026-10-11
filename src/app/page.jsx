@@ -1,4 +1,4 @@
-import { fetchOpportunitiesServer, fetchLeaderboardDataServer } from '../lib/api.server'
+import { fetchOpportunitiesServer, fetchLeaderboardDataServer, fetchStudentOrgsServer } from '../lib/api.server'
 import { buildLeaderboards } from '../lib/api'
 import HomeView from '../components/HomeView'
 
@@ -12,11 +12,13 @@ export const metadata = {
 export const revalidate = 300
 
 export default async function HomePage() {
-  const [opportunities, leaderboard] = await Promise.all([
+  const [opportunities, leaderboard, studentOrgs] = await Promise.all([
     fetchOpportunitiesServer().catch(() => []),
     fetchLeaderboardDataServer().catch(() => ({ rows: [], profiles: [] })),
+    fetchStudentOrgsServer().catch(() => []),
   ])
+  const spotlightOrgs = studentOrgs.filter((o) => o.spotlight && o.verified).slice(0, 2)
   const topVolunteers = buildLeaderboards(leaderboard.rows, leaderboard.profiles).allTime.slice(0, 3)
 
-  return <HomeView opportunities={opportunities} topVolunteers={topVolunteers} />
+  return <HomeView opportunities={opportunities} topVolunteers={topVolunteers} spotlightOrgs={spotlightOrgs} />
 }
