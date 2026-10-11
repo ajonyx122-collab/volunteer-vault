@@ -47,6 +47,7 @@ export function mapOrg(row) {
     goalTarget: row.goal_target != null ? Number(row.goal_target) : null,
     goalCurrent: row.goal_current != null ? Number(row.goal_current) : null,
     spotlight: row.spotlight ?? false,
+    galleryUrls: row.gallery_urls ?? [],
     createdAt: row.created_at,
   }
 }
@@ -127,5 +128,5 @@ export const ORG_COLUMNS =
 
 // Everything public about a student-led nonprofit (its /student-led/[id]
 // profile + hub card). Still excludes admin_note.
-export const STUDENT_ORG_COLUMNS = `${ORG_COLUMNS}, founder_name, founder_school, founder_status, founded_year, mission, founder_story, donate_url, goal_title, goal_unit, goal_target, goal_current, spotlight, created_at`
+export const STUDENT_ORG_COLUMNS = `${ORG_COLUMNS}, founder_name, founder_school, founder_status, founded_year, mission, founder_story, donate_url, goal_title, goal_unit, goal_target, goal_current, spotlight, gallery_urls, created_at`
 export const OPP_SELECT = `*, organizations(${ORG_COLUMNS}), reviews(rating_organized, rating_welcoming, rating_impactful, quote)`

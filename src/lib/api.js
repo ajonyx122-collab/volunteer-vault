@@ -181,6 +181,11 @@ export async function verifyOrganization(orgId) {
 export async function deleteOrganization(orgId) {
   const { error } = await supabase.from('organizations').delete().eq('id', orgId)
   if (error) throw error
+  // Also clear its uploaded logo/cover/gallery (best-effort; migration 054).
+  const { data: files } = await supabase.storage.from('org-media').list(orgId, { limit: 100 })
+  if (files?.length) {
+    await supabase.storage.from('org-media').remove(files.map((f) => `${orgId}/${f.name}`))
+  }
 }
 
 // Admin-only: every org on the platform (not just pending), newest first,
@@ -875,6 +880,18 @@ export async function updateFounderProfile(orgId, f) {
     .eq('id', orgId)
     .select()
     .single()
+  if (error) throw error
+  return mapOrg(data)
+}
+
+// Logo / cover photo / gallery (migration 054). Pass only the fields being
+// changed. Owners update their own org; admins can update any (RLS).
+export async function updateOrgMedia(orgId, { logoUrl, imageUrl, galleryUrls }) {
+  const patch = {}
+  if (logoUrl !== undefined) patch.logo_url = logoUrl || null
+  if (imageUrl !== undefined) patch.image_url = imageUrl || null
+  if (galleryUrls !== undefined) patch.gallery_urls = galleryUrls
+  const { data, error } = await supabase.from('organizations').update(patch).eq('id', orgId).select().single()
   if (error) throw error
   return mapOrg(data)
 }

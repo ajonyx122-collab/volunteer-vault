@@ -76,6 +76,12 @@ export default async function StudentOrgPage({ params }) {
       />
       <Breadcrumb items={trail} />
 
+      {org.imageUrl && (
+        <div className="mt-4 h-44 overflow-hidden rounded-card bg-cream sm:h-60">
+          <img src={org.imageUrl} alt={`${org.name} cover photo`} className="h-full w-full object-cover" />
+        </div>
+      )}
+
       <header className="mt-4 flex flex-wrap items-start gap-4">
         <OrgAvatar org={org} size="lg" />
         <div className="min-w-0 flex-1">
@@ -161,6 +167,24 @@ export default async function StudentOrgPage({ params }) {
         <section className="mt-10 rounded-card bg-brand-green p-6 text-cream-text shadow-card">
           <h2 className="font-display text-xl font-extrabold">Why {org.founderName || 'the founder'} started it</h2>
           <p className="mt-3 whitespace-pre-line leading-relaxed text-cream-muted">{org.founderStory}</p>
+        </section>
+      )}
+
+      {org.galleryUrls.length > 0 && (
+        <section className="mt-10">
+          <h2 className="font-display text-2xl font-extrabold text-brand-green">In action</h2>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {org.galleryUrls.map((url, i) => (
+              <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="overflow-hidden rounded-card bg-cream shadow-card">
+                <img
+                  src={url}
+                  alt={`${org.name} photo ${i + 1}`}
+                  loading="lazy"
+                  className="aspect-[4/3] w-full object-cover transition-transform hover:scale-105"
+                />
+              </a>
+            ))}
+          </div>
         </section>
       )}
 

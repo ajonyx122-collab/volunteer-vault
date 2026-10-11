@@ -15,6 +15,7 @@ import VerifiedBadge from '../../components/VerifiedBadge'
 import OrgAvatar from '../../components/OrgAvatar'
 import ListingVolunteers from '../../components/ListingVolunteers'
 import FounderProfileForm from '../../components/FounderProfileForm'
+import OrgMediaManager from '../../components/OrgMediaManager'
 
 const TABS = [
   { id: 'postings', label: 'Postings' },
@@ -37,7 +38,6 @@ export default function OrgDashboard() {
   const [expandedId, setExpandedId] = useState(null)
 
   const [draftName, setDraftName] = useState('')
-  const [draftLogoUrl, setDraftLogoUrl] = useState('')
   const [draftWebsite, setDraftWebsite] = useState('')
   const [draftDescription, setDraftDescription] = useState('')
   const [draftContactEmail, setDraftContactEmail] = useState('')
@@ -75,7 +75,6 @@ export default function OrgDashboard() {
 
   function loadDraft(o) {
     setDraftName(o.name ?? '')
-    setDraftLogoUrl(o.logoUrl ?? '')
     setDraftWebsite(o.website ?? '')
     setDraftDescription(o.description ?? '')
     setDraftContactEmail(o.contactEmail ?? '')
@@ -104,7 +103,6 @@ export default function OrgDashboard() {
     try {
       const updated = await updateOrganization(org.id, {
         name: draftName,
-        logoUrl: draftLogoUrl,
         description: draftDescription,
         website: draftWebsite,
         contactEmail: draftContactEmail,
@@ -349,27 +347,15 @@ export default function OrgDashboard() {
           onSubmit={handleSaveOrg}
           className="mt-6 flex flex-col gap-3 rounded-card border border-card-border bg-card p-5 shadow-card"
         >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="text-xs font-bold text-brand-green/60">
-              Organization name
-              <input
-                required
-                value={draftName}
-                onChange={(e) => setDraftName(e.target.value)}
-                className="mt-1 w-full rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
-              />
-            </label>
-            <label className="text-xs font-bold text-brand-green/60">
-              Logo image URL — optional
-              <input
-                type="url"
-                placeholder="https://..."
-                value={draftLogoUrl}
-                onChange={(e) => setDraftLogoUrl(e.target.value)}
-                className="mt-1 w-full rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
-              />
-            </label>
-          </div>
+          <label className="text-xs font-bold text-brand-green/60">
+            Organization name
+            <input
+              required
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              className="mt-1 w-full rounded-pill border border-card-border px-4 py-2.5 text-sm font-normal text-brand-green outline-none"
+            />
+          </label>
           <label className="text-xs font-bold text-brand-green/60">
             Website — optional! Plenty of great projects don't have one
             <input
@@ -423,6 +409,7 @@ export default function OrgDashboard() {
             {saved && <p className="text-xs font-semibold text-brand-green/60">✓ Saved</p>}
           </div>
         </form>
+        <OrgMediaManager org={org} onSaved={setOrg} />
         <FounderProfileForm key={org.id} org={org} onSaved={setOrg} />
         </>
       )}

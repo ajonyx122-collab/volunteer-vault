@@ -15,6 +15,7 @@ import { FOUNDER_STATUS_LABELS } from '../../../../lib/opportunityMapping'
 import { getCategoryMeta } from '../../../../data/mockData'
 import OrgAvatar from '../../../../components/OrgAvatar'
 import VerifiedBadge from '../../../../components/VerifiedBadge'
+import OrgMediaManager from '../../../../components/OrgMediaManager'
 
 export default function AdminOrgDetail({ params }) {
   const { id } = use(params)
@@ -230,6 +231,9 @@ export default function AdminOrgDetail({ params }) {
         <StatTile value={totalSignups} label="RSVPs" />
         <StatTile value={Math.round(totalHours)} label="Hours logged" />
       </div>
+
+      {/* Same uploader the org sees — here mainly so you can remove a bad photo. */}
+      <OrgMediaManager org={org} onSaved={(updated) => setData((prev) => ({ ...prev, org: { ...prev.org, ...updated } }))} />
 
       <div className="mt-6 rounded-card border border-card-border bg-card p-5 shadow-card">
         <h2 className="font-display text-lg font-bold text-brand-green">Note to this org</h2>

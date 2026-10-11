@@ -19,8 +19,13 @@ export default function StudentOrgCard({ org }) {
   return (
     <Link
       href={`/student-led/${org.id}`}
-      className="flex flex-col rounded-card border border-card-border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-pop-soft"
+      className="flex flex-col overflow-hidden rounded-card border border-card-border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-pop-soft"
     >
+      {org.imageUrl && (
+        <div className="-mx-5 -mt-5 mb-4 h-28 bg-cream">
+          <img src={org.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+        </div>
+      )}
       <div className="flex items-start gap-3">
         <OrgAvatar org={org} size="md" />
         <div className="min-w-0">
