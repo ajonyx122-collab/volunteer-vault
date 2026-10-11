@@ -5,17 +5,18 @@ import { fetchLeaderboardData, buildLeaderboards } from '../../lib/api'
 import { CATEGORIES } from '../../data/mockData'
 import { PIN_COLORS } from '../../lib/mapColors'
 import { useAuth } from '../../lib/AuthContext'
+import FunHero, { Squiggle } from '../../components/FunHero'
+import Podium from '../../components/Podium'
 
 const CAT_META = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]))
 
 const TABS = [
-  { id: 'allTime', label: 'All-time hours', unit: 'hrs' },
-  { id: 'thisMonth', label: 'This month', unit: 'hrs' },
-  { id: 'streak', label: 'Streak', unit: 'wk' },
-  { id: 'byCause', label: 'By cause', unit: 'hrs' },
+  { id: 'allTime', icon: '⏱️', label: 'All-time', unit: 'hrs' },
+  { id: 'thisMonth', icon: '📅', label: 'This month', unit: 'hrs' },
+  { id: 'streak', icon: '🔥', label: 'Streak', unit: 'wk' },
+  { id: 'byCause', icon: '🌈', label: 'By cause', unit: 'hrs' },
 ]
 
-const MEDALS = ['🥇', '🥈', '🥉']
 const VISIBLE = 25
 
 function initials(name) {
@@ -44,101 +45,124 @@ export default function Leaderboards() {
     if (!data) return []
     return tab === 'byCause' ? (data.byCategory[category] ?? []) : data[tab]
   }, [data, tab, category])
-  const fullList = list
 
   const activeTab = TABS.find((t) => t.id === tab)
-  const myEntry = profile ? fullList.find((e) => e.userId === profile.id) : null
+  const myEntry = profile ? list.find((e) => e.userId === profile.id) : null
   const visible = list.slice(0, VISIBLE)
   const meVisible = visible.some((e) => e.userId === profile?.id)
-
-  if (!data) {
-    return <div className="px-4 py-16 text-center text-brand-green/60">Loading leaderboards...</div>
-  }
+  const unitLabel = activeTab.unit === 'wk' ? ' wk' : ' hrs'
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="text-sticker font-display text-4xl font-extrabold">Leaderboards</h1>
-      <p className="mt-2 text-brand-green/70">
-        See who's racking up the most service hours. Log yours to climb the board.
-      </p>
+    <div>
+      <FunHero
+        size="sm"
+        eyebrow="🏆 Leaderboards"
+        title={
+          <>
+            Who's <Squiggle>on top</Squiggle>?
+          </>
+        }
+        subtitle="Real hours, ranked. Log yours and climb the board — tap anyone to see where their hours went."
+        badges={[
+          { e: '🥇', bg: 'bg-category-food-bg' },
+          { e: '🔥', bg: 'bg-category-disaster-bg' },
+          { e: '🏅', bg: 'bg-category-music-bg' },
+          { e: '⏱️', bg: 'bg-category-environment-bg' },
+        ]}
+      />
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
-              tab === t.id
-                ? 'bg-brand-green text-cream-text'
-                : 'border border-card-border bg-card text-brand-green hover:bg-cream'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {tab === 'byCause' && (
-        <div className="scrollbar-none mt-3 flex gap-2 overflow-x-auto pb-1">
-          {CATEGORIES.map((c) => (
+      <div className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
+        {/* Chunky tab switch overlapping the hero edge */}
+        <div className="relative -mt-7 grid grid-cols-2 gap-1.5 rounded-card border-2 border-brand-green bg-card p-1.5 shadow-pop-soft sm:grid-cols-4">
+          {TABS.map((t) => (
             <button
-              key={c.id}
-              onClick={() => setCategory(c.id)}
-              className={`shrink-0 rounded-pill px-3 py-1.5 text-xs font-bold transition-colors ${
-                category === c.id
-                  ? 'bg-gold text-gold-text'
-                  : 'border border-card-border bg-card text-brand-green/70 hover:bg-cream'
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`rounded-[12px] px-3 py-2.5 text-sm font-extrabold transition-all ${
+                tab === t.id ? 'bg-brand-green text-cream-text shadow-pop' : 'text-brand-green hover:bg-cream'
               }`}
             >
-              {c.icon} {c.label}
+              {t.icon} {t.label}
             </button>
           ))}
         </div>
-      )}
 
-      <div className="mt-6 flex flex-col gap-2">
-        {visible.length === 0 && (
-          <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
-            Nobody's on the board here yet — be the first to log hours and claim the top spot.
+        {tab === 'byCause' && (
+          <div className="scrollbar-none -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
+            {CATEGORIES.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setCategory(c.id)}
+                className={`shrink-0 rounded-pill px-3 py-1.5 text-xs font-bold transition-colors ${
+                  category === c.id
+                    ? 'bg-gold text-gold-text shadow-pop'
+                    : 'border border-card-border bg-card text-brand-green/70 hover:bg-cream'
+                }`}
+              >
+                {c.icon} {c.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {!data && <p className="py-16 text-center text-brand-green/60">Loading the board...</p>}
+
+        {data && visible.length === 0 && (
+          <div className="mt-8 rounded-card border-2 border-dashed border-brand-green/40 bg-card p-8 text-center">
+            <p className="animate-floaty inline-block text-5xl">🏁</p>
+            <p className="mt-2 font-display text-xl font-extrabold text-brand-green">Nobody's here yet.</p>
+            <p className="mt-1 text-sm text-brand-green/60">Log the first hours and claim the top spot.</p>
+          </div>
+        )}
+
+        {visible.length > 0 && (
+          <div className="bg-dots mt-8 rounded-card border-2 border-brand-green bg-card px-4 pt-6 shadow-pop-soft">
+            <Podium entries={visible.slice(0, 3)} unit={activeTab.unit} onSelect={setSelected} />
+          </div>
+        )}
+
+        <ol className="mt-5 flex flex-col gap-2">
+          {visible.slice(3).map((e) => {
+            const isMe = e.userId === profile?.id
+            return (
+              <li key={e.userId}>
+                <button
+                  onClick={() => setSelected(e)}
+                  title="See where their hours went"
+                  className={`flex w-full items-center gap-3 rounded-card border-2 p-3 text-left transition-all hover:-translate-y-0.5 hover:shadow-pop ${
+                    isMe ? 'border-gold bg-category-food-bg shadow-pop-soft' : 'border-brand-green bg-card shadow-pop-soft'
+                  }`}
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cream font-display text-sm font-extrabold text-brand-green">
+                    {e.rank}
+                  </span>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green font-display text-xs font-extrabold text-cream-text">
+                    {initials(e.displayName)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-bold text-brand-green">
+                      {e.displayName}
+                      {isMe && <span className="ml-1.5 rounded-pill bg-gold px-1.5 py-0.5 text-[10px] font-extrabold text-gold-text">YOU</span>}
+                      {e.username && <span className="ml-1 hidden font-normal text-brand-green/50 sm:inline">@{e.username}</span>}
+                    </p>
+                  </div>
+                  <p className="shrink-0 font-display font-extrabold text-brand-green">
+                    {e.value}
+                    {unitLabel}
+                  </p>
+                </button>
+              </li>
+            )
+          })}
+        </ol>
+
+        {myEntry && !meVisible && (
+          <p className="mt-4 rounded-pill bg-category-food-bg px-4 py-2 text-center text-sm font-bold text-gold-text">
+            You're #{myEntry.rank} with {myEntry.value}
+            {unitLabel} — keep going! 💪
           </p>
         )}
-        {visible.map((e) => (
-          <button
-            key={e.userId}
-            onClick={() => setSelected(e)}
-            title="See where their hours went"
-            className={`flex w-full items-center gap-3 rounded-card border-2 p-3 text-left transition-transform hover:-translate-y-0.5 ${
-              e.userId === profile?.id
-                ? 'border-gold bg-category-food-bg shadow-pop-soft'
-                : 'border-brand-green bg-card shadow-pop-soft'
-            }`}
-          >
-            <span className="w-8 shrink-0 text-center font-display text-lg font-extrabold text-brand-green/60">
-              {MEDALS[e.rank - 1] ?? e.rank}
-            </span>
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green font-display text-xs font-extrabold text-cream-text">
-              {initials(e.displayName)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-bold text-brand-green">
-                {e.displayName}
-                {e.username && <span className="ml-1 font-normal text-brand-green/50">@{e.username}</span>}
-              </p>
-            </div>
-            <p className="shrink-0 font-display font-extrabold text-brand-green">
-              {e.value}
-              {activeTab.unit === 'wk' ? 'wk' : ' hrs'}
-            </p>
-          </button>
-        ))}
       </div>
-
-      {myEntry && !meVisible && (
-        <p className="mt-3 text-center text-sm font-semibold text-brand-green/60">
-          You're #{myEntry.rank} with {myEntry.value}
-          {activeTab.unit === 'wk' ? 'wk' : ' hrs'}
-        </p>
-      )}
 
       {selected && <PersonBreakdown entry={selected} onClose={() => setSelected(null)} />}
     </div>
@@ -159,7 +183,7 @@ function PersonBreakdown({ entry, onClose }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm rounded-card border border-card-border bg-card p-5 shadow-pop-lg"
+        className="animate-pop-in w-full max-w-sm rounded-card border-2 border-brand-green bg-card p-5 shadow-pop-lg"
         onClick={(ev) => ev.stopPropagation()}
       >
         <div className="flex items-center gap-3">
@@ -167,9 +191,7 @@ function PersonBreakdown({ entry, onClose }) {
             {initials(entry.displayName)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-display text-lg font-extrabold text-brand-green">
-              {entry.displayName}
-            </p>
+            <p className="truncate font-display text-lg font-extrabold text-brand-green">{entry.displayName}</p>
             <p className="text-xs font-semibold text-brand-green/50">
               {total} verified hrs · {cats.length} cause{cats.length === 1 ? '' : 's'}
             </p>
@@ -183,9 +205,7 @@ function PersonBreakdown({ entry, onClose }) {
           </button>
         </div>
 
-        <p className="mb-2 mt-4 text-xs font-bold uppercase tracking-wide text-brand-green/50">
-          Where their hours went
-        </p>
+        <p className="mb-2 mt-4 text-xs font-bold uppercase tracking-wide text-brand-green/50">Where their hours went</p>
         {cats.length === 0 ? (
           <p className="text-sm text-brand-green/50">No hours logged yet.</p>
         ) : (

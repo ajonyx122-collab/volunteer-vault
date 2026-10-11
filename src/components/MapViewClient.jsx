@@ -59,7 +59,7 @@ export default function MapViewClient() {
       <Link href="/browse" className="text-sm font-semibold text-brand-green/60 hover:text-brand-green">
         ← Back to browse
       </Link>
-      <h1 className="mt-2 font-display text-3xl font-extrabold text-brand-green">Map</h1>
+      <h1 className="text-sticker mt-3 font-display text-4xl font-extrabold">The map 🗺️</h1>
       <p className="mt-1 text-brand-green/60">
         {loading ? 'Loading...' : `${pinnedCount} in-person opportunities across ${groups.length} areas.`}
         {!loading && remoteCount > 0 && (
@@ -73,10 +73,10 @@ export default function MapViewClient() {
         )}
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="scrollbar-none -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
         <button
           onClick={() => setActiveCategory(null)}
-          className={`shrink-0 rounded-pill px-4 py-2 text-sm font-bold shadow-card transition-transform hover:scale-105 ${
+          className={`shrink-0 whitespace-nowrap rounded-pill px-4 py-2 text-sm font-bold shadow-card transition-transform hover:scale-105 ${
             !activeCategory ? 'bg-brand-green text-cream-text' : 'bg-card text-brand-green border border-card-border'
           }`}
         >
@@ -86,7 +86,7 @@ export default function MapViewClient() {
           <button
             key={c.id}
             onClick={() => setActiveCategory(activeCategory === c.id ? null : c.id)}
-            className={`shrink-0 rounded-pill px-4 py-2 text-sm font-bold shadow-card transition-transform hover:scale-105 ${
+            className={`shrink-0 whitespace-nowrap rounded-pill px-4 py-2 text-sm font-bold shadow-card transition-transform hover:scale-105 ${
               activeCategory === c.id
                 ? 'bg-brand-green text-cream-text'
                 : 'bg-card text-brand-green border border-card-border'
@@ -101,7 +101,7 @@ export default function MapViewClient() {
         Each pin is a whole area — click one to see every opportunity there, not just one at a time.
       </p>
 
-      <div className="mt-2 h-[65vh] overflow-hidden rounded-card border border-card-border shadow-card">
+      <div className="mt-2 h-[65vh] overflow-hidden rounded-card border-2 border-brand-green shadow-pop-soft">
         <MapContainer center={US_CENTER} zoom={4} scrollWheelZoom style={{ height: '100%', width: '100%' }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

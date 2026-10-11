@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import FunHero from '../../components/FunHero'
 
 // Where privacy / delete-my-account requests go. Must be a real inbox someone
 // reads — change it here if this address isn't set up.
@@ -70,12 +71,19 @@ const SECTIONS = [
 
 export default function PrivacyPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-      <h1 className="font-display text-3xl font-extrabold text-brand-green">Privacy policy</h1>
-      <p className="mt-1 text-sm text-brand-green/60">Last updated {UPDATED}</p>
-
-      {SECTIONS.map((s) => (
-        <section key={s.title} className="mt-8">
+    <div>
+      <FunHero
+        size="sm"
+        eyebrow={`🛡️ Last updated ${UPDATED}`}
+        title="Privacy policy"
+        subtitle="The short, plain-English version of what we collect and why. No ads, no selling your data, no DMs."
+      />
+      <div className="mx-auto max-w-2xl px-4 pb-16 pt-4 sm:px-6">
+      {SECTIONS.map((s, i) => (
+        <section
+          key={s.title}
+          className={`mt-6 rounded-card border-2 border-brand-green p-5 shadow-pop-soft sm:p-6 ${i === 0 ? 'bg-category-food-bg' : 'bg-card'}`}
+        >
           <h2 className="font-display text-xl font-extrabold text-brand-green">{s.title}</h2>
           {s.body?.map((p) => (
             <p key={p} className="mt-2 text-brand-green/80">
@@ -83,7 +91,7 @@ export default function PrivacyPage() {
             </p>
           ))}
           {s.list && (
-            <ul className="mt-2 list-disc space-y-1.5 pl-5 text-brand-green/80">
+            <ul className="mt-3 list-none space-y-2 text-brand-green/80 [&>li]:relative [&>li]:pl-6 [&>li]:before:absolute [&>li]:before:left-0 [&>li]:before:content-['✦'] [&>li]:before:text-coral">
               {s.list.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -103,6 +111,7 @@ export default function PrivacyPage() {
         </Link>
         .
       </p>
+      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import FunHero, { Squiggle } from '../../components/FunHero'
 
 const SECTIONS = [
   {
@@ -140,44 +141,119 @@ const SECTIONS = [
   },
 ]
 
+// A fun icon + color for each section, keyed by its title.
+const SECTION_STYLE = {
+  'The basics': { icon: '👋', tone: 'bg-category-food-bg' },
+  'Finding & joining opportunities': { icon: '🔎', tone: 'bg-category-music-bg' },
+  'Logging hours': { icon: '✍️', tone: 'bg-category-environment-bg' },
+  'Streaks, badges & leaderboards': { icon: '🔥', tone: 'bg-category-disaster-bg' },
+  'Student-led nonprofits & projects': { icon: '🎓', tone: 'bg-category-animals-bg' },
+  'For organizations': { icon: '🏢', tone: 'bg-category-education-bg' },
+  'Privacy & safety': { icon: '🛡️', tone: 'bg-category-art-bg' },
+}
+
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="rounded-card border-2 border-brand-green bg-card shadow-pop-soft">
+    <div
+      className={`rounded-card border-2 border-brand-green shadow-pop-soft transition-colors ${open ? 'bg-cream' : 'bg-card'}`}
+    >
       <button
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
         className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
       >
         <span className="font-bold text-brand-green">{q}</span>
-        <span className={`shrink-0 text-brand-green/50 transition-transform ${open ? 'rotate-180' : ''}`}>
-          ▼
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-brand-green text-lg font-extrabold leading-none text-brand-green transition-transform duration-200 ${
+            open ? 'rotate-45 bg-gold' : 'bg-card'
+          }`}
+          aria-hidden
+        >
+          +
         </span>
       </button>
-      {open && <p className="px-5 pb-4 text-sm leading-relaxed text-brand-green/70">{a}</p>}
+      {open && <p className="px-5 pb-5 text-sm leading-relaxed text-brand-green/80">{a}</p>}
     </div>
   )
 }
 
 export default function FAQ() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="text-sticker font-display text-4xl font-extrabold">Questions? Answers.</h1>
-      <p className="mt-2 text-brand-green/70">
-        Everything you might be wondering about finding opportunities, logging hours, and building
-        your vault.
-      </p>
+    <div>
+      <FunHero
+        size="sm"
+        eyebrow="💬 FAQ"
+        title={
+          <>
+            Questions? <Squiggle>Answers.</Squiggle>
+          </>
+        }
+        subtitle="Everything you might be wondering about finding opportunities, logging hours, and building your vault."
+        badges={[
+          { e: '🤔', bg: 'bg-category-food-bg' },
+          { e: '💡', bg: 'bg-category-music-bg' },
+          { e: '✅', bg: 'bg-category-environment-bg' },
+          { e: '🙋', bg: 'bg-category-art-bg' },
+        ]}
+      />
 
-      <div className="mt-8 flex flex-col gap-8">
-        {SECTIONS.map((section) => (
-          <section key={section.title}>
-            <h2 className="font-display text-lg font-extrabold text-brand-green">{section.title}</h2>
-            <div className="mt-3 flex flex-col gap-2">
-              {section.items.map((item) => (
-                <FAQItem key={item.q} q={item.q} a={item.a} />
-              ))}
-            </div>
-          </section>
-        ))}
+      <div className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
+        {/* Jump-to chips */}
+        <nav
+          aria-label="FAQ sections"
+          className="scrollbar-none relative -mx-4 -mt-6 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0"
+        >
+          {SECTIONS.map((s) => (
+            <a
+              key={s.title}
+              href={`#${slug(s.title)}`}
+              className="shrink-0 whitespace-nowrap rounded-pill border-2 border-brand-green bg-card px-3 py-1.5 text-xs font-extrabold text-brand-green shadow-pop-soft transition-transform hover:-translate-y-0.5"
+            >
+              {SECTION_STYLE[s.title]?.icon} {s.title}
+            </a>
+          ))}
+        </nav>
+
+        <div className="mt-10 flex flex-col gap-12">
+          {SECTIONS.map((section) => {
+            const style = SECTION_STYLE[section.title] ?? { icon: '❓', tone: 'bg-cream' }
+            return (
+              <section key={section.title} id={slug(section.title)} className="scroll-mt-24">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`flex h-12 w-12 shrink-0 -rotate-6 items-center justify-center rounded-2xl border-2 border-brand-green text-2xl shadow-pop ${style.tone}`}
+                    aria-hidden
+                  >
+                    {style.icon}
+                  </span>
+                  <h2 className="font-display text-2xl font-extrabold text-brand-green">{section.title}</h2>
+                </div>
+                <div className="mt-4 flex flex-col gap-2.5">
+                  {section.items.map((item) => (
+                    <FAQItem key={item.q} q={item.q} a={item.a} />
+                  ))}
+                </div>
+              </section>
+            )
+          })}
+        </div>
+
+        <div className="relative mt-14 overflow-hidden rounded-card border-2 border-brand-green bg-gold p-6 text-center shadow-pop sm:p-8">
+          <span className="pointer-events-none absolute -left-4 -top-6 rotate-12 text-8xl opacity-20" aria-hidden>
+            💬
+          </span>
+          <p className="font-display text-2xl font-extrabold text-gold-text">Still stuck?</p>
+          <p className="mt-1 text-sm text-gold-text/80">Send us a note — a real person reads every one.</p>
+          <a
+            href="mailto:hello@volunteervault.org"
+            className="mt-4 inline-block rounded-pill bg-brand-green px-6 py-3 text-sm font-bold text-cream-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg"
+          >
+            hello@volunteervault.org
+          </a>
+        </div>
       </div>
     </div>
   )

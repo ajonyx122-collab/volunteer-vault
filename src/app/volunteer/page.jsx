@@ -4,6 +4,8 @@ import { buildCauseDirectory, buildLocationDirectory, isRemote } from '../../lib
 import { breadcrumbJsonLd } from '../../lib/jsonLd'
 import { CATEGORY_STYLES } from '../../components/categoryStyles'
 import Breadcrumb from '../../components/Breadcrumb'
+import FunHero, { Squiggle } from '../../components/FunHero'
+import SectionTitle from '../../components/SectionTitle'
 import StateExplorer from '../../components/StateExplorer'
 
 export const revalidate = 300
@@ -58,42 +60,50 @@ export default async function VolunteerHubPage() {
   ]
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(trail)) }}
       />
 
+      <FunHero
+        size="sm"
+        eyebrow="📍 By cause & city"
+        title={
+          <>
+            Find volunteer opportunities <Squiggle>near you</Squiggle>
+          </>
+        }
+        subtitle="Real service hours for high school and college students. Pick a cause or your city to get started — RSVP free."
+        badges={[
+          { e: '🗺️', bg: 'bg-category-music-bg' },
+          { e: '🌱', bg: 'bg-category-environment-bg' },
+          { e: '🏙️', bg: 'bg-category-food-bg' },
+          { e: '🐾', bg: 'bg-category-animals-bg' },
+        ]}
+      />
+
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6">
       <Breadcrumb items={trail} />
 
-      <header className="mt-3">
-        <h1 className="font-display text-3xl font-extrabold text-brand-green sm:text-4xl">
-          Find volunteer opportunities near you
-        </h1>
-        <p className="mt-2 max-w-2xl text-brand-green/70">
-          Real, verified service hours for high school and college students. Pick a cause or your
-          city to get started — RSVP free.
-        </p>
-      </header>
-
-      <section className="mt-10">
-        <h2 className="font-display text-xl font-extrabold text-brand-green">Browse by cause</h2>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <section className="mt-8">
+        <SectionTitle kicker="What do you care about?" title="Browse by cause" />
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {causes.map((c) => (
             <Link
               key={c.slug}
               href={`/volunteer/${c.slug}`}
-              className="flex items-center gap-3 rounded-card border border-card-border bg-card p-4 shadow-card transition-all hover:-translate-y-1 hover:shadow-pop"
+              className="group flex items-center gap-2.5 rounded-card border-2 border-brand-green bg-card p-3 shadow-pop-soft transition-all hover:-translate-y-1 hover:shadow-pop sm:p-4"
             >
               <span
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-card text-2xl ${
+                className={`flex h-9 w-9 shrink-0 -rotate-6 items-center justify-center rounded-2xl text-xl transition-transform sm:h-11 sm:w-11 sm:text-2xl group-hover:rotate-6 group-hover:scale-110 ${
                   CATEGORY_STYLES[c.id]?.chip ?? 'bg-cream'
                 }`}
               >
                 {c.icon}
               </span>
               <span className="min-w-0">
-                <span className="block truncate font-display font-bold text-brand-green">
+                <span className="block font-display text-sm font-bold leading-tight text-brand-green sm:text-base">
                   {c.label}
                 </span>
                 <span className="text-xs font-semibold text-brand-green/50">
@@ -105,17 +115,19 @@ export default async function VolunteerHubPage() {
         </div>
       </section>
 
-      <section className="mt-12">
-        <h2 className="font-display text-xl font-extrabold text-brand-green">Browse by state</h2>
-        <p className="mt-1 text-sm text-brand-green/60">
-          Pick your state to see its cities — or volunteer online from anywhere.
-        </p>
+      <section className="mt-14">
+        <SectionTitle
+          kicker="Where are you?"
+          title="Browse by state"
+          blurb="Pick your state to see its cities — or volunteer online from anywhere."
+        />
         {stateGroups.length === 0 && onlineCount === 0 ? (
           <p className="mt-4 text-brand-green/60">No local listings yet — check back soon.</p>
         ) : (
           <StateExplorer groups={stateGroups} onlineCount={onlineCount} />
         )}
       </section>
+      </div>
     </div>
   )
 }

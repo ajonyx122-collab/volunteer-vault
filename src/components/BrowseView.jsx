@@ -15,6 +15,7 @@ import { useSavedIds } from '../lib/saved'
 import OpportunityCard from './OpportunityCard'
 import SuggestOpportunity from './SuggestOpportunity'
 import ChallengeBanner from './ChallengeBanner'
+import FunHero, { Squiggle } from './FunHero'
 
 // Leaflet touches `window` at import time, which breaks the server render
 // pass — load it client-only.
@@ -199,20 +200,39 @@ export default function BrowseView({ initialOpportunities }) {
   )
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <SuggestOpportunity onOrganizeClick={() => router.push('/student-led?tab=projects')} />
+    <div>
+      <FunHero
+        size="sm"
+        eyebrow="🔎 Browse"
+        title={
+          <>
+            Find your <Squiggle>thing</Squiggle>
+          </>
+        }
+        subtitle="Real organizations recruiting volunteers right now — filter down to your people."
+        badges={[
+          { e: '🌱', bg: 'bg-category-environment-bg' },
+          { e: '🐾', bg: 'bg-category-animals-bg' },
+          { e: '📚', bg: 'bg-category-education-bg' },
+          { e: '🍲', bg: 'bg-category-food-bg' },
+        ]}
+      >
+        <div className="relative mx-auto max-w-2xl">
+          <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-lg" aria-hidden>
+            🔎
+          </span>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search animals, tutoring, cleanups..."
+            aria-label="Search opportunities"
+            className="w-full rounded-pill border-2 border-brand-green bg-card py-3.5 pl-12 pr-5 text-base text-brand-green shadow-pop outline-none placeholder:text-brand-green/40"
+          />
+        </div>
+      </FunHero>
 
-      <h1 className="mt-6 font-display text-3xl font-extrabold text-brand-green">Browse opportunities</h1>
-      <p className="mt-1 text-brand-green/60">Real organizations recruiting volunteers right now — filter down to your people.</p>
-
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search opportunities..."
-        className="mt-6 w-full rounded-pill border border-card-border bg-card px-5 py-3 text-sm text-brand-green shadow-card outline-none placeholder:text-brand-green/40"
-      />
-
+      <div className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
       <div className="mt-6 grid grid-cols-1 gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
         <div className="order-2 flex min-w-0 flex-col gap-4 lg:order-1">
           <p className="text-sm font-semibold text-brand-green/50">
@@ -386,6 +406,11 @@ export default function BrowseView({ initialOpportunities }) {
 
           <div className="hidden flex-col gap-4 lg:flex">{streakAndChallenge}</div>
         </div>
+      </div>
+
+      <div className="mt-14">
+        <SuggestOpportunity onOrganizeClick={() => router.push('/student-led?tab=projects')} />
+      </div>
       </div>
     </div>
   )

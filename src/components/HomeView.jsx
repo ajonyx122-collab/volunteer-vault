@@ -19,8 +19,7 @@ import Reveal from './Reveal'
 import SurpriseMe from './SurpriseMe'
 import Mascot from './Mascot'
 import StudentOrgCard from './StudentOrgCard'
-
-const MEDALS = ['🥇', '🥈', '🥉']
+import Podium from './Podium'
 
 const isRemote = (o) => o.remote || o.isOnline || o.org?.remote
 const minAgeOf = (o) => o.minAge ?? o.org?.minAge ?? 0
@@ -427,26 +426,8 @@ export default function HomeView({ opportunities, topVolunteers, spotlightOrgs =
         <div className="bg-dots rounded-card border-2 border-brand-green bg-card p-6 shadow-pop-soft sm:p-10">
           <SectionTitle kicker="🏆 Season standings" title="Who's on top?" center />
           {topVolunteers.length > 0 ? (
-            <div className="mx-auto mt-8 grid max-w-md grid-cols-3 items-end gap-2 sm:gap-4">
-              {[1, 0, 2].map((idx) => {
-                const v = topVolunteers[idx]
-                if (!v) return <div key={idx} />
-                const height = ['h-28', 'h-20', 'h-14'][idx]
-                return (
-                  <div key={v.userId} className="flex flex-col items-center">
-                    <span className="text-3xl">{MEDALS[idx]}</span>
-                    <p className="mt-1 w-full truncate text-center text-xs font-extrabold text-brand-green sm:text-sm">{v.displayName}</p>
-                    <p className="text-xs font-bold text-brand-green/60">{v.value} hrs</p>
-                    <div
-                      className={`mt-2 flex w-full items-start justify-center rounded-t-card border-2 border-b-0 border-brand-green pt-2 font-display text-2xl font-extrabold ${height} ${
-                        idx === 0 ? 'bg-gold text-gold-text' : 'bg-cream text-brand-green'
-                      }`}
-                    >
-                      {idx + 1}
-                    </div>
-                  </div>
-                )
-              })}
+            <div className="mt-8">
+              <Podium entries={topVolunteers} />
             </div>
           ) : (
             <p className="mx-auto mt-4 max-w-md text-center text-sm text-brand-green/60">

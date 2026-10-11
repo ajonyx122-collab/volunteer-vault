@@ -9,6 +9,7 @@ import VerifiedBadge from '../../../components/VerifiedBadge'
 import GoalProgress from '../../../components/GoalProgress'
 import OpportunityCard from '../../../components/OpportunityCard'
 import ShareButton from '../../../components/ShareButton'
+import SectionTitle from '../../../components/SectionTitle'
 
 export const revalidate = 300
 
@@ -76,36 +77,49 @@ export default async function StudentOrgPage({ params }) {
       />
       <Breadcrumb items={trail} />
 
-      {org.imageUrl && (
-        <div className="mt-4 h-44 overflow-hidden rounded-card bg-cream sm:h-60">
-          <img src={org.imageUrl} alt={`${org.name} cover photo`} className="h-full w-full object-cover" />
+      {/* Banner: their cover photo, or a cheerful gradient until they upload one */}
+      <header className="relative mt-4 overflow-hidden rounded-card border-2 border-brand-green shadow-pop-soft">
+        <div className="relative h-40 sm:h-56">
+          {org.imageUrl ? (
+            <img src={org.imageUrl} alt={`${org.name} cover photo`} className="h-full w-full object-cover" />
+          ) : (
+            <div className="bg-dots-light h-full w-full bg-gradient-to-br from-[#1B6E42] via-brand-green to-[#14432b]" aria-hidden>
+              <span className="animate-floaty absolute right-6 top-5 text-5xl" style={{ '--tilt': '8deg' }}>🚀</span>
+              <span className="animate-floaty absolute right-24 top-14 hidden text-4xl sm:block" style={{ '--tilt': '-6deg', animationDelay: '1s' }}>💡</span>
+            </div>
+          )}
+          <span className="absolute left-4 top-4 -rotate-3 rounded-pill bg-gold px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-gold-text shadow-pop">
+            🎓 Student-founded
+          </span>
         </div>
-      )}
-
-      <header className="mt-4 flex flex-wrap items-start gap-4">
-        <OrgAvatar org={org} size="lg" />
-        <div className="min-w-0 flex-1">
+        <div className="relative bg-card px-5 pb-5 pt-12 sm:px-6">
+          <div className="absolute -top-10 left-5 rounded-full border-4 border-card bg-card sm:left-6">
+            <OrgAvatar org={org} size="lg" />
+          </div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-3xl font-extrabold text-brand-green sm:text-4xl">{org.name}</h1>
+            <h1 className="font-display text-3xl font-extrabold leading-tight text-brand-green sm:text-4xl">{org.name}</h1>
             <VerifiedBadge verified={org.verified} />
           </div>
-          <p className="mt-1 text-sm font-bold text-coral">
-            🎓 Student-founded{org.founderName ? ` by ${org.founderName}` : ''}
-          </p>
-          {founderBits.length > 0 && <p className="text-sm text-brand-green/60">{founderBits.join(' · ')}</p>}
-          {org.location && <p className="text-sm text-brand-green/60">📍 {org.location}</p>}
+          {org.founderName && <p className="mt-1 text-sm font-bold text-coral">Founded by {org.founderName}</p>}
+          <div className="mt-2 flex flex-wrap gap-1.5 text-xs font-bold text-brand-green/70">
+            {founderBits.map((b) => (
+              <span key={b} className="rounded-pill bg-cream px-2.5 py-1">
+                {b}
+              </span>
+            ))}
+            {org.location && <span className="rounded-pill bg-cream px-2.5 py-1">📍 {org.location}</span>}
+          </div>
+          {(org.mission || org.description) && (
+            <p className="mt-4 text-lg font-semibold leading-relaxed text-brand-green">“{org.mission || org.description}”</p>
+          )}
         </div>
       </header>
 
-      {(org.mission || org.description) && (
-        <p className="mt-6 text-lg leading-relaxed text-brand-green">{org.mission || org.description}</p>
-      )}
-
       <section className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat value={org.impact?.hours ?? 0} label="Volunteer hours" />
-        <Stat value={org.impact?.volunteers ?? 0} label="Volunteers" />
-        <Stat value={org.impact?.rsvps ?? 0} label="RSVPs" />
-        <Stat value={opps.length} label="Open opportunities" />
+        <Stat value={org.impact?.hours ?? 0} label="Volunteer hours" icon="⏱️" tone="bg-category-food-bg" />
+        <Stat value={org.impact?.volunteers ?? 0} label="Volunteers" icon="🙋" tone="bg-category-music-bg" />
+        <Stat value={org.impact?.rsvps ?? 0} label="RSVPs" icon="✋" tone="bg-category-environment-bg" />
+        <Stat value={opps.length} label="Open opportunities" icon="📋" tone="bg-category-art-bg" />
       </section>
       <p className="mt-1.5 text-[11px] text-brand-green/40">Counted automatically from activity on VolunteerVault.</p>
 
@@ -115,9 +129,9 @@ export default async function StudentOrgPage({ params }) {
         </section>
       ) : null}
 
-      <section className="mt-8">
-        <h2 className="font-display text-2xl font-extrabold text-brand-green">Ways to help</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <section className="mt-12">
+        <SectionTitle kicker="Back them up" title="Ways to help" />
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <HelpCard
             icon="🙋"
             title="Volunteer"
@@ -164,16 +178,16 @@ export default async function StudentOrgPage({ params }) {
       </section>
 
       {org.founderStory && (
-        <section className="mt-10 rounded-card bg-brand-green p-6 text-cream-text shadow-card">
+        <section className="bg-dots-light relative mt-12 overflow-hidden rounded-card border-2 border-brand-green bg-brand-green p-6 text-cream-text shadow-pop sm:p-8">
           <h2 className="font-display text-xl font-extrabold">Why {org.founderName || 'the founder'} started it</h2>
           <p className="mt-3 whitespace-pre-line leading-relaxed text-cream-muted">{org.founderStory}</p>
         </section>
       )}
 
       {org.galleryUrls.length > 0 && (
-        <section className="mt-10">
-          <h2 className="font-display text-2xl font-extrabold text-brand-green">In action</h2>
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <section className="mt-12">
+          <SectionTitle kicker="📸 Photos" title="In action" />
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {org.galleryUrls.map((url, i) => (
               <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="overflow-hidden rounded-card bg-cream shadow-card">
                 <img
@@ -188,9 +202,9 @@ export default async function StudentOrgPage({ params }) {
         </section>
       )}
 
-      <section id="opportunities" className="mt-10 scroll-mt-24">
-        <h2 className="font-display text-2xl font-extrabold text-brand-green">Volunteer opportunities</h2>
-        <div className="mt-4 flex flex-col gap-4">
+      <section id="opportunities" className="mt-12 scroll-mt-24">
+        <SectionTitle kicker="🙋 Get involved" title="Volunteer opportunities" />
+        <div className="mt-6 flex flex-col gap-4">
           {opps.map((opp) => (
             <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />
           ))}
@@ -211,9 +225,12 @@ export default async function StudentOrgPage({ params }) {
   )
 }
 
-function Stat({ value, label }) {
+function Stat({ value, label, icon, tone }) {
   return (
-    <div className="rounded-card border border-card-border bg-card p-4 text-center shadow-card">
+    <div className={`rounded-card border-2 border-brand-green p-4 text-center shadow-pop-soft ${tone}`}>
+      <p className="text-xl" aria-hidden>
+        {icon}
+      </p>
       <p className="font-display text-2xl font-extrabold text-brand-green">{Number(value).toLocaleString()}</p>
       <p className="text-[10px] font-bold uppercase tracking-wide text-brand-green/50">{label}</p>
     </div>
@@ -222,9 +239,12 @@ function Stat({ value, label }) {
 
 function HelpCard({ icon, title, body, children }) {
   return (
-    <div className="flex flex-col gap-2 rounded-card border border-card-border bg-card p-5 shadow-card">
-      <p className="font-bold text-brand-green">
-        {icon} {title}
+    <div className="group flex flex-col gap-2 rounded-card border-2 border-brand-green bg-card p-5 shadow-pop-soft transition-all hover:-translate-y-1 hover:shadow-pop">
+      <p className="flex items-center gap-2 font-display text-lg font-extrabold text-brand-green">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/30 text-xl transition-transform group-hover:rotate-12">
+          {icon}
+        </span>
+        {title}
       </p>
       <p className="text-sm text-brand-green/70">{body}</p>
       {children && <div className="mt-auto pt-1">{children}</div>}

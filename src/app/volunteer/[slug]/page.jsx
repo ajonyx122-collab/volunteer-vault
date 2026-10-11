@@ -12,6 +12,7 @@ import { breadcrumbJsonLd, opportunityListJsonLd } from '../../../lib/jsonLd'
 import { CATEGORY_STYLES } from '../../../components/categoryStyles'
 import Breadcrumb from '../../../components/Breadcrumb'
 import OpportunityCard from '../../../components/OpportunityCard'
+import FunHero from '../../../components/FunHero'
 
 // Landing pages are SEO surfaces — regenerate periodically so new listings
 // (and brand-new cities/causes, via dynamicParams) show up without a redeploy.
@@ -80,14 +81,14 @@ export async function generateMetadata({ params }) {
 function ChipRow({ label, chips }) {
   if (!chips.length) return null
   return (
-    <div className="mt-6">
-      <p className="text-sm font-semibold text-brand-green/50">{label}</p>
+    <div className="mt-4">
+      <p className="text-xs font-extrabold uppercase tracking-widest text-coral">{label}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {chips.map((chip) => (
           <Link
             key={chip.href}
             href={chip.href}
-            className={`rounded-pill px-3 py-1.5 text-xs font-bold shadow-card transition-transform hover:scale-105 ${
+            className={`rounded-pill border-2 border-brand-green/20 px-3 py-1.5 text-xs font-bold shadow-card transition-transform hover:scale-105 ${
               chip.className ?? 'bg-cream text-brand-green border border-card-border'
             }`}
           >
@@ -173,8 +174,10 @@ export default async function VolunteerLandingPage({ params }) {
     url: `/volunteer/${slug}`,
   })
 
+  const heroIcon = resolved.type === 'cause' ? resolved.cause.icon : '📍'
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(trail)) }}
@@ -186,40 +189,51 @@ export default async function VolunteerLandingPage({ params }) {
         />
       )}
 
-      <Breadcrumb items={trail} />
+      <FunHero
+        size="sm"
+        eyebrow={`${heroIcon} ${listings.length} ${listings.length === 1 ? 'opportunity' : 'opportunities'}`}
+        title={copy.h1}
+        subtitle={copy.intro}
+        badges={[
+          { e: heroIcon, bg: 'bg-category-food-bg' },
+          { e: '🙌', bg: 'bg-category-music-bg' },
+        ]}
+      >
+        <Link
+          href={browseHref}
+          className="inline-block rounded-pill bg-gold px-6 py-3 text-sm font-bold text-gold-text shadow-pop transition-all hover:-translate-y-0.5 hover:shadow-pop-lg"
+        >
+          Filter these on Browse →
+        </Link>
+      </FunHero>
 
-      <header className="mt-3">
-        <h1 className="font-display text-3xl font-extrabold text-brand-green sm:text-4xl">
-          {copy.h1}
-        </h1>
-        <p className="mt-2 max-w-2xl text-brand-green/70">{copy.intro}</p>
-      </header>
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6">
+        <Breadcrumb items={trail} />
 
-      {crossChips.map((row) => (
-        <ChipRow key={row.label} label={row.label} chips={row.chips} />
-      ))}
-
-      <div className="mt-8 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-brand-green/50">
-            {listings.length} {listings.length === 1 ? 'opportunity' : 'opportunities'}
-          </p>
-          <Link href={browseHref} className="text-sm font-bold text-coral hover:underline">
-            Refine on browse →
-          </Link>
+        <div className="mt-6 flex flex-col gap-4">
+          {listings.length === 0 ? (
+            <div className="rounded-card border-2 border-dashed border-brand-green/40 bg-card p-8 text-center">
+              <p className="text-5xl">🌱</p>
+              <p className="mt-2 font-display text-xl font-extrabold text-brand-green">Nothing here just yet.</p>
+              <p className="mt-1 text-sm text-brand-green/60">
+                Check back soon, or{' '}
+                <Link href="/browse" className="font-bold text-coral hover:underline">
+                  browse everything
+                </Link>
+                .
+              </p>
+            </div>
+          ) : (
+            listings.map((opp) => <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />)
+          )}
         </div>
 
-        {listings.length === 0 ? (
-          <p className="rounded-card border border-card-border bg-card p-6 text-center text-brand-green/60 shadow-card">
-            No listings here just yet — check back soon, or{' '}
-            <Link href="/browse" className="font-bold text-coral hover:underline">
-              browse everything
-            </Link>
-            .
-          </p>
-        ) : (
-          listings.map((opp) => <OpportunityCard key={opp.id} opportunity={opp} org={opp.org} />)
-        )}
+        <section className="mt-14 rounded-card border-2 border-brand-green bg-card p-5 shadow-pop-soft sm:p-6">
+          <p className="font-display text-xl font-extrabold text-brand-green">🧭 Keep exploring</p>
+          {crossChips.map((row) => (
+            <ChipRow key={row.label} label={row.label} chips={row.chips} />
+          ))}
+        </section>
       </div>
     </div>
   )
