@@ -123,7 +123,7 @@ export default function SuggestOpportunity({ onPosted, onOrganizeClick }) {
   }
 
   return (
-    <section className="rounded-card border border-card-border bg-card p-5 shadow-card sm:p-6">
+    <section className="rounded-card border-2 border-brand-green bg-category-food-bg p-5 shadow-pop-soft sm:p-6">
       {sent ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="font-semibold text-brand-green">

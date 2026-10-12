@@ -52,7 +52,7 @@ export default function ChallengeBanner({ challenge, progress, compact = false }
   if (!challenge) return null
 
   return (
-    <div className={`rounded-card border border-card-border bg-card shadow-card ${compact ? 'p-4' : 'p-5'}`}>
+    <div className={`rounded-card border-2 border-brand-green bg-card shadow-pop-soft ${compact ? 'p-4' : 'p-5'}`}>
       <div className="flex items-center gap-3">
         <span className={compact ? 'text-2xl' : 'text-3xl'} aria-hidden>
           {challenge.icon}

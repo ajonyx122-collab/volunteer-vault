@@ -200,7 +200,7 @@ export default function OrgDashboard() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <div className="bg-dots-light relative overflow-hidden rounded-card border-2 border-brand-green bg-gradient-to-br from-[#1B6E42] via-brand-green to-[#14432b] p-5 shadow-pop-soft sm:p-6">
+      <div className="relative overflow-hidden rounded-card border-2 border-brand-green bg-brand-green bg-gradient-to-br from-[#1B6E42] via-brand-green to-[#14432b] p-5 shadow-pop-soft sm:p-6">
         <span className="pointer-events-none absolute -right-4 -top-6 rotate-12 text-8xl opacity-15" aria-hidden>
           🏢
         </span>

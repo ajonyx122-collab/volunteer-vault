@@ -43,8 +43,8 @@ export default function SurpriseMe({ opportunities }) {
   }
 
   return (
-    <div className="mt-6 rounded-card border-2 border-dashed border-card-border bg-cream p-5 text-center">
-      <p className="font-display text-lg font-extrabold text-brand-green">🎲 Feeling lucky?</p>
+    <div className="mt-6 rounded-card border-2 border-dashed border-brand-green/50 bg-category-music-bg p-5 text-center">
+      <p className="font-display text-xl font-extrabold text-brand-green"><span className="animate-floaty inline-block" style={{ "--tilt": "-10deg" }}>🎲</span> Feeling lucky?</p>
       <p className="mt-0.5 text-xs text-brand-green/60">
         We'll pick one for you — near you, online, or anywhere.
       </p>

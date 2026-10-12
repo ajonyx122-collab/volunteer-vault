@@ -83,7 +83,7 @@ export default async function StudentOrgPage({ params }) {
           {org.imageUrl ? (
             <img src={org.imageUrl} alt={`${org.name} cover photo`} className="h-full w-full object-cover" />
           ) : (
-            <div className="bg-dots-light h-full w-full bg-gradient-to-br from-[#1B6E42] via-brand-green to-[#14432b]" aria-hidden>
+            <div className="h-full w-full bg-brand-green bg-gradient-to-br from-[#1B6E42] via-brand-green to-[#14432b]" aria-hidden>
               <span className="animate-floaty absolute right-6 top-5 text-5xl" style={{ '--tilt': '8deg' }}>🚀</span>
               <span className="animate-floaty absolute right-24 top-14 hidden text-4xl sm:block" style={{ '--tilt': '-6deg', animationDelay: '1s' }}>💡</span>
             </div>
